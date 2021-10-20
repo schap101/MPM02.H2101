@@ -46,3 +46,10 @@ renv/
 Data/
 .Data
 
+# Datafiles
+*.nb.html
+*.pdf
+*.csv
+
+
+
