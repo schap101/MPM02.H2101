@@ -215,21 +215,61 @@ pre code {
 
 
 <!-- rnb-text-begin -->
-<p>This is an <a href="http://rmarkdown.rstudio.com">R Markdown</a> Notebook. When you execute code within the notebook, the results appear beneath the code.</p>
-<p>Try executing this chunk by clicking the <strong>Run</strong> button within the chunk or by placing your cursor inside it and pressing <em>Cmd+Shift+Enter</em>.</p>
+<p>In this file we will analyze and clean up the data. At the end of the file the data will be saved and ready for furhter analysis with the different models we have to apply.</p>
+<div id="import-libraries" class="section level2">
+<h2>Import libraries</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGxvdChjYXJzKVxuYGBgIn0= -->
-<pre class="r"><code>plot(cars)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2luc3RhbGwucGFja2FnZXMoXCJyZWFkclwiKVxubGlicmFyeShyZWFkcilcbiNzZXR3ZChcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMVwiKVxuYGBgIn0= -->
+<pre class="r"><code>#install.packages(&quot;readr&quot;)
+library(readr)
+#setwd(&quot;~/hslu_projects/MPM02.H2101&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Add a new chunk by clicking the <em>Insert Chunk</em> button on the toolbar or by pressing <em>Cmd+Option+I</em>.</p>
-<p>When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the <em>Preview</em> button or press <em>Cmd+Shift+K</em> to preview the HTML file).</p>
-<p>The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.</p>
+</div>
+<div id="import-files" class="section level2">
+<h2>import files</h2>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZXNoYXJlLnRyaXAuMjAxMSA8LSByZWFkX2NzdihcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhLzIwMTEtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3ZcIilcbmJpa2VzaGFyZS50cmlwLjIwMTIuMSA8LSByZWFkX2NzdihcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTEtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3ZcIilcbmJpa2VzaGFyZS50cmlwLjIwMTIuMiA8LSByZWFkX2NzdihcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3ZcIilcbmJpa2VzaGFyZS50cmlwLjIwMTIuMyA8LSByZWFkX2NzdihcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTMtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3ZcIilcbmJpa2VzaGFyZS50cmlwLjIwMTIuNCA8LSByZWFkX2NzdihcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTQtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3ZcIilcbmJpa2VzaGFyZS5ob3VlcmxpIDwtIHJlYWQuY3N2KFwifi9oc2x1X3Byb2plY3RzL01QTTAyLkgyMTAxL0RhdGEvaG91ci5jc3ZcIilcbmJpa2VzaGFyZS5kYWlseSA8LSByZWFkLmNzdihcIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhL2RheS5jc3ZcIilcblxuYGBgIn0= -->
+<pre class="r"><code>bikeshare.trip.2011 &lt;- read_csv(&quot;~/hslu_projects/MPM02.H2101/Data/2011-capitalbikeshare-tripdata.csv&quot;)
+bikeshare.trip.2012.1 &lt;- read_csv(&quot;~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q1-capitalbikeshare-tripdata.csv&quot;)
+bikeshare.trip.2012.2 &lt;- read_csv(&quot;~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q2-capitalbikeshare-tripdata.csv&quot;)
+bikeshare.trip.2012.3 &lt;- read_csv(&quot;~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q3-capitalbikeshare-tripdata.csv&quot;)
+bikeshare.trip.2012.4 &lt;- read_csv(&quot;~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q4-capitalbikeshare-tripdata.csv&quot;)
+bikeshare.houerli &lt;- read.csv(&quot;~/hslu_projects/MPM02.H2101/Data/hour.csv&quot;)
+bikeshare.daily &lt;- read.csv(&quot;~/hslu_projects/MPM02.H2101/Data/day.csv&quot;)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuVmlldyhiaWtlc2hhcmUudHJpcClcbnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMSlcbmBgYCJ9 -->
+<pre class="r"><code>View(bikeshare.trip)
+summary(bikeshare.trip.2011)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgIER1cmF0aW9uICAgICAgIFN0YXJ0IGRhdGUgICAgICAgICAgICAgICAgICAgICBFbmQgZGF0ZSAgICAgICAgICAgICAgICAgICBTdGFydCBzdGF0aW9uIG51bWJlciBTdGFydCBzdGF0aW9uICAgICAgRW5kIHN0YXRpb24gbnVtYmVyIEVuZCBzdGF0aW9uICAgICAgIFxuIE1pbi4gICA6ICAgNjAgICBNaW4uICAgOjIwMTEtMDEtMDEgMDA6MDE6MjkgICBNaW4uICAgOjIwMTEtMDEtMDEgMDA6MDg6MzIgICBNaW4uICAgOjMxMDAwICAgICAgICBMZW5ndGg6MTIyNjc2NyAgICAgTWluLiAgIDozMTAwMCAgICAgIExlbmd0aDoxMjI2NzY3ICAgIFxuIDFzdCBRdS46ICA0MTUgICAxc3QgUXUuOjIwMTEtMDUtMTYgMTk6MzY6NDkgICAxc3QgUXUuOjIwMTEtMDUtMTYgMTk6NTI6NTAgICAxc3QgUXUuOjMxMjAwICAgICAgICBDbGFzcyA6Y2hhcmFjdGVyICAgMXN0IFF1LjozMTIwMCAgICAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1lZGlhbiA6ICA2ODMgICBNZWRpYW4gOjIwMTEtMDctMjEgMDg6MTE6NDIgICBNZWRpYW4gOjIwMTEtMDctMjEgMDg6MjM6NDcgICBNZWRpYW4gOjMxMjIwICAgICAgICBNb2RlICA6Y2hhcmFjdGVyICAgTWVkaWFuIDozMTIyMCAgICAgIE1vZGUgIDpjaGFyYWN0ZXIgIFxuIE1lYW4gICA6IDExODAgICBNZWFuICAgOjIwMTEtMDctMjEgMTE6NDI6MTAgICBNZWFuICAgOjIwMTEtMDctMjEgMTI6MDE6NTAgICBNZWFuICAgOjMxMjg3ICAgICAgICAgICAgICAgICAgICAgICAgICAgTWVhbiAgIDozMTI4OCAgICAgICAgICAgICAgICAgICAgICAgIFxuIDNyZCBRdS46IDExMzMgICAzcmQgUXUuOjIwMTEtMTAtMDIgMDk6NDE6NDIgICAzcmQgUXUuOjIwMTEtMTAtMDIgMDk6NTg6MTggICAzcmQgUXUuOjMxNDAxICAgICAgICAgICAgICAgICAgICAgICAgICAgM3JkIFF1LjozMTQwMSAgICAgICAgICAgICAgICAgICAgICAgIFxuIE1heC4gICA6ODYzNTUgICBNYXguICAgOjIwMTEtMTItMzEgMjM6NTU6NTYgICBNYXguICAgOjIwMTItMDEtMDEgMTc6MjM6MTYgICBNYXguICAgOjMxODA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgTWF4LiAgIDozMTgwNiAgICAgICAgICAgICAgICAgICAgICAgIFxuIEJpa2UgbnVtYmVyICAgICAgICBNZW1iZXIgdHlwZSAgICAgICBcbiBMZW5ndGg6MTIyNjc2NyAgICAgTGVuZ3RoOjEyMjY3NjcgICAgXG4gQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>    Duration       Start date                     End date                   Start station number Start station      End station number End station       
+ Min.   :   60   Min.   :2011-01-01 00:01:29   Min.   :2011-01-01 00:08:32   Min.   :31000        Length:1226767     Min.   :31000      Length:1226767    
+ 1st Qu.:  415   1st Qu.:2011-05-16 19:36:49   1st Qu.:2011-05-16 19:52:50   1st Qu.:31200        Class :character   1st Qu.:31200      Class :character  
+ Median :  683   Median :2011-07-21 08:11:42   Median :2011-07-21 08:23:47   Median :31220        Mode  :character   Median :31220      Mode  :character  
+ Mean   : 1180   Mean   :2011-07-21 11:42:10   Mean   :2011-07-21 12:01:50   Mean   :31287                           Mean   :31288                        
+ 3rd Qu.: 1133   3rd Qu.:2011-10-02 09:41:42   3rd Qu.:2011-10-02 09:58:18   3rd Qu.:31401                           3rd Qu.:31401                        
+ Max.   :86355   Max.   :2011-12-31 23:55:56   Max.   :2012-01-01 17:23:16   Max.   :31806                           Max.   :31806                        
+ Bike number        Member type       
+ Length:1226767     Length:1226767    
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQmlrZSBEYXRhIENsZWFuaW5nIgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdAogIHBkZl9kb2N1bWVudDogZGVmYXVsdAotLS0KClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rLiBXaGVuIHlvdSBleGVjdXRlIGNvZGUgd2l0aGluIHRoZSBub3RlYm9vaywgdGhlIHJlc3VsdHMgYXBwZWFyIGJlbmVhdGggdGhlIGNvZGUuIAoKVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqKlJ1bioqIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ21kK1NoaWZ0K0VudGVyKi4gCgpgYGB7cn0KcGxvdChjYXJzKQpgYGAKCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDbWQrT3B0aW9uK0kqLgoKV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDbWQrU2hpZnQrSyogdG8gcHJldmlldyB0aGUgSFRNTCBmaWxlKS4gCgpUaGUgcHJldmlldyBzaG93cyB5b3UgYSByZW5kZXJlZCBIVE1MIGNvcHkgb2YgdGhlIGNvbnRlbnRzIG9mIHRoZSBlZGl0b3IuIENvbnNlcXVlbnRseSwgdW5saWtlICpLbml0KiwgKlByZXZpZXcqIGRvZXMgbm90IHJ1biBhbnkgUiBjb2RlIGNodW5rcy4gSW5zdGVhZCwgdGhlIG91dHB1dCBvZiB0aGUgY2h1bmsgd2hlbiBpdCB3YXMgbGFzdCBydW4gaW4gdGhlIGVkaXRvciBpcyBkaXNwbGF5ZWQuCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQmlrZSBEYXRhIENsZWFuaW5nIgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdAogIHBkZl9kb2N1bWVudDogZGVmYXVsdAotLS0KCkluIHRoaXMgZmlsZSB3ZSB3aWxsIGFuYWx5emUgYW5kIGNsZWFuIHVwIHRoZSBkYXRhLiBBdCB0aGUgZW5kIG9mIHRoZSBmaWxlIHRoZSBkYXRhIHdpbGwgYmUgc2F2ZWQgYW5kIHJlYWR5IGZvciBmdXJodGVyIGFuYWx5c2lzIHdpdGggdGhlIGRpZmZlcmVudCBtb2RlbHMgd2UgaGF2ZSB0byBhcHBseS4KCiMjIEltcG9ydCBsaWJyYXJpZXMgCmBgYHtyfQojaW5zdGFsbC5wYWNrYWdlcygicmVhZHIiKQpsaWJyYXJ5KHJlYWRyKQojc2V0d2QoIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMSIpCmBgYAoKIyMgaW1wb3J0IGZpbGVzCmBgYHtyfQpiaWtlc2hhcmUudHJpcC4yMDExIDwtIHJlYWRfY3N2KCJ+L2hzbHVfcHJvamVjdHMvTVBNMDIuSDIxMDEvRGF0YS8yMDExLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi4xIDwtIHJlYWRfY3N2KCJ+L2hzbHVfcHJvamVjdHMvTVBNMDIuSDIxMDEvRGF0YS8yMDEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEvMjAxMlExLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi4yIDwtIHJlYWRfY3N2KCJ+L2hzbHVfcHJvamVjdHMvTVBNMDIuSDIxMDEvRGF0YS8yMDEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEvMjAxMlEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi4zIDwtIHJlYWRfY3N2KCJ+L2hzbHVfcHJvamVjdHMvTVBNMDIuSDIxMDEvRGF0YS8yMDEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEvMjAxMlEzLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi40IDwtIHJlYWRfY3N2KCJ+L2hzbHVfcHJvamVjdHMvTVBNMDIuSDIxMDEvRGF0YS8yMDEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEvMjAxMlE0LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLmhvdWVybGkgPC0gcmVhZC5jc3YoIn4vaHNsdV9wcm9qZWN0cy9NUE0wMi5IMjEwMS9EYXRhL2hvdXIuY3N2IikKYmlrZXNoYXJlLmRhaWx5IDwtIHJlYWQuY3N2KCJ+L2hzbHVfcHJvamVjdHMvTVBNMDIuSDIxMDEvRGF0YS9kYXkuY3N2IikKCmBgYAoKYGBge3J9ClZpZXcoYmlrZXNoYXJlLnRyaXApCnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMSkKYGBg</div>
 
 
 

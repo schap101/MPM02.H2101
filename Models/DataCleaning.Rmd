@@ -5,17 +5,28 @@ output:
   pdf_document: default
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+In this file we will analyze and clean up the data. At the end of the file the data will be saved and ready for furhter analysis with the different models we have to apply.
 
-Try executing this chunk by clicking the **Run** button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
+## Import libraries 
 ```{r}
-plot(cars)
+#install.packages("readr")
+library(readr)
+#setwd("~/hslu_projects/MPM02.H2101")
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+## import files
+```{r}
+bikeshare.trip.2011 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2011-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.1 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q1-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.2 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q2-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.3 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q3-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.4 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q4-capitalbikeshare-tripdata.csv")
+bikeshare.houerli <- read.csv("~/hslu_projects/MPM02.H2101/Data/hour.csv")
+bikeshare.daily <- read.csv("~/hslu_projects/MPM02.H2101/Data/day.csv")
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+```
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
+```{r}
+View(bikeshare.trip)
+summary(bikeshare.trip.2011)
+```
