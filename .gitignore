@@ -37,3 +37,12 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# reproducible r environment
+renv/
+.renv
+
+# Data folder
+Data/
+.Data
+
