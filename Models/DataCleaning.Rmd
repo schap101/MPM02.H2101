@@ -30,3 +30,11 @@ bikeshare.daily <- read.csv("~/hslu_projects/MPM02.H2101/Data/day.csv")
 View(bikeshare.trip)
 summary(bikeshare.trip.2011)
 ```
+
+
+### Test
+```{r}
+plot(bikeshare.daily)
+
+`````
+
