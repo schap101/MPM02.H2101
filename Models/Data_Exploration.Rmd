@@ -1,0 +1,171 @@
+---
+title: "Data Exploration"
+author: "Felix Bigler"
+date: "11/12/2021"
+output:
+  html_document:
+    toc: yes
+    toc_float: no
+    toc_depth: 4
+    number_sections: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+````{r, echo= FALSE}
+# load library
+library(rstudioapi)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+```
+
+````{r, echo=FALSE}
+# set directory read data
+setwd(dirname(getActiveDocumentContext()$path))
+df <- read.csv("../Data/hour.csv")
+`````
+# Graphical Data Exploration
+
+## Influnece of Weather upon Bike Rentals
+
+In this chapter we would like to explore how different weather conditions influence the bike rental numbers.
+
+### Exploration of Continuous Variables
+
+We want to explore how different weather situation influences the number of bike rentals. For that we have following 4 continuous weather variables at hand which we are going to examine:
+
+- temp:       Normalized temperature in Celsius. t_min [-8], t_max [+39]
+- atemp:      Normalized feels like temperature in Celsius.  t_min [-16], t_max [+50]
+- hum:        Normalized humidity. The values are divided with max. of 100 
+- windspeed:  Normalized wind speed. The values are divided with min. of 67 
+
+The temperature values are normalized as follows:
+
+$$
+t_{normalized} = \frac{t-t_{min}}{t_{max}-t_{min}}
+$$
+
+
+````{r,echo=FALSE,fig.cap ="Figure 1: In all 4 scatter plots the linear model line as well as the gam model line are plotted. For both temperatur variables the the bike rental seems to increase linear untli the temperatur reaches a certain value. "}
+  
+p1 <-  ggplot(data = df,
+         mapping = aes(y = cnt,
+                     x = temp)) + xlab("Normalized Temperature") + ylab("Num. of Bike Rentals") + 
+     geom_point(alpha = 0.1,shape = 1) +
+     geom_smooth(aes(colour = "gam")) +
+     geom_smooth(aes(colour = "lm"), method = "lm") +
+     labs(colour = "Method")
+
+p2 <- ggplot(data = df,
+         mapping = aes(y = cnt,
+                     x = atemp)) +  xlab("Normalized Feels Like Temperature") + ylab("") +
+     geom_point(alpha = 0.1,shape = 1) +
+     geom_smooth(aes(colour = "gam")) +
+     geom_smooth(aes(colour = "lm"), method = "lm") +
+     labs(colour = "Method")
+
+p3 <- ggplot(data = df,
+         mapping = aes(y = cnt,
+                     x = hum)) + xlab("Normalized Humidity") + ylab("Num. of Bike Rentals") +
+     geom_point(alpha = 0.1,shape = 1) +
+     geom_smooth(aes(colour = "gam")) +
+     geom_smooth(aes(colour = "lm"), method = "lm") +
+     labs(colour = "Method")
+ 
+p4 <- ggplot(data = df,
+         mapping = aes(y = cnt,
+                     x = windspeed)) + xlab("Normalized Windspeed") + ylab("") +
+     geom_point(alpha = 0.1,shape = 1) +
+     geom_smooth(aes(colour = "gam")) +
+     geom_smooth(aes(colour = "lm"), method = "lm") +
+     labs(colour = "Method")
+
+grid.arrange(p1,p2,p3,p4, nrow=2,top = "Continuous Weather Variables vs. Number of Bike Rentals")
+
+fig.align = 'center'
+
+```
+
+
+### Exploration of Categorical Variables
+
+The data set contains 4 different weather categories which are described as follows:
+
+- Category 1:      Clear, Few clouds, Partly cloudy, Partly cloudy
+- Category 2:      Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
+- Category 3:        Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds 
+- Category 4:  Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog 
+
+````{r,echo=FALSE}
+
+ggplot(data = df,
+       mapping = aes(y = cnt,
+                     x = factor(weathersit),fill= weathersit)) + ylab("Num. of Bike Rentals") + xlab("Weather Conditions") +  labs(fill="Weather\nConditions") +
+geom_boxplot() 
+
+
+```
+
+## Influnece of Timely and Seasonal aspects upon Bike Rentals
+
+### Exploration of Categorical Variables
+
+
+````{r,echo=FALSE}
+
+ggplot(data = df,
+       mapping = aes(y = cnt,
+                     x = factor(season),fill= season)) + ylab("Num. of Bike Rentals") + xlab("Season") +  labs(fill="Season") +
+geom_boxplot() 
+
+
+```
+````{r,echo=FALSE}
+
+ggplot(data = df,
+       mapping = aes(y = cnt,
+                     x = factor(mnth),fill= mnth)) + ylab("Num. of Bike Rentals") + xlab("Month") +  labs(fill="Monthn") +
+geom_boxplot() 
+
+
+```
+````{r,echo=FALSE}
+
+ggplot(data = df,
+       mapping = aes(y = cnt,
+                     x = factor(hr),fill= hr)) + ylab("Num. of Bike Rentals") + xlab("Hour") +  labs(fill="Hour") +
+geom_boxplot() 
+
+
+``````
+
+
+````{r,echo=FALSE}
+
+ggplot(data = df,
+       mapping = aes(y = cnt,
+                     x = factor(weekday),fill= weekday)) + ylab("Num. of Bike Rentals") + xlab("Weekday") +  labs(fill="Day") +
+geom_boxplot() 
+
+
+```
+
+````{r,echo=FALSE}
+
+ggplot(data = df,
+       mapping = aes(y = cnt,
+                     x = factor(weekday),fill= weekday)) + ylab("Num. of Bike Rentals") + xlab("Weekday") +  labs(fill="Day") +
+geom_boxplot() 
+
+
+```
+
+
+
+
+
+
+
+
