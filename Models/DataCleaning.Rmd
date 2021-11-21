@@ -3,6 +3,7 @@ title: "Bike Data Cleaning"
 output:
   html_notebook: default
   pdf_document: default
+author: "Philipp Schaad"
 ---
 
 In this file we will analyze and clean up the data. At the end of the file the data will be saved and ready for furhter analysis with the different models we have to apply.
@@ -10,31 +11,50 @@ In this file we will analyze and clean up the data. At the end of the file the d
 ## Import libraries 
 ```{r}
 #install.packages("readr")
+#install.packages("Hmisc")
 library(readr)
-#setwd("~/hslu_projects/MPM02.H2101")
+library(Hmisc)
+setwd("~/hslu_projects/MPM02.H2101/Data")
 ```
 
 ## import files
 ```{r}
-bikeshare.trip.2011 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2011-capitalbikeshare-tripdata.csv")
-bikeshare.trip.2012.1 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q1-capitalbikeshare-tripdata.csv")
-bikeshare.trip.2012.2 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q2-capitalbikeshare-tripdata.csv")
-bikeshare.trip.2012.3 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q3-capitalbikeshare-tripdata.csv")
-bikeshare.trip.2012.4 <- read_csv("~/hslu_projects/MPM02.H2101/Data/2012-capitalbikeshare-tripdata/2012Q4-capitalbikeshare-tripdata.csv")
-bikeshare.houerli <- read.csv("~/hslu_projects/MPM02.H2101/Data/hour.csv")
-bikeshare.daily <- read.csv("~/hslu_projects/MPM02.H2101/Data/day.csv")
+bikeshare.trip.2011 <- read_csv("../Data/2011-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.1 <- read_csv("../Data/2012-capitalbikeshare-tripdata/2012Q1-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.2 <- read_csv("../Data/2012-capitalbikeshare-tripdata/2012Q2-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.3 <- read_csv("../Data/2012-capitalbikeshare-tripdata/2012Q3-capitalbikeshare-tripdata.csv")
+bikeshare.trip.2012.4 <- read_csv("../Data/2012-capitalbikeshare-tripdata/2012Q4-capitalbikeshare-tripdata.csv")
+bikeshare.houerli <- read.csv("../Data/hour.csv")
+bikeshare.daily <- read.csv("../Data/day.csv")
 
 ```
 
+
 ```{r}
-View(bikeshare.trip)
+View()
+class(bikeshare.daily)
+class(bikeshare.trip.2012.3)
+
+summary(bikeshare.daily)
+str(bikeshare.daily)
+summary(bikeshare.houerli)
+str(bikeshare.houerli)
 summary(bikeshare.trip.2011)
+str(bikeshare.trip.2011)
+summary(bikeshare.trip.2012.1)
+str(bikeshare.trip.2012.1)
+summary(bikeshare.trip.2012.2)
+str(bikeshare.trip.2012.2)
+summary(bikeshare.trip.2012.3)
+str(bikeshare.trip.2012.3)
+summary(bikeshare.trip.2012.4)
+str(bikeshare.trip.2012.4)
 ```
 
 
 ### Test
 ```{r}
-plot(bikeshare.daily)
+
 
 `````
 

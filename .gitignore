@@ -43,13 +43,13 @@ renv/
 .renv
 
 # Data folder
-Data/
-.Data
+#Data/
+#.Data
 
 # Datafiles
 *.nb.html
 *.pdf
-*.csv
+#*.csv
 
 
 
