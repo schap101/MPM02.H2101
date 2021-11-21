@@ -10,11 +10,13 @@ In this file we will analyze and clean up the data. At the end of the file the d
 
 ## Import libraries 
 ```{r}
-#install.packages("readr")
+#install.packages("tidyverse")
 #install.packages("Hmisc")
 library(readr)
 library(Hmisc)
-setwd("~/hslu_projects/MPM02.H2101/Data")
+library(dplyr)
+library(plyr)
+
 ```
 
 ## import files
