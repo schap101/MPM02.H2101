@@ -12,6 +12,7 @@ In this file we will analyze and clean up the data. At the end of the file the d
 ```{r}
 #install.packages("tidyverse")
 #install.packages("Hmisc")
+library(tidyverse)
 library(readr)
 library(Hmisc)
 library(dplyr)
@@ -54,9 +55,18 @@ str(bikeshare.trip.2012.4)
 ```
 
 
-### Test
+### Merge tripdata into one dataframe
 ```{r}
+trip.all.years <- list.files(path = "../Data/tripdata",     # Identify all csv files in folder
+                       pattern = "*.csv", full.names = TRUE) %>% 
+  lapply(read_csv) %>%                                            # Store all files in list
+  bind_rows                                                       # Combine data sets into one data set
 
+```
 
-`````
+### Export merged tripdata to csv
+```{r}
+is.data.frame(trip.all.years)
+write.csv(trip.all.years,"../Data/tripdata/capitalbikeshare-tripdata-all.csv", row.names = TRUE)
 
+```

@@ -245,26 +245,25 @@ summary {
 <h2>Import libraries</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShwbHlyKVxuXG5gYGAifQ== -->
-<pre class="r"><code>library(plyr)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2luc3RhbGwucGFja2FnZXMoXCJ0aWR5dmVyc2VcIilcbiNpbnN0YWxsLnBhY2thZ2VzKFwiSG1pc2NcIilcbmxpYnJhcnkodGlkeXZlcnNlKVxuXG5gYGAifQ== -->
+<pre class="r"><code>#install.packages(&quot;tidyverse&quot;)
+#install.packages(&quot;Hmisc&quot;)
+library(tidyverse)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5Zb3UgaGF2ZSBsb2FkZWQgcGx5ciBhZnRlciBkcGx5ciAtIHRoaXMgaXMgbGlrZWx5IHRvIGNhdXNlIHByb2JsZW1zLlxuSWYgeW91IG5lZWQgZnVuY3Rpb25zIGZyb20gYm90aCBwbHlyIGFuZCBkcGx5ciwgcGxlYXNlIGxvYWQgcGx5ciBmaXJzdCwgdGhlbiBkcGx5cjpcbmxpYnJhcnkocGx5cik7IGxpYnJhcnkoZHBseXIpXG4tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1cblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmHBseXLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmRwbHly4oCZOlxuXG4gICAgYXJyYW5nZSwgY291bnQsIGRlc2MsIGZhaWx3aXRoLCBpZCwgbXV0YXRlLCByZW5hbWUsIHN1bW1hcmlzZSwgc3VtbWFyaXplXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpIbWlzY+KAmTpcblxuICAgIGlzLmRpc2NyZXRlLCBzdW1tYXJpemVcbiJ9 -->
-<pre><code>---------------------------------------------------------------------------------------
-You have loaded plyr after dplyr - this is likely to cause problems.
-If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
-library(plyr); library(dplyr)
----------------------------------------------------------------------------------------
-
-Attaching package: ‘plyr’
-
-The following objects are masked from ‘package:dplyr’:
-
-    arrange, count, desc, failwith, id, mutate, rename, summarise, summarize
-
-The following objects are masked from ‘package:Hmisc’:
-
-    is.discrete, summarize</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxu4pSA4pSAIEF0dGFjaGluZyBwYWNrYWdlcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlIDEuMy4xIOKUgOKUgFxu4pyTIGdncGxvdDIgMy4zLjUgICAgIOKckyBwdXJyciAgIDAuMy40XG7inJMgdGliYmxlICAzLjEuMSAgICAg4pyTIGRwbHlyICAgMS4wLjVcbuKckyB0aWR5ciAgIDEuMS4zICAgICDinJMgc3RyaW5nciAxLjQuMFxu4pyTIHJlYWRyICAgMS40LjAgICAgIOKckyBmb3JjYXRzIDAuNS4xXG7ilIDilIAgQ29uZmxpY3RzIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgCB0aWR5dmVyc2VfY29uZmxpY3RzKCkg4pSA4pSAXG54IGRwbHlyOjpmaWx0ZXIoKSBtYXNrcyBzdGF0czo6ZmlsdGVyKClcbnggZHBseXI6OmxhZygpICAgIG1hc2tzIHN0YXRzOjpsYWcoKVxuIn0= -->
+<pre><code>Registered S3 methods overwritten by &#39;dbplyr&#39;:
+  method         from
+  print.tbl_lazy     
+  print.tbl_sql      
+── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.1 ──
+✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+✓ tibble  3.1.1     ✓ dplyr   1.0.5
+✓ tidyr   1.1.3     ✓ stringr 1.4.0
+✓ readr   1.4.0     ✓ forcats 0.5.1
+── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -296,364 +295,61 @@ cols(
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuVmlldygpXG5gYGAifQ== -->
-<pre class="r"><code>View()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuVmlldygpXG5jbGFzcyhiaWtlc2hhcmUuZGFpbHkpXG5jbGFzcyhiaWtlc2hhcmUudHJpcC4yMDEyLjMpXG5cbnN1bW1hcnkoYmlrZXNoYXJlLmRhaWx5KVxuc3RyKGJpa2VzaGFyZS5kYWlseSlcbnN1bW1hcnkoYmlrZXNoYXJlLmhvdWVybGkpXG5zdHIoYmlrZXNoYXJlLmhvdWVybGkpXG5zdW1tYXJ5KGJpa2VzaGFyZS50cmlwLjIwMTEpXG5zdHIoYmlrZXNoYXJlLnRyaXAuMjAxMSlcbnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi4xKVxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMSlcbnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi4yKVxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMilcbnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi4zKVxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMylcbnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi40KVxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuNClcbmBgYCJ9 -->
+<pre class="r"><code>View()
+class(bikeshare.daily)
+class(bikeshare.trip.2012.3)
+
+summary(bikeshare.daily)
+str(bikeshare.daily)
+summary(bikeshare.houerli)
+str(bikeshare.houerli)
+summary(bikeshare.trip.2011)
+str(bikeshare.trip.2011)
+summary(bikeshare.trip.2012.1)
+str(bikeshare.trip.2012.1)
+summary(bikeshare.trip.2012.2)
+str(bikeshare.trip.2012.2)
+summary(bikeshare.trip.2012.3)
+str(bikeshare.trip.2012.3)
+summary(bikeshare.trip.2012.4)
+str(bikeshare.trip.2012.4)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gVmlldyA6IGludmFsaWQgZmlyc3QgYXJndW1lbnRcbiJ9 -->
-<pre><code>Error in View : invalid first argument</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xhc3MoYmlrZXNoYXJlLmRhaWx5KVxuYGBgIn0= -->
-<pre class="r"><code>class(bikeshare.daily)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiZGF0YS5mcmFtZVwiXG4ifQ== -->
-<pre><code>[1] &quot;data.frame&quot;</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xhc3MoYmlrZXNoYXJlLnRyaXAuMjAxMi4zKVxuYGBgIn0= -->
-<pre class="r"><code>class(bikeshare.trip.2012.3)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwic3BlY190YmxfZGZcIiBcInRibF9kZlwiICAgICAgXCJ0YmxcIiAgICAgICAgIFwiZGF0YS5mcmFtZVwiIFxuIn0= -->
-<pre><code>[1] &quot;spec_tbl_df&quot; &quot;tbl_df&quot;      &quot;tbl&quot;         &quot;data.frame&quot; </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUuZGFpbHkpXG5gYGAifQ== -->
-<pre class="r"><code>summary(bikeshare.daily)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIGluc3RhbnQgICAgICAgICBkdGVkYXkgICAgICAgICAgICAgIHNlYXNvbiAgICAgICAgICAgIHlyICAgICAgICAgICAgICBtbnRoICAgICAgICAgIGhvbGlkYXkgICAgICAgXG4gTWluLiAgIDogIDEuMCAgIExlbmd0aDo3MzEgICAgICAgICBNaW4uICAgOjEuMDAwICAgTWluLiAgIDowLjAwMDAgICBNaW4uICAgOiAxLjAwICAgTWluLiAgIDowLjAwMDAwICBcbiAxc3QgUXUuOjE4My41ICAgQ2xhc3MgOmNoYXJhY3RlciAgIDFzdCBRdS46Mi4wMDAgICAxc3QgUXUuOjAuMDAwMCAgIDFzdCBRdS46IDQuMDAgICAxc3QgUXUuOjAuMDAwMDAgIFxuIE1lZGlhbiA6MzY2LjAgICBNb2RlICA6Y2hhcmFjdGVyICAgTWVkaWFuIDozLjAwMCAgIE1lZGlhbiA6MS4wMDAwICAgTWVkaWFuIDogNy4wMCAgIE1lZGlhbiA6MC4wMDAwMCAgXG4gTWVhbiAgIDozNjYuMCAgICAgICAgICAgICAgICAgICAgICBNZWFuICAgOjIuNDk3ICAgTWVhbiAgIDowLjUwMDcgICBNZWFuICAgOiA2LjUyICAgTWVhbiAgIDowLjAyODczICBcbiAzcmQgUXUuOjU0OC41ICAgICAgICAgICAgICAgICAgICAgIDNyZCBRdS46My4wMDAgICAzcmQgUXUuOjEuMDAwMCAgIDNyZCBRdS46MTAuMDAgICAzcmQgUXUuOjAuMDAwMDAgIFxuIE1heC4gICA6NzMxLjAgICAgICAgICAgICAgICAgICAgICAgTWF4LiAgIDo0LjAwMCAgIE1heC4gICA6MS4wMDAwICAgTWF4LiAgIDoxMi4wMCAgIE1heC4gICA6MS4wMDAwMCAgXG4gICAgd2Vla2RheSAgICAgICAgd29ya2luZ2RheSAgICAgIHdlYXRoZXJzaXQgICAgICAgICB0ZW1wICAgICAgICAgICAgIGF0ZW1wICAgICAgICAgICAgICBodW0gICAgICAgIFxuIE1pbi4gICA6MC4wMDAgICBNaW4uICAgOjAuMDAwICAgTWluLiAgIDoxLjAwMCAgIE1pbi4gICA6MC4wNTkxMyAgIE1pbi4gICA6MC4wNzkwNyAgIE1pbi4gICA6MC4wMDAwICBcbiAxc3QgUXUuOjEuMDAwICAgMXN0IFF1LjowLjAwMCAgIDFzdCBRdS46MS4wMDAgICAxc3QgUXUuOjAuMzM3MDggICAxc3QgUXUuOjAuMzM3ODQgICAxc3QgUXUuOjAuNTIwMCAgXG4gTWVkaWFuIDozLjAwMCAgIE1lZGlhbiA6MS4wMDAgICBNZWRpYW4gOjEuMDAwICAgTWVkaWFuIDowLjQ5ODMzICAgTWVkaWFuIDowLjQ4NjczICAgTWVkaWFuIDowLjYyNjcgIFxuIE1lYW4gICA6Mi45OTcgICBNZWFuICAgOjAuNjg0ICAgTWVhbiAgIDoxLjM5NSAgIE1lYW4gICA6MC40OTUzOCAgIE1lYW4gICA6MC40NzQzNSAgIE1lYW4gICA6MC42Mjc5ICBcbiAzcmQgUXUuOjUuMDAwICAgM3JkIFF1LjoxLjAwMCAgIDNyZCBRdS46Mi4wMDAgICAzcmQgUXUuOjAuNjU1NDIgICAzcmQgUXUuOjAuNjA4NjAgICAzcmQgUXUuOjAuNzMwMiAgXG4gTWF4LiAgIDo2LjAwMCAgIE1heC4gICA6MS4wMDAgICBNYXguICAgOjMuMDAwICAgTWF4LiAgIDowLjg2MTY3ICAgTWF4LiAgIDowLjg0MDkwICAgTWF4LiAgIDowLjk3MjUgIFxuICAgd2luZHNwZWVkICAgICAgICAgICBjYXN1YWwgICAgICAgICByZWdpc3RlcmVkICAgICAgICBjbnQgICAgICBcbiBNaW4uICAgOjAuMDIyMzkgICBNaW4uICAgOiAgIDIuMCAgIE1pbi4gICA6ICAyMCAgIE1pbi4gICA6ICAyMiAgXG4gMXN0IFF1LjowLjEzNDk1ICAgMXN0IFF1LjogMzE1LjUgICAxc3QgUXUuOjI0OTcgICAxc3QgUXUuOjMxNTIgIFxuIE1lZGlhbiA6MC4xODA5NyAgIE1lZGlhbiA6IDcxMy4wICAgTWVkaWFuIDozNjYyICAgTWVkaWFuIDo0NTQ4ICBcbiBNZWFuICAgOjAuMTkwNDkgICBNZWFuICAgOiA4NDguMiAgIE1lYW4gICA6MzY1NiAgIE1lYW4gICA6NDUwNCAgXG4gM3JkIFF1LjowLjIzMzIxICAgM3JkIFF1LjoxMDk2LjAgICAzcmQgUXUuOjQ3NzYgICAzcmQgUXUuOjU5NTYgIFxuIE1heC4gICA6MC41MDc0NiAgIE1heC4gICA6MzQxMC4wICAgTWF4LiAgIDo2OTQ2ICAgTWF4LiAgIDo4NzE0ICBcbiJ9 -->
-<pre><code>    instant         dteday              season            yr              mnth          holiday       
- Min.   :  1.0   Length:731         Min.   :1.000   Min.   :0.0000   Min.   : 1.00   Min.   :0.00000  
- 1st Qu.:183.5   Class :character   1st Qu.:2.000   1st Qu.:0.0000   1st Qu.: 4.00   1st Qu.:0.00000  
- Median :366.0   Mode  :character   Median :3.000   Median :1.0000   Median : 7.00   Median :0.00000  
- Mean   :366.0                      Mean   :2.497   Mean   :0.5007   Mean   : 6.52   Mean   :0.02873  
- 3rd Qu.:548.5                      3rd Qu.:3.000   3rd Qu.:1.0000   3rd Qu.:10.00   3rd Qu.:0.00000  
- Max.   :731.0                      Max.   :4.000   Max.   :1.0000   Max.   :12.00   Max.   :1.00000  
-    weekday        workingday      weathersit         temp             atemp              hum        
- Min.   :0.000   Min.   :0.000   Min.   :1.000   Min.   :0.05913   Min.   :0.07907   Min.   :0.0000  
- 1st Qu.:1.000   1st Qu.:0.000   1st Qu.:1.000   1st Qu.:0.33708   1st Qu.:0.33784   1st Qu.:0.5200  
- Median :3.000   Median :1.000   Median :1.000   Median :0.49833   Median :0.48673   Median :0.6267  
- Mean   :2.997   Mean   :0.684   Mean   :1.395   Mean   :0.49538   Mean   :0.47435   Mean   :0.6279  
- 3rd Qu.:5.000   3rd Qu.:1.000   3rd Qu.:2.000   3rd Qu.:0.65542   3rd Qu.:0.60860   3rd Qu.:0.7302  
- Max.   :6.000   Max.   :1.000   Max.   :3.000   Max.   :0.86167   Max.   :0.84090   Max.   :0.9725  
-   windspeed           casual         registered        cnt      
- Min.   :0.02239   Min.   :   2.0   Min.   :  20   Min.   :  22  
- 1st Qu.:0.13495   1st Qu.: 315.5   1st Qu.:2497   1st Qu.:3152  
- Median :0.18097   Median : 713.0   Median :3662   Median :4548  
- Mean   :0.19049   Mean   : 848.2   Mean   :3656   Mean   :4504  
- 3rd Qu.:0.23321   3rd Qu.:1096.0   3rd Qu.:4776   3rd Qu.:5956  
- Max.   :0.50746   Max.   :3410.0   Max.   :6946   Max.   :8714  </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS5kYWlseSlcbmBgYCJ9 -->
-<pre class="r"><code>str(bikeshare.daily)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0NzMxIG9icy4gb2YgIDE2IHZhcmlhYmxlczpcbiAkIGluc3RhbnQgICA6IGludCAgMSAyIDMgNCA1IDYgNyA4IDkgMTAgLi4uXG4gJCBkdGVkYXkgICAgOiBjaHIgIFwiMjAxMS0wMS0wMVwiIFwiMjAxMS0wMS0wMlwiIFwiMjAxMS0wMS0wM1wiIFwiMjAxMS0wMS0wNFwiIC4uLlxuICQgc2Vhc29uICAgIDogaW50ICAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICQgeXIgICAgICAgIDogaW50ICAwIDAgMCAwIDAgMCAwIDAgMCAwIC4uLlxuICQgbW50aCAgICAgIDogaW50ICAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICQgaG9saWRheSAgIDogaW50ICAwIDAgMCAwIDAgMCAwIDAgMCAwIC4uLlxuICQgd2Vla2RheSAgIDogaW50ICA2IDAgMSAyIDMgNCA1IDYgMCAxIC4uLlxuICQgd29ya2luZ2RheTogaW50ICAwIDAgMSAxIDEgMSAxIDAgMCAxIC4uLlxuICQgd2VhdGhlcnNpdDogaW50ICAyIDIgMSAxIDEgMSAyIDIgMSAxIC4uLlxuICQgdGVtcCAgICAgIDogbnVtICAwLjM0NCAwLjM2MyAwLjE5NiAwLjIgMC4yMjcgLi4uXG4gJCBhdGVtcCAgICAgOiBudW0gIDAuMzY0IDAuMzU0IDAuMTg5IDAuMjEyIDAuMjI5IC4uLlxuICQgaHVtICAgICAgIDogbnVtICAwLjgwNiAwLjY5NiAwLjQzNyAwLjU5IDAuNDM3IC4uLlxuICQgd2luZHNwZWVkIDogbnVtICAwLjE2IDAuMjQ5IDAuMjQ4IDAuMTYgMC4xODcgLi4uXG4gJCBjYXN1YWwgICAgOiBpbnQgIDMzMSAxMzEgMTIwIDEwOCA4MiA4OCAxNDggNjggNTQgNDEgLi4uXG4gJCByZWdpc3RlcmVkOiBpbnQgIDY1NCA2NzAgMTIyOSAxNDU0IDE1MTggMTUxOCAxMzYyIDg5MSA3NjggMTI4MCAuLi5cbiAkIGNudCAgICAgICA6IGludCAgOTg1IDgwMSAxMzQ5IDE1NjIgMTYwMCAxNjA2IDE1MTAgOTU5IDgyMiAxMzIxIC4uLlxuIn0= -->
-<pre><code>&#39;data.frame&#39;:   731 obs. of  16 variables:
- $ instant   : int  1 2 3 4 5 6 7 8 9 10 ...
- $ dteday    : chr  &quot;2011-01-01&quot; &quot;2011-01-02&quot; &quot;2011-01-03&quot; &quot;2011-01-04&quot; ...
- $ season    : int  1 1 1 1 1 1 1 1 1 1 ...
- $ yr        : int  0 0 0 0 0 0 0 0 0 0 ...
- $ mnth      : int  1 1 1 1 1 1 1 1 1 1 ...
- $ holiday   : int  0 0 0 0 0 0 0 0 0 0 ...
- $ weekday   : int  6 0 1 2 3 4 5 6 0 1 ...
- $ workingday: int  0 0 1 1 1 1 1 0 0 1 ...
- $ weathersit: int  2 2 1 1 1 1 2 2 1 1 ...
- $ temp      : num  0.344 0.363 0.196 0.2 0.227 ...
- $ atemp     : num  0.364 0.354 0.189 0.212 0.229 ...
- $ hum       : num  0.806 0.696 0.437 0.59 0.437 ...
- $ windspeed : num  0.16 0.249 0.248 0.16 0.187 ...
- $ casual    : int  331 131 120 108 82 88 148 68 54 41 ...
- $ registered: int  654 670 1229 1454 1518 1518 1362 891 768 1280 ...
- $ cnt       : int  985 801 1349 1562 1600 1606 1510 959 822 1321 ...</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUuaG91ZXJsaSlcbmBgYCJ9 -->
-<pre class="r"><code>summary(bikeshare.houerli)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIGluc3RhbnQgICAgICAgICBkdGVkYXkgICAgICAgICAgICAgIHNlYXNvbiAgICAgICAgICAgIHlyICAgICAgICAgICAgICBtbnRoICAgICAgICAgICAgICBociAgICAgICBcbiBNaW4uICAgOiAgICAxICAgTGVuZ3RoOjE3Mzc5ICAgICAgIE1pbi4gICA6MS4wMDAgICBNaW4uICAgOjAuMDAwMCAgIE1pbi4gICA6IDEuMDAwICAgTWluLiAgIDogMC4wMCAgXG4gMXN0IFF1LjogNDM0NiAgIENsYXNzIDpjaGFyYWN0ZXIgICAxc3QgUXUuOjIuMDAwICAgMXN0IFF1LjowLjAwMDAgICAxc3QgUXUuOiA0LjAwMCAgIDFzdCBRdS46IDYuMDAgIFxuIE1lZGlhbiA6IDg2OTAgICBNb2RlICA6Y2hhcmFjdGVyICAgTWVkaWFuIDozLjAwMCAgIE1lZGlhbiA6MS4wMDAwICAgTWVkaWFuIDogNy4wMDAgICBNZWRpYW4gOjEyLjAwICBcbiBNZWFuICAgOiA4NjkwICAgICAgICAgICAgICAgICAgICAgIE1lYW4gICA6Mi41MDIgICBNZWFuICAgOjAuNTAyNiAgIE1lYW4gICA6IDYuNTM4ICAgTWVhbiAgIDoxMS41NSAgXG4gM3JkIFF1LjoxMzAzNCAgICAgICAgICAgICAgICAgICAgICAzcmQgUXUuOjMuMDAwICAgM3JkIFF1LjoxLjAwMDAgICAzcmQgUXUuOjEwLjAwMCAgIDNyZCBRdS46MTguMDAgIFxuIE1heC4gICA6MTczNzkgICAgICAgICAgICAgICAgICAgICAgTWF4LiAgIDo0LjAwMCAgIE1heC4gICA6MS4wMDAwICAgTWF4LiAgIDoxMi4wMDAgICBNYXguICAgOjIzLjAwICBcbiAgICBob2xpZGF5ICAgICAgICAgICB3ZWVrZGF5ICAgICAgICB3b3JraW5nZGF5ICAgICAgIHdlYXRoZXJzaXQgICAgICAgICB0ZW1wICAgICAgICAgICBhdGVtcCAgICAgICBcbiBNaW4uICAgOjAuMDAwMDAgICBNaW4uICAgOjAuMDAwICAgTWluLiAgIDowLjAwMDAgICBNaW4uICAgOjEuMDAwICAgTWluLiAgIDowLjAyMCAgIE1pbi4gICA6MC4wMDAwICBcbiAxc3QgUXUuOjAuMDAwMDAgICAxc3QgUXUuOjEuMDAwICAgMXN0IFF1LjowLjAwMDAgICAxc3QgUXUuOjEuMDAwICAgMXN0IFF1LjowLjM0MCAgIDFzdCBRdS46MC4zMzMzICBcbiBNZWRpYW4gOjAuMDAwMDAgICBNZWRpYW4gOjMuMDAwICAgTWVkaWFuIDoxLjAwMDAgICBNZWRpYW4gOjEuMDAwICAgTWVkaWFuIDowLjUwMCAgIE1lZGlhbiA6MC40ODQ4ICBcbiBNZWFuICAgOjAuMDI4NzcgICBNZWFuICAgOjMuMDA0ICAgTWVhbiAgIDowLjY4MjcgICBNZWFuICAgOjEuNDI1ICAgTWVhbiAgIDowLjQ5NyAgIE1lYW4gICA6MC40NzU4ICBcbiAzcmQgUXUuOjAuMDAwMDAgICAzcmQgUXUuOjUuMDAwICAgM3JkIFF1LjoxLjAwMDAgICAzcmQgUXUuOjIuMDAwICAgM3JkIFF1LjowLjY2MCAgIDNyZCBRdS46MC42MjEyICBcbiBNYXguICAgOjEuMDAwMDAgICBNYXguICAgOjYuMDAwICAgTWF4LiAgIDoxLjAwMDAgICBNYXguICAgOjQuMDAwICAgTWF4LiAgIDoxLjAwMCAgIE1heC4gICA6MS4wMDAwICBcbiAgICAgIGh1bSAgICAgICAgICAgd2luZHNwZWVkICAgICAgICAgIGNhc3VhbCAgICAgICAgIHJlZ2lzdGVyZWQgICAgICAgICBjbnQgICAgICAgXG4gTWluLiAgIDowLjAwMDAgICBNaW4uICAgOjAuMDAwMCAgIE1pbi4gICA6ICAwLjAwICAgTWluLiAgIDogIDAuMCAgIE1pbi4gICA6ICAxLjAgIFxuIDFzdCBRdS46MC40ODAwICAgMXN0IFF1LjowLjEwNDUgICAxc3QgUXUuOiAgNC4wMCAgIDFzdCBRdS46IDM0LjAgICAxc3QgUXUuOiA0MC4wICBcbiBNZWRpYW4gOjAuNjMwMCAgIE1lZGlhbiA6MC4xOTQwICAgTWVkaWFuIDogMTcuMDAgICBNZWRpYW4gOjExNS4wICAgTWVkaWFuIDoxNDIuMCAgXG4gTWVhbiAgIDowLjYyNzIgICBNZWFuICAgOjAuMTkwMSAgIE1lYW4gICA6IDM1LjY4ICAgTWVhbiAgIDoxNTMuOCAgIE1lYW4gICA6MTg5LjUgIFxuIDNyZCBRdS46MC43ODAwICAgM3JkIFF1LjowLjI1MzcgICAzcmQgUXUuOiA0OC4wMCAgIDNyZCBRdS46MjIwLjAgICAzcmQgUXUuOjI4MS4wICBcbiBNYXguICAgOjEuMDAwMCAgIE1heC4gICA6MC44NTA3ICAgTWF4LiAgIDozNjcuMDAgICBNYXguICAgOjg4Ni4wICAgTWF4LiAgIDo5NzcuMCAgXG4ifQ== -->
-<pre><code>    instant         dteday              season            yr              mnth              hr       
- Min.   :    1   Length:17379       Min.   :1.000   Min.   :0.0000   Min.   : 1.000   Min.   : 0.00  
- 1st Qu.: 4346   Class :character   1st Qu.:2.000   1st Qu.:0.0000   1st Qu.: 4.000   1st Qu.: 6.00  
- Median : 8690   Mode  :character   Median :3.000   Median :1.0000   Median : 7.000   Median :12.00  
- Mean   : 8690                      Mean   :2.502   Mean   :0.5026   Mean   : 6.538   Mean   :11.55  
- 3rd Qu.:13034                      3rd Qu.:3.000   3rd Qu.:1.0000   3rd Qu.:10.000   3rd Qu.:18.00  
- Max.   :17379                      Max.   :4.000   Max.   :1.0000   Max.   :12.000   Max.   :23.00  
-    holiday           weekday        workingday       weathersit         temp           atemp       
- Min.   :0.00000   Min.   :0.000   Min.   :0.0000   Min.   :1.000   Min.   :0.020   Min.   :0.0000  
- 1st Qu.:0.00000   1st Qu.:1.000   1st Qu.:0.0000   1st Qu.:1.000   1st Qu.:0.340   1st Qu.:0.3333  
- Median :0.00000   Median :3.000   Median :1.0000   Median :1.000   Median :0.500   Median :0.4848  
- Mean   :0.02877   Mean   :3.004   Mean   :0.6827   Mean   :1.425   Mean   :0.497   Mean   :0.4758  
- 3rd Qu.:0.00000   3rd Qu.:5.000   3rd Qu.:1.0000   3rd Qu.:2.000   3rd Qu.:0.660   3rd Qu.:0.6212  
- Max.   :1.00000   Max.   :6.000   Max.   :1.0000   Max.   :4.000   Max.   :1.000   Max.   :1.0000  
-      hum           windspeed          casual         registered         cnt       
- Min.   :0.0000   Min.   :0.0000   Min.   :  0.00   Min.   :  0.0   Min.   :  1.0  
- 1st Qu.:0.4800   1st Qu.:0.1045   1st Qu.:  4.00   1st Qu.: 34.0   1st Qu.: 40.0  
- Median :0.6300   Median :0.1940   Median : 17.00   Median :115.0   Median :142.0  
- Mean   :0.6272   Mean   :0.1901   Mean   : 35.68   Mean   :153.8   Mean   :189.5  
- 3rd Qu.:0.7800   3rd Qu.:0.2537   3rd Qu.: 48.00   3rd Qu.:220.0   3rd Qu.:281.0  
- Max.   :1.0000   Max.   :0.8507   Max.   :367.00   Max.   :886.0   Max.   :977.0  </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS5ob3VlcmxpKVxuYGBgIn0= -->
-<pre class="r"><code>str(bikeshare.houerli)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0MTczNzkgb2JzLiBvZiAgMTcgdmFyaWFibGVzOlxuICQgaW5zdGFudCAgIDogaW50ICAxIDIgMyA0IDUgNiA3IDggOSAxMCAuLi5cbiAkIGR0ZWRheSAgICA6IGNociAgXCIyMDExLTAxLTAxXCIgXCIyMDExLTAxLTAxXCIgXCIyMDExLTAxLTAxXCIgXCIyMDExLTAxLTAxXCIgLi4uXG4gJCBzZWFzb24gICAgOiBpbnQgIDEgMSAxIDEgMSAxIDEgMSAxIDEgLi4uXG4gJCB5ciAgICAgICAgOiBpbnQgIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gJCBtbnRoICAgICAgOiBpbnQgIDEgMSAxIDEgMSAxIDEgMSAxIDEgLi4uXG4gJCBociAgICAgICAgOiBpbnQgIDAgMSAyIDMgNCA1IDYgNyA4IDkgLi4uXG4gJCBob2xpZGF5ICAgOiBpbnQgIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gJCB3ZWVrZGF5ICAgOiBpbnQgIDYgNiA2IDYgNiA2IDYgNiA2IDYgLi4uXG4gJCB3b3JraW5nZGF5OiBpbnQgIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gJCB3ZWF0aGVyc2l0OiBpbnQgIDEgMSAxIDEgMSAyIDEgMSAxIDEgLi4uXG4gJCB0ZW1wICAgICAgOiBudW0gIDAuMjQgMC4yMiAwLjIyIDAuMjQgMC4yNCAwLjI0IDAuMjIgMC4yIDAuMjQgMC4zMiAuLi5cbiAkIGF0ZW1wICAgICA6IG51bSAgMC4yODggMC4yNzMgMC4yNzMgMC4yODggMC4yODggLi4uXG4gJCBodW0gICAgICAgOiBudW0gIDAuODEgMC44IDAuOCAwLjc1IDAuNzUgMC43NSAwLjggMC44NiAwLjc1IDAuNzYgLi4uXG4gJCB3aW5kc3BlZWQgOiBudW0gIDAgMCAwIDAgMCAwLjA4OTYgMCAwIDAgMCAuLi5cbiAkIGNhc3VhbCAgICA6IGludCAgMyA4IDUgMyAwIDAgMiAxIDEgOCAuLi5cbiAkIHJlZ2lzdGVyZWQ6IGludCAgMTMgMzIgMjcgMTAgMSAxIDAgMiA3IDYgLi4uXG4gJCBjbnQgICAgICAgOiBpbnQgIDE2IDQwIDMyIDEzIDEgMSAyIDMgOCAxNCAuLi5cbiJ9 -->
-<pre><code>&#39;data.frame&#39;:   17379 obs. of  17 variables:
- $ instant   : int  1 2 3 4 5 6 7 8 9 10 ...
- $ dteday    : chr  &quot;2011-01-01&quot; &quot;2011-01-01&quot; &quot;2011-01-01&quot; &quot;2011-01-01&quot; ...
- $ season    : int  1 1 1 1 1 1 1 1 1 1 ...
- $ yr        : int  0 0 0 0 0 0 0 0 0 0 ...
- $ mnth      : int  1 1 1 1 1 1 1 1 1 1 ...
- $ hr        : int  0 1 2 3 4 5 6 7 8 9 ...
- $ holiday   : int  0 0 0 0 0 0 0 0 0 0 ...
- $ weekday   : int  6 6 6 6 6 6 6 6 6 6 ...
- $ workingday: int  0 0 0 0 0 0 0 0 0 0 ...
- $ weathersit: int  1 1 1 1 1 2 1 1 1 1 ...
- $ temp      : num  0.24 0.22 0.22 0.24 0.24 0.24 0.22 0.2 0.24 0.32 ...
- $ atemp     : num  0.288 0.273 0.273 0.288 0.288 ...
- $ hum       : num  0.81 0.8 0.8 0.75 0.75 0.75 0.8 0.86 0.75 0.76 ...
- $ windspeed : num  0 0 0 0 0 0.0896 0 0 0 0 ...
- $ casual    : int  3 8 5 3 0 0 2 1 1 8 ...
- $ registered: int  13 32 27 10 1 1 0 2 7 6 ...
- $ cnt       : int  16 40 32 13 1 1 2 3 8 14 ...</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDExKVxuYGBgIn0= -->
-<pre class="r"><code>summary(bikeshare.trip.2011)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIER1cmF0aW9uICAgICAgIFN0YXJ0IGRhdGUgICAgICAgICAgICAgICAgICAgICBFbmQgZGF0ZSAgICAgICAgICAgICAgICAgICBTdGFydCBzdGF0aW9uIG51bWJlclxuIE1pbi4gICA6ICAgNjAgICBNaW4uICAgOjIwMTEtMDEtMDEgMDA6MDE6MjkgICBNaW4uICAgOjIwMTEtMDEtMDEgMDA6MDg6MzIgICBNaW4uICAgOjMxMDAwICAgICAgIFxuIDFzdCBRdS46ICA0MTUgICAxc3QgUXUuOjIwMTEtMDUtMTYgMTk6MzY6NDkgICAxc3QgUXUuOjIwMTEtMDUtMTYgMTk6NTI6NTAgICAxc3QgUXUuOjMxMjAwICAgICAgIFxuIE1lZGlhbiA6ICA2ODMgICBNZWRpYW4gOjIwMTEtMDctMjEgMDg6MTE6NDIgICBNZWRpYW4gOjIwMTEtMDctMjEgMDg6MjM6NDcgICBNZWRpYW4gOjMxMjIwICAgICAgIFxuIE1lYW4gICA6IDExODAgICBNZWFuICAgOjIwMTEtMDctMjEgMTE6NDI6MTAgICBNZWFuICAgOjIwMTEtMDctMjEgMTI6MDE6NTAgICBNZWFuICAgOjMxMjg3ICAgICAgIFxuIDNyZCBRdS46IDExMzMgICAzcmQgUXUuOjIwMTEtMTAtMDIgMDk6NDE6NDIgICAzcmQgUXUuOjIwMTEtMTAtMDIgMDk6NTg6MTggICAzcmQgUXUuOjMxNDAxICAgICAgIFxuIE1heC4gICA6ODYzNTUgICBNYXguICAgOjIwMTEtMTItMzEgMjM6NTU6NTYgICBNYXguICAgOjIwMTItMDEtMDEgMTc6MjM6MTYgICBNYXguICAgOjMxODA2ICAgICAgIFxuIFN0YXJ0IHN0YXRpb24gICAgICBFbmQgc3RhdGlvbiBudW1iZXIgRW5kIHN0YXRpb24gICAgICAgIEJpa2UgbnVtYmVyICAgICAgICBNZW1iZXIgdHlwZSAgICAgICBcbiBMZW5ndGg6MTIyNjc2NyAgICAgTWluLiAgIDozMTAwMCAgICAgIExlbmd0aDoxMjI2NzY3ICAgICBMZW5ndGg6MTIyNjc2NyAgICAgTGVuZ3RoOjEyMjY3NjcgICAgXG4gQ2xhc3MgOmNoYXJhY3RlciAgIDFzdCBRdS46MzEyMDAgICAgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1vZGUgIDpjaGFyYWN0ZXIgICBNZWRpYW4gOjMxMjIwICAgICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiAgICAgICAgICAgICAgICAgICAgTWVhbiAgIDozMTI4OCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgIDNyZCBRdS46MzE0MDEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAgICBNYXguICAgOjMxODA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
-<pre><code>    Duration       Start date                     End date                   Start station number
- Min.   :   60   Min.   :2011-01-01 00:01:29   Min.   :2011-01-01 00:08:32   Min.   :31000       
- 1st Qu.:  415   1st Qu.:2011-05-16 19:36:49   1st Qu.:2011-05-16 19:52:50   1st Qu.:31200       
- Median :  683   Median :2011-07-21 08:11:42   Median :2011-07-21 08:23:47   Median :31220       
- Mean   : 1180   Mean   :2011-07-21 11:42:10   Mean   :2011-07-21 12:01:50   Mean   :31287       
- 3rd Qu.: 1133   3rd Qu.:2011-10-02 09:41:42   3rd Qu.:2011-10-02 09:58:18   3rd Qu.:31401       
- Max.   :86355   Max.   :2011-12-31 23:55:56   Max.   :2012-01-01 17:23:16   Max.   :31806       
- Start station      End station number End station        Bike number        Member type       
- Length:1226767     Min.   :31000      Length:1226767     Length:1226767     Length:1226767    
- Class :character   1st Qu.:31200      Class :character   Class :character   Class :character  
- Mode  :character   Median :31220      Mode  :character   Mode  :character   Mode  :character  
-                    Mean   :31288                                                              
-                    3rd Qu.:31401                                                              
-                    Max.   :31806                                                              </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTEpXG5gYGAifQ== -->
-<pre class="r"><code>str(bikeshare.trip.2011)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoic3BlY190YmxfZGZbLDldIFsxLDIyNiw3Njcgw5cgOV0gKFMzOiBzcGVjX3RibF9kZi90YmxfZGYvdGJsL2RhdGEuZnJhbWUpXG4gJCBEdXJhdGlvbiAgICAgICAgICAgIDogbnVtIFsxOjEyMjY3NjddIDM1NDggMzQ2IDU2MiA0MzQgMjMzIC4uLlxuICQgU3RhcnQgZGF0ZSAgICAgICAgICA6IFBPU0lYY3RbMToxMjI2NzY3XSwgZm9ybWF0OiBcIjIwMTEtMDEtMDEgMDA6MDE6MjlcIiBcIjIwMTEtMDEtMDEgMDA6MDI6NDZcIiBcIjIwMTEtMDEtMDEgMDA6MDY6MTNcIiAuLi5cbiAkIEVuZCBkYXRlICAgICAgICAgICAgOiBQT1NJWGN0WzE6MTIyNjc2N10sIGZvcm1hdDogXCIyMDExLTAxLTAxIDAxOjAwOjM3XCIgXCIyMDExLTAxLTAxIDAwOjA4OjMyXCIgXCIyMDExLTAxLTAxIDAwOjE1OjM2XCIgLi4uXG4gJCBTdGFydCBzdGF0aW9uIG51bWJlcjogbnVtIFsxOjEyMjY3NjddIDMxNjIwIDMxMTA1IDMxNDAwIDMxMTExIDMxMTA0IC4uLlxuICQgU3RhcnQgc3RhdGlvbiAgICAgICA6IGNociBbMToxMjI2NzY3XSBcIjV0aCAmIEYgU3QgTldcIiBcIjE0dGggJiBIYXJ2YXJkIFN0IE5XXCIgXCJHZW9yZ2lhICYgTmV3IEhhbXBzaGlyZSBBdmUgTldcIiBcIjEwdGggJiBVIFN0IE5XXCIgLi4uXG4gJCBFbmQgc3RhdGlvbiBudW1iZXIgIDogbnVtIFsxOjEyMjY3NjddIDMxNjIwIDMxMTAxIDMxMTA0IDMxNTAzIDMxMTA2IC4uLlxuICQgRW5kIHN0YXRpb24gICAgICAgICA6IGNociBbMToxMjI2NzY3XSBcIjV0aCAmIEYgU3QgTldcIiBcIjE0dGggJiBWIFN0IE5XXCIgXCJBZGFtcyBNaWxsICYgQ29sdW1iaWEgUmQgTldcIiBcIkZsb3JpZGEgQXZlICYgUiBTdCBOV1wiIC4uLlxuICQgQmlrZSBudW1iZXIgICAgICAgICA6IGNociBbMToxMjI2NzY3XSBcIlcwMDI0N1wiIFwiVzAwNjc1XCIgXCJXMDAzNTdcIiBcIlcwMDk3MFwiIC4uLlxuICQgTWVtYmVyIHR5cGUgICAgICAgICA6IGNociBbMToxMjI2NzY3XSBcIk1lbWJlclwiIFwiQ2FzdWFsXCIgXCJNZW1iZXJcIiBcIk1lbWJlclwiIC4uLlxuIC0gYXR0cigqLCBcInNwZWNcIik9XG4gIC4uIGNvbHMoXG4gIC4uICAgRHVyYXRpb24gPSBjb2xfZG91YmxlKCksXG4gIC4uICAgYFN0YXJ0IGRhdGVgID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICAuLiAgIGBFbmQgZGF0ZWAgPSBjb2xfZGF0ZXRpbWUoZm9ybWF0ID0gXCJcIiksXG4gIC4uICAgYFN0YXJ0IHN0YXRpb24gbnVtYmVyYCA9IGNvbF9kb3VibGUoKSxcbiAgLi4gICBgU3RhcnQgc3RhdGlvbmAgPSBjb2xfY2hhcmFjdGVyKCksXG4gIC4uICAgYEVuZCBzdGF0aW9uIG51bWJlcmAgPSBjb2xfZG91YmxlKCksXG4gIC4uICAgYEVuZCBzdGF0aW9uYCA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgLi4gICBgQmlrZSBudW1iZXJgID0gY29sX2NoYXJhY3RlcigpLFxuICAuLiAgIGBNZW1iZXIgdHlwZWAgPSBjb2xfY2hhcmFjdGVyKClcbiAgLi4gKVxuIn0= -->
-<pre><code>spec_tbl_df[,9] [1,226,767 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
- $ Duration            : num [1:1226767] 3548 346 562 434 233 ...
- $ Start date          : POSIXct[1:1226767], format: &quot;2011-01-01 00:01:29&quot; &quot;2011-01-01 00:02:46&quot; &quot;2011-01-01 00:06:13&quot; ...
- $ End date            : POSIXct[1:1226767], format: &quot;2011-01-01 01:00:37&quot; &quot;2011-01-01 00:08:32&quot; &quot;2011-01-01 00:15:36&quot; ...
- $ Start station number: num [1:1226767] 31620 31105 31400 31111 31104 ...
- $ Start station       : chr [1:1226767] &quot;5th &amp; F St NW&quot; &quot;14th &amp; Harvard St NW&quot; &quot;Georgia &amp; New Hampshire Ave NW&quot; &quot;10th &amp; U St NW&quot; ...
- $ End station number  : num [1:1226767] 31620 31101 31104 31503 31106 ...
- $ End station         : chr [1:1226767] &quot;5th &amp; F St NW&quot; &quot;14th &amp; V St NW&quot; &quot;Adams Mill &amp; Columbia Rd NW&quot; &quot;Florida Ave &amp; R St NW&quot; ...
- $ Bike number         : chr [1:1226767] &quot;W00247&quot; &quot;W00675&quot; &quot;W00357&quot; &quot;W00970&quot; ...
- $ Member type         : chr [1:1226767] &quot;Member&quot; &quot;Casual&quot; &quot;Member&quot; &quot;Member&quot; ...
- - attr(*, &quot;spec&quot;)=
-  .. cols(
-  ..   Duration = col_double(),
-  ..   `Start date` = col_datetime(format = &quot;&quot;),
-  ..   `End date` = col_datetime(format = &quot;&quot;),
-  ..   `Start station number` = col_double(),
-  ..   `Start station` = col_character(),
-  ..   `End station number` = col_double(),
-  ..   `End station` = col_character(),
-  ..   `Bike number` = col_character(),
-  ..   `Member type` = col_character()
-  .. )</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDEyLjEpXG5gYGAifQ== -->
-<pre class="r"><code>summary(bikeshare.trip.2012.1)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIER1cmF0aW9uICAgICAgICAgU3RhcnQgZGF0ZSAgICAgICAgICAgICAgICAgICAgIEVuZCBkYXRlICAgICAgICAgICAgICAgICAgIFN0YXJ0IHN0YXRpb24gbnVtYmVyXG4gTWluLiAgIDogICA2MC4wICAgTWluLiAgIDoyMDEyLTAxLTAxIDAwOjA0OjAwICAgTWluLiAgIDoyMDEyLTAxLTAxIDAwOjExOjU2ICAgTWluLiAgIDozMTAwMCAgICAgICBcbiAxc3QgUXUuOiAgMzc0LjAgICAxc3QgUXUuOjIwMTItMDEtMzAgMTg6MTY6MjAgICAxc3QgUXUuOjIwMTItMDEtMzAgMTg6MjY6NDcgICAxc3QgUXUuOjMxMjAwICAgICAgIFxuIE1lZGlhbiA6ICA2MDQuMCAgIE1lZGlhbiA6MjAxMi0wMi0yNCAxODoxNDoyMyAgIE1lZGlhbiA6MjAxMi0wMi0yNCAxODoyNjowMSAgIE1lZGlhbiA6MzEyMjcgICAgICAgXG4gTWVhbiAgIDogIDk0My41ICAgTWVhbiAgIDoyMDEyLTAyLTIxIDIxOjQ5OjI5ICAgTWVhbiAgIDoyMDEyLTAyLTIxIDIyOjA1OjEzICAgTWVhbiAgIDozMTI5NSAgICAgICBcbiAzcmQgUXUuOiAgOTg2LjAgICAzcmQgUXUuOjIwMTItMDMtMTYgMTg6MTQ6MDcgICAzcmQgUXUuOjIwMTItMDMtMTYgMTg6Mjc6NTggICAzcmQgUXUuOjMxNTAzICAgICAgIFxuIE1heC4gICA6ODQ1MDguMCAgIE1heC4gICA6MjAxMi0wMy0zMSAyMzo1OToyNiAgIE1heC4gICA6MjAxMi0wNC0wMSAxMjoxNzo1MSAgIE1heC4gICA6MzE4MDYgICAgICAgXG4gU3RhcnQgc3RhdGlvbiAgICAgIEVuZCBzdGF0aW9uIG51bWJlciBFbmQgc3RhdGlvbiAgICAgICAgQmlrZSBudW1iZXIgICAgICAgIE1lbWJlciB0eXBlICAgICAgIFxuIExlbmd0aDozNjEzMTcgICAgICBNaW4uICAgOjMxMDAwICAgICAgTGVuZ3RoOjM2MTMxNyAgICAgIExlbmd0aDozNjEzMTcgICAgICBMZW5ndGg6MzYxMzE3ICAgICBcbiBDbGFzcyA6Y2hhcmFjdGVyICAgMXN0IFF1LjozMTIwMSAgICAgIENsYXNzIDpjaGFyYWN0ZXIgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgXG4gTW9kZSAgOmNoYXJhY3RlciAgIE1lZGlhbiA6MzEyMjcgICAgICBNb2RlICA6Y2hhcmFjdGVyICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgIFxuICAgICAgICAgICAgICAgICAgICBNZWFuICAgOjMxMjk4ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICAgICAgM3JkIFF1LjozMTUwMyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgIE1heC4gICA6MzE4MDYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIn0= -->
-<pre><code>    Duration         Start date                     End date                   Start station number
- Min.   :   60.0   Min.   :2012-01-01 00:04:00   Min.   :2012-01-01 00:11:56   Min.   :31000       
- 1st Qu.:  374.0   1st Qu.:2012-01-30 18:16:20   1st Qu.:2012-01-30 18:26:47   1st Qu.:31200       
- Median :  604.0   Median :2012-02-24 18:14:23   Median :2012-02-24 18:26:01   Median :31227       
- Mean   :  943.5   Mean   :2012-02-21 21:49:29   Mean   :2012-02-21 22:05:13   Mean   :31295       
- 3rd Qu.:  986.0   3rd Qu.:2012-03-16 18:14:07   3rd Qu.:2012-03-16 18:27:58   3rd Qu.:31503       
- Max.   :84508.0   Max.   :2012-03-31 23:59:26   Max.   :2012-04-01 12:17:51   Max.   :31806       
- Start station      End station number End station        Bike number        Member type       
- Length:361317      Min.   :31000      Length:361317      Length:361317      Length:361317     
- Class :character   1st Qu.:31201      Class :character   Class :character   Class :character  
- Mode  :character   Median :31227      Mode  :character   Mode  :character   Mode  :character  
-                    Mean   :31298                                                              
-                    3rd Qu.:31503                                                              
-                    Max.   :31806                                                              </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMSlcbmBgYCJ9 -->
-<pre class="r"><code>str(bikeshare.trip.2012.1)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoic3BlY190YmxfZGZbLDldIFszNjEsMzE3IMOXIDldIChTMzogc3BlY190YmxfZGYvdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgRHVyYXRpb24gICAgICAgICAgICA6IG51bSBbMTozNjEzMTddIDQ3NSAxMTYyIDExNDUgNDg1IDQ3MSAuLi5cbiAkIFN0YXJ0IGRhdGUgICAgICAgICAgOiBQT1NJWGN0WzE6MzYxMzE3XSwgZm9ybWF0OiBcIjIwMTItMDEtMDEgMDA6MDQ6MDBcIiBcIjIwMTItMDEtMDEgMDA6MTA6MDVcIiBcIjIwMTItMDEtMDEgMDA6MTA6MjNcIiAuLi5cbiAkIEVuZCBkYXRlICAgICAgICAgICAgOiBQT1NJWGN0WzE6MzYxMzE3XSwgZm9ybWF0OiBcIjIwMTItMDEtMDEgMDA6MTE6NTZcIiBcIjIwMTItMDEtMDEgMDA6Mjk6MjhcIiBcIjIwMTItMDEtMDEgMDA6Mjk6MjhcIiAuLi5cbiAkIFN0YXJ0IHN0YXRpb24gbnVtYmVyOiBudW0gWzE6MzYxMzE3XSAzMTI0NSAzMTQwMCAzMTQwMCAzMTEwMSAzMTEwMiAuLi5cbiAkIFN0YXJ0IHN0YXRpb24gICAgICAgOiBjaHIgWzE6MzYxMzE3XSBcIjd0aCAmIFIgU3QgTlcgLyBTaGF3IExpYnJhcnlcIiBcIkdlb3JnaWEgJiBOZXcgSGFtcHNoaXJlIEF2ZSBOV1wiIFwiR2VvcmdpYSAmIE5ldyBIYW1wc2hpcmUgQXZlIE5XXCIgXCIxNHRoICYgViBTdCBOV1wiIC4uLlxuICQgRW5kIHN0YXRpb24gbnVtYmVyICA6IG51bSBbMTozNjEzMTddIDMxMTA5IDMxMTAzIDMxMTAzIDMxNjAyIDMxMTA5IC4uLlxuICQgRW5kIHN0YXRpb24gICAgICAgICA6IGNociBbMTozNjEzMTddIFwiN3RoICYgVCBTdCBOV1wiIFwiMTZ0aCAmIEhhcnZhcmQgU3QgTldcIiBcIjE2dGggJiBIYXJ2YXJkIFN0IE5XXCIgXCJQYXJrIFJkICYgSG9sbWVhZCBQbCBOV1wiIC4uLlxuICQgQmlrZSBudW1iZXIgICAgICAgICA6IGNociBbMTozNjEzMTddIFwiVzAxNDEyXCIgXCJXMDA1MjRcIiBcIlcwMDIzNVwiIFwiVzAwODY0XCIgLi4uXG4gJCBNZW1iZXIgdHlwZSAgICAgICAgIDogY2hyIFsxOjM2MTMxN10gXCJNZW1iZXJcIiBcIkNhc3VhbFwiIFwiTWVtYmVyXCIgXCJNZW1iZXJcIiAuLi5cbiAtIGF0dHIoKiwgXCJzcGVjXCIpPVxuICAuLiBjb2xzKFxuICAuLiAgIER1cmF0aW9uID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBTdGFydCBkYXRlYCA9IGNvbF9kYXRldGltZShmb3JtYXQgPSBcIlwiKSxcbiAgLi4gICBgRW5kIGRhdGVgID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICAuLiAgIGBTdGFydCBzdGF0aW9uIG51bWJlcmAgPSBjb2xfZG91YmxlKCksXG4gIC4uICAgYFN0YXJ0IHN0YXRpb25gID0gY29sX2NoYXJhY3RlcigpLFxuICAuLiAgIGBFbmQgc3RhdGlvbiBudW1iZXJgID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBFbmQgc3RhdGlvbmAgPSBjb2xfY2hhcmFjdGVyKCksXG4gIC4uICAgYEJpa2UgbnVtYmVyYCA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgLi4gICBgTWVtYmVyIHR5cGVgID0gY29sX2NoYXJhY3RlcigpXG4gIC4uIClcbiJ9 -->
-<pre><code>spec_tbl_df[,9] [361,317 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
- $ Duration            : num [1:361317] 475 1162 1145 485 471 ...
- $ Start date          : POSIXct[1:361317], format: &quot;2012-01-01 00:04:00&quot; &quot;2012-01-01 00:10:05&quot; &quot;2012-01-01 00:10:23&quot; ...
- $ End date            : POSIXct[1:361317], format: &quot;2012-01-01 00:11:56&quot; &quot;2012-01-01 00:29:28&quot; &quot;2012-01-01 00:29:28&quot; ...
- $ Start station number: num [1:361317] 31245 31400 31400 31101 31102 ...
- $ Start station       : chr [1:361317] &quot;7th &amp; R St NW / Shaw Library&quot; &quot;Georgia &amp; New Hampshire Ave NW&quot; &quot;Georgia &amp; New Hampshire Ave NW&quot; &quot;14th &amp; V St NW&quot; ...
- $ End station number  : num [1:361317] 31109 31103 31103 31602 31109 ...
- $ End station         : chr [1:361317] &quot;7th &amp; T St NW&quot; &quot;16th &amp; Harvard St NW&quot; &quot;16th &amp; Harvard St NW&quot; &quot;Park Rd &amp; Holmead Pl NW&quot; ...
- $ Bike number         : chr [1:361317] &quot;W01412&quot; &quot;W00524&quot; &quot;W00235&quot; &quot;W00864&quot; ...
- $ Member type         : chr [1:361317] &quot;Member&quot; &quot;Casual&quot; &quot;Member&quot; &quot;Member&quot; ...
- - attr(*, &quot;spec&quot;)=
-  .. cols(
-  ..   Duration = col_double(),
-  ..   `Start date` = col_datetime(format = &quot;&quot;),
-  ..   `End date` = col_datetime(format = &quot;&quot;),
-  ..   `Start station number` = col_double(),
-  ..   `Start station` = col_character(),
-  ..   `End station number` = col_double(),
-  ..   `End station` = col_character(),
-  ..   `Bike number` = col_character(),
-  ..   `Member type` = col_character()
-  .. )</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDEyLjIpXG5gYGAifQ== -->
-<pre class="r"><code>summary(bikeshare.trip.2012.2)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIER1cmF0aW9uICAgICAgIFN0YXJ0IGRhdGUgICAgICAgICAgICAgICAgICAgICBFbmQgZGF0ZSAgICAgICAgICAgICAgICAgICBTdGFydCBzdGF0aW9uIG51bWJlclxuIE1pbi4gICA6ICAgNjAgICBNaW4uICAgOjIwMTItMDQtMDEgMDA6MDE6MTMgICBNaW4uICAgOjIwMTItMDQtMDEgMDA6MDQ6MjYgICBNaW4uICAgOjMxMDAwICAgICAgIFxuIDFzdCBRdS46ICA0MTggICAxc3QgUXUuOjIwMTItMDQtMjUgMTQ6MTA6MjMgICAxc3QgUXUuOjIwMTItMDQtMjUgMTQ6Mjc6MzQgICAxc3QgUXUuOjMxMjAxICAgICAgIFxuIE1lZGlhbiA6ICA2OTcgICBNZWRpYW4gOjIwMTItMDUtMTkgMDA6MjA6MTAgICBNZWRpYW4gOjIwMTItMDUtMTkgMDA6MzY6MDEgICBNZWRpYW4gOjMxMjI5ICAgICAgIFxuIE1lYW4gICA6IDExNDggICBNZWFuICAgOjIwMTItMDUtMTcgMjI6NTM6NTYgICBNZWFuICAgOjIwMTItMDUtMTcgMjM6MTM6MDUgICBNZWFuICAgOjMxMjkzICAgICAgIFxuIDNyZCBRdS46IDExNjcgICAzcmQgUXUuOjIwMTItMDYtMDkgMTQ6MDM6MDAgICAzcmQgUXUuOjIwMTItMDYtMDkgMTQ6MzI6MTMgICAzcmQgUXUuOjMxNDA0ICAgICAgIFxuIE1heC4gICA6ODU2NzEgICBNYXguICAgOjIwMTItMDYtMzAgMjM6NTk6MjcgICBNYXguICAgOjIwMTItMDctMDEgMTU6MDM6MDcgICBNYXguICAgOjMxODA2ICAgICAgIFxuIFN0YXJ0IHN0YXRpb24gICAgICBFbmQgc3RhdGlvbiBudW1iZXIgRW5kIHN0YXRpb24gICAgICAgIEJpa2UgbnVtYmVyICAgICAgICBNZW1iZXIgdHlwZSAgICAgICBcbiBMZW5ndGg6NTY2ODMyICAgICAgTWluLiAgIDozMTAwMCAgICAgIExlbmd0aDo1NjY4MzIgICAgICBMZW5ndGg6NTY2ODMyICAgICAgTGVuZ3RoOjU2NjgzMiAgICAgXG4gQ2xhc3MgOmNoYXJhY3RlciAgIDFzdCBRdS46MzEyMDIgICAgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1vZGUgIDpjaGFyYWN0ZXIgICBNZWRpYW4gOjMxMjI5ICAgICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiAgICAgICAgICAgICAgICAgICAgTWVhbiAgIDozMTI5NSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgIDNyZCBRdS46MzE1MDMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAgICBNYXguICAgOjMxODA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
-<pre><code>    Duration       Start date                     End date                   Start station number
- Min.   :   60   Min.   :2012-04-01 00:01:13   Min.   :2012-04-01 00:04:26   Min.   :31000       
- 1st Qu.:  418   1st Qu.:2012-04-25 14:10:23   1st Qu.:2012-04-25 14:27:34   1st Qu.:31201       
- Median :  697   Median :2012-05-19 00:20:10   Median :2012-05-19 00:36:01   Median :31229       
- Mean   : 1148   Mean   :2012-05-17 22:53:56   Mean   :2012-05-17 23:13:05   Mean   :31293       
- 3rd Qu.: 1167   3rd Qu.:2012-06-09 14:03:00   3rd Qu.:2012-06-09 14:32:13   3rd Qu.:31404       
- Max.   :85671   Max.   :2012-06-30 23:59:27   Max.   :2012-07-01 15:03:07   Max.   :31806       
- Start station      End station number End station        Bike number        Member type       
- Length:566832      Min.   :31000      Length:566832      Length:566832      Length:566832     
- Class :character   1st Qu.:31202      Class :character   Class :character   Class :character  
- Mode  :character   Median :31229      Mode  :character   Mode  :character   Mode  :character  
-                    Mean   :31295                                                              
-                    3rd Qu.:31503                                                              
-                    Max.   :31806                                                              </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMilcbmBgYCJ9 -->
-<pre class="r"><code>str(bikeshare.trip.2012.2)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoic3BlY190YmxfZGZbLDldIFs1NjYsODMyIMOXIDldIChTMzogc3BlY190YmxfZGYvdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgRHVyYXRpb24gICAgICAgICAgICA6IG51bSBbMTo1NjY4MzJdIDE5MiA5NzggODQzIDQwOCAxNjMgLi4uXG4gJCBTdGFydCBkYXRlICAgICAgICAgIDogUE9TSVhjdFsxOjU2NjgzMl0sIGZvcm1hdDogXCIyMDEyLTA0LTAxIDAwOjAxOjEzXCIgXCIyMDEyLTA0LTAxIDAwOjAxOjQ5XCIgXCIyMDEyLTA0LTAxIDAwOjAzOjI1XCIgLi4uXG4gJCBFbmQgZGF0ZSAgICAgICAgICAgIDogUE9TSVhjdFsxOjU2NjgzMl0sIGZvcm1hdDogXCIyMDEyLTA0LTAxIDAwOjA0OjI2XCIgXCIyMDEyLTA0LTAxIDAwOjE4OjA4XCIgXCIyMDEyLTA0LTAxIDAwOjE3OjI4XCIgLi4uXG4gJCBTdGFydCBzdGF0aW9uIG51bWJlcjogbnVtIFsxOjU2NjgzMl0gMzEyMzcgMzEyMjUgMzEyMzAgMzExMTAgMzExMDQgLi4uXG4gJCBTdGFydCBzdGF0aW9uICAgICAgIDogY2hyIFsxOjU2NjgzMl0gXCIyNXRoIFN0ICYgUGVubnN5bHZhbmlhIEF2ZSBOV1wiIFwiQyAmIE8gQ2FuYWwgJiBXaXNjb25zaW4gQXZlIE5XXCIgXCJNZXRybyBDZW50ZXIgLyAxMnRoICYgRyBTdCBOV1wiIFwiMjB0aCBTdCAmIEZsb3JpZGEgQXZlIE5XXCIgLi4uXG4gJCBFbmQgc3RhdGlvbiBudW1iZXIgIDogbnVtIFsxOjU2NjgzMl0gMzEyMTIgMzEyMjggMzEyMDEgMzEyMzkgMzExMTIgLi4uXG4gJCBFbmQgc3RhdGlvbiAgICAgICAgIDogY2hyIFsxOjU2NjgzMl0gXCIyMXN0ICYgTSBTdCBOV1wiIFwiOHRoICYgSCBTdCBOV1wiIFwiMTV0aCAmIFAgU3QgTldcIiBcIlJob2RlIElzbGFuZCAmIENvbm5lY3RpY3V0IEF2ZSBOV1wiIC4uLlxuICQgQmlrZSBudW1iZXIgICAgICAgICA6IGNociBbMTo1NjY4MzJdIFwiVzAwNjYzXCIgXCJXMDA1NzRcIiBcIlcwMDIwMVwiIFwiVzAxMDYwXCIgLi4uXG4gJCBNZW1iZXIgdHlwZSAgICAgICAgIDogY2hyIFsxOjU2NjgzMl0gXCJNZW1iZXJcIiBcIk1lbWJlclwiIFwiTWVtYmVyXCIgXCJDYXN1YWxcIiAuLi5cbiAtIGF0dHIoKiwgXCJzcGVjXCIpPVxuICAuLiBjb2xzKFxuICAuLiAgIER1cmF0aW9uID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBTdGFydCBkYXRlYCA9IGNvbF9kYXRldGltZShmb3JtYXQgPSBcIlwiKSxcbiAgLi4gICBgRW5kIGRhdGVgID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICAuLiAgIGBTdGFydCBzdGF0aW9uIG51bWJlcmAgPSBjb2xfZG91YmxlKCksXG4gIC4uICAgYFN0YXJ0IHN0YXRpb25gID0gY29sX2NoYXJhY3RlcigpLFxuICAuLiAgIGBFbmQgc3RhdGlvbiBudW1iZXJgID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBFbmQgc3RhdGlvbmAgPSBjb2xfY2hhcmFjdGVyKCksXG4gIC4uICAgYEJpa2UgbnVtYmVyYCA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgLi4gICBgTWVtYmVyIHR5cGVgID0gY29sX2NoYXJhY3RlcigpXG4gIC4uIClcbiJ9 -->
-<pre><code>spec_tbl_df[,9] [566,832 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
- $ Duration            : num [1:566832] 192 978 843 408 163 ...
- $ Start date          : POSIXct[1:566832], format: &quot;2012-04-01 00:01:13&quot; &quot;2012-04-01 00:01:49&quot; &quot;2012-04-01 00:03:25&quot; ...
- $ End date            : POSIXct[1:566832], format: &quot;2012-04-01 00:04:26&quot; &quot;2012-04-01 00:18:08&quot; &quot;2012-04-01 00:17:28&quot; ...
- $ Start station number: num [1:566832] 31237 31225 31230 31110 31104 ...
- $ Start station       : chr [1:566832] &quot;25th St &amp; Pennsylvania Ave NW&quot; &quot;C &amp; O Canal &amp; Wisconsin Ave NW&quot; &quot;Metro Center / 12th &amp; G St NW&quot; &quot;20th St &amp; Florida Ave NW&quot; ...
- $ End station number  : num [1:566832] 31212 31228 31201 31239 31112 ...
- $ End station         : chr [1:566832] &quot;21st &amp; M St NW&quot; &quot;8th &amp; H St NW&quot; &quot;15th &amp; P St NW&quot; &quot;Rhode Island &amp; Connecticut Ave NW&quot; ...
- $ Bike number         : chr [1:566832] &quot;W00663&quot; &quot;W00574&quot; &quot;W00201&quot; &quot;W01060&quot; ...
- $ Member type         : chr [1:566832] &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; &quot;Casual&quot; ...
- - attr(*, &quot;spec&quot;)=
-  .. cols(
-  ..   Duration = col_double(),
-  ..   `Start date` = col_datetime(format = &quot;&quot;),
-  ..   `End date` = col_datetime(format = &quot;&quot;),
-  ..   `Start station number` = col_double(),
-  ..   `Start station` = col_character(),
-  ..   `End station number` = col_double(),
-  ..   `End station` = col_character(),
-  ..   `Bike number` = col_character(),
-  ..   `Member type` = col_character()
-  .. )</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDEyLjMpXG5gYGAifQ== -->
-<pre class="r"><code>summary(bikeshare.trip.2012.3)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIER1cmF0aW9uICAgICAgIFN0YXJ0IGRhdGUgICAgICAgICAgICAgICAgICAgICBFbmQgZGF0ZSAgICAgICAgICAgICAgICAgICBTdGFydCBzdGF0aW9uIG51bWJlclxuIE1pbi4gICA6ICAgNjAgICBNaW4uICAgOjIwMTItMDctMDEgMDA6MDA6MDggICBNaW4uICAgOjIwMTItMDctMDEgMDA6MDU6MDAgICBNaW4uICAgOjMxMDAwICAgICAgIFxuIDFzdCBRdS46ICAzOTggICAxc3QgUXUuOjIwMTItMDctMjUgMTc6NTQ6MDMgICAxc3QgUXUuOjIwMTItMDctMjUgMTg6MDk6NTIgICAxc3QgUXUuOjMxMjAwICAgICAgIFxuIE1lZGlhbiA6ICA2NTggICBNZWRpYW4gOjIwMTItMDgtMTcgMTY6NDU6NTUgICBNZWRpYW4gOjIwMTItMDgtMTcgMTc6MDU6MzkgICBNZWRpYW4gOjMxMjMxICAgICAgIFxuIE1lYW4gICA6IDEwNTIgICBNZWFuICAgOjIwMTItMDgtMTcgMTE6MDg6NDcgICBNZWFuICAgOjIwMTItMDgtMTcgMTE6MjY6MjAgICBNZWFuICAgOjMxMjg4ICAgICAgIFxuIDNyZCBRdS46IDEwOTQgICAzcmQgUXUuOjIwMTItMDktMDkgMjE6MTc6MDIgICAzcmQgUXUuOjIwMTItMDktMDkgMjE6MzQ6MjEgICAzcmQgUXUuOjMxNDAwICAgICAgIFxuIE1heC4gICA6ODYzMjYgICBNYXguICAgOjIwMTItMDktMzAgMjM6NTk6NTYgICBNYXguICAgOjIwMTItMTAtMDEgMDg6MDA6MDAgICBNYXguICAgOjMxODA2ICAgICAgIFxuIFN0YXJ0IHN0YXRpb24gICAgICBFbmQgc3RhdGlvbiBudW1iZXIgRW5kIHN0YXRpb24gICAgICAgIEJpa2UgbnVtYmVyICAgICAgICBNZW1iZXIgdHlwZSAgICAgICBcbiBMZW5ndGg6NjI5OTE3ICAgICAgTWluLiAgIDozMTAwMCAgICAgIExlbmd0aDo2Mjk5MTcgICAgICBMZW5ndGg6NjI5OTE3ICAgICAgTGVuZ3RoOjYyOTkxNyAgICAgXG4gQ2xhc3MgOmNoYXJhY3RlciAgIDFzdCBRdS46MzEyMDEgICAgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1vZGUgIDpjaGFyYWN0ZXIgICBNZWRpYW4gOjMxMjMxICAgICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiAgICAgICAgICAgICAgICAgICAgTWVhbiAgIDozMTI5MSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgIDNyZCBRdS46MzE0MDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAgICBNYXguICAgOjMxODA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
-<pre><code>    Duration       Start date                     End date                   Start station number
- Min.   :   60   Min.   :2012-07-01 00:00:08   Min.   :2012-07-01 00:05:00   Min.   :31000       
- 1st Qu.:  398   1st Qu.:2012-07-25 17:54:03   1st Qu.:2012-07-25 18:09:52   1st Qu.:31200       
- Median :  658   Median :2012-08-17 16:45:55   Median :2012-08-17 17:05:39   Median :31231       
- Mean   : 1052   Mean   :2012-08-17 11:08:47   Mean   :2012-08-17 11:26:20   Mean   :31288       
- 3rd Qu.: 1094   3rd Qu.:2012-09-09 21:17:02   3rd Qu.:2012-09-09 21:34:21   3rd Qu.:31400       
- Max.   :86326   Max.   :2012-09-30 23:59:56   Max.   :2012-10-01 08:00:00   Max.   :31806       
- Start station      End station number End station        Bike number        Member type       
- Length:629917      Min.   :31000      Length:629917      Length:629917      Length:629917     
- Class :character   1st Qu.:31201      Class :character   Class :character   Class :character  
- Mode  :character   Median :31231      Mode  :character   Mode  :character   Mode  :character  
-                    Mean   :31291                                                              
-                    3rd Qu.:31400                                                              
-                    Max.   :31806                                                              </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMylcbmBgYCJ9 -->
-<pre class="r"><code>str(bikeshare.trip.2012.3)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoic3BlY190YmxfZGZbLDldIFs2MjksOTE3IMOXIDldIChTMzogc3BlY190YmxfZGYvdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgRHVyYXRpb24gICAgICAgICAgICA6IG51bSBbMTo2Mjk5MTddIDQyMCAyNjggNDk0IDY1NSAxNjgxIC4uLlxuICQgU3RhcnQgZGF0ZSAgICAgICAgICA6IFBPU0lYY3RbMTo2Mjk5MTddLCBmb3JtYXQ6IFwiMjAxMi0wNy0wMSAwMDowMDowOFwiIFwiMjAxMi0wNy0wMSAwMDowMDozMVwiIFwiMjAxMi0wNy0wMSAwMDowMDozMlwiIC4uLlxuICQgRW5kIGRhdGUgICAgICAgICAgICA6IFBPU0lYY3RbMTo2Mjk5MTddLCBmb3JtYXQ6IFwiMjAxMi0wNy0wMSAwMDowNzowOVwiIFwiMjAxMi0wNy0wMSAwMDowNTowMFwiIFwiMjAxMi0wNy0wMSAwMDowODo0NlwiIC4uLlxuICQgU3RhcnQgc3RhdGlvbiBudW1iZXI6IG51bSBbMTo2Mjk5MTddIDMxMTA0IDMxNjE2IDMxMzA3IDMxMDA3IDMxMjM1IC4uLlxuICQgU3RhcnQgc3RhdGlvbiAgICAgICA6IGNociBbMTo2Mjk5MTddIFwiQWRhbXMgTWlsbCAmIENvbHVtYmlhIFJkIE5XXCIgXCIzcmQgJiBIIFN0IE5FXCIgXCIzMDAwIENvbm5lY3RpY3V0IEF2ZSBOVyAvIE5hdGlvbmFsIFpvb1wiIFwiQ3J5c3RhbCBDaXR5IE1ldHJvIC8gMTh0aCAmIEJlbGwgU3RcIiAuLi5cbiAkIEVuZCBzdGF0aW9uIG51bWJlciAgOiBudW0gWzE6NjI5OTE3XSAzMTIwMCAzMTYxNSAzMTExMyAzMTAwMiAzMTIyMiAuLi5cbiAkIEVuZCBzdGF0aW9uICAgICAgICAgOiBjaHIgWzE6NjI5OTE3XSBcIk1hc3NhY2h1c2V0dHMgQXZlICYgRHVwb250IENpcmNsZSBOV1wiIFwiNnRoICYgSCBTdCBORVwiIFwiQ29sdW1iaWEgUmQgJiBCZWxtb250IFN0IE5XXCIgXCIyMHRoICYgQ3J5c3RhbCBEclwiIC4uLlxuICQgQmlrZSBudW1iZXIgICAgICAgICA6IGNociBbMTo2Mjk5MTddIFwiVzAxMTU1XCIgXCJXMDA0MDVcIiBcIlcwMDk0MlwiIFwiVzAxMTIxXCIgLi4uXG4gJCBNZW1iZXIgdHlwZSAgICAgICAgIDogY2hyIFsxOjYyOTkxN10gXCJNZW1iZXJcIiBcIk1lbWJlclwiIFwiTWVtYmVyXCIgXCJNZW1iZXJcIiAuLi5cbiAtIGF0dHIoKiwgXCJzcGVjXCIpPVxuICAuLiBjb2xzKFxuICAuLiAgIER1cmF0aW9uID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBTdGFydCBkYXRlYCA9IGNvbF9kYXRldGltZShmb3JtYXQgPSBcIlwiKSxcbiAgLi4gICBgRW5kIGRhdGVgID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICAuLiAgIGBTdGFydCBzdGF0aW9uIG51bWJlcmAgPSBjb2xfZG91YmxlKCksXG4gIC4uICAgYFN0YXJ0IHN0YXRpb25gID0gY29sX2NoYXJhY3RlcigpLFxuICAuLiAgIGBFbmQgc3RhdGlvbiBudW1iZXJgID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBFbmQgc3RhdGlvbmAgPSBjb2xfY2hhcmFjdGVyKCksXG4gIC4uICAgYEJpa2UgbnVtYmVyYCA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgLi4gICBgTWVtYmVyIHR5cGVgID0gY29sX2NoYXJhY3RlcigpXG4gIC4uIClcbiJ9 -->
-<pre><code>spec_tbl_df[,9] [629,917 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
- $ Duration            : num [1:629917] 420 268 494 655 1681 ...
- $ Start date          : POSIXct[1:629917], format: &quot;2012-07-01 00:00:08&quot; &quot;2012-07-01 00:00:31&quot; &quot;2012-07-01 00:00:32&quot; ...
- $ End date            : POSIXct[1:629917], format: &quot;2012-07-01 00:07:09&quot; &quot;2012-07-01 00:05:00&quot; &quot;2012-07-01 00:08:46&quot; ...
- $ Start station number: num [1:629917] 31104 31616 31307 31007 31235 ...
- $ Start station       : chr [1:629917] &quot;Adams Mill &amp; Columbia Rd NW&quot; &quot;3rd &amp; H St NE&quot; &quot;3000 Connecticut Ave NW / National Zoo&quot; &quot;Crystal City Metro / 18th &amp; Bell St&quot; ...
- $ End station number  : num [1:629917] 31200 31615 31113 31002 31222 ...
- $ End station         : chr [1:629917] &quot;Massachusetts Ave &amp; Dupont Circle NW&quot; &quot;6th &amp; H St NE&quot; &quot;Columbia Rd &amp; Belmont St NW&quot; &quot;20th &amp; Crystal Dr&quot; ...
- $ Bike number         : chr [1:629917] &quot;W01155&quot; &quot;W00405&quot; &quot;W00942&quot; &quot;W01121&quot; ...
- $ Member type         : chr [1:629917] &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; ...
- - attr(*, &quot;spec&quot;)=
-  .. cols(
-  ..   Duration = col_double(),
-  ..   `Start date` = col_datetime(format = &quot;&quot;),
-  ..   `End date` = col_datetime(format = &quot;&quot;),
-  ..   `Start station number` = col_double(),
-  ..   `Start station` = col_character(),
-  ..   `End station number` = col_double(),
-  ..   `End station` = col_character(),
-  ..   `Bike number` = col_character(),
-  ..   `Member type` = col_character()
-  .. )</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDEyLjQpXG5gYGAifQ== -->
-<pre class="r"><code>summary(bikeshare.trip.2012.4)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgIER1cmF0aW9uICAgICAgIFN0YXJ0IGRhdGUgICAgICAgICAgICAgICAgICAgICBFbmQgZGF0ZSAgICAgICAgICAgICAgICAgICBTdGFydCBzdGF0aW9uIG51bWJlclxuIE1pbi4gICA6ICAgNjAgICBNaW4uICAgOjIwMTItMTAtMDEgMDA6MDI6MDYgICBNaW4uICAgOjIwMTItMTAtMDEgMDA6MTE6MDYgICBNaW4uICAgOjMxMDAwICAgICAgIFxuIDFzdCBRdS46ICAzNjUgICAxc3QgUXUuOjIwMTItMTAtMTggMTY6MDc6MTUgICAxc3QgUXUuOjIwMTItMTAtMTggMTY6Mjk6NDcgICAxc3QgUXUuOjMxMjAwICAgICAgIFxuIE1lZGlhbiA6ICA1OTcgICBNZWRpYW4gOjIwMTItMTEtMDggMDg6MTY6NTggICBNZWRpYW4gOjIwMTItMTEtMDggMDg6Mjg6MDUgICBNZWRpYW4gOjMxMjMyICAgICAgIFxuIE1lYW4gICA6ICA5MTEgICBNZWFuICAgOjIwMTItMTEtMDkgMjA6NTU6NDIgICBNZWFuICAgOjIwMTItMTEtMDkgMjE6MTA6NTQgICBNZWFuICAgOjMxMjkxICAgICAgIFxuIDNyZCBRdS46ICA5ODIgICAzcmQgUXUuOjIwMTItMTItMDEgMjI6MTU6MDYgICAzcmQgUXUuOjIwMTItMTItMDEgMjI6MjQ6NDkgICAzcmQgUXUuOjMxNDAxICAgICAgIFxuIE1heC4gICA6ODQ4NjcgICBNYXguICAgOjIwMTItMTItMzEgMjM6NTk6MjMgICBNYXguICAgOjIwMTMtMDEtMDEgMDI6MTU6MjkgICBNYXguICAgOjMxODA2ICAgICAgIFxuIFN0YXJ0IHN0YXRpb24gICAgICBFbmQgc3RhdGlvbiBudW1iZXIgRW5kIHN0YXRpb24gICAgICAgIEJpa2UgbnVtYmVyICAgICAgICBNZW1iZXIgdHlwZSAgICAgICBcbiBMZW5ndGg6NDcwODQ1ICAgICAgTWluLiAgIDozMTAwMCAgICAgIExlbmd0aDo0NzA4NDUgICAgICBMZW5ndGg6NDcwODQ1ICAgICAgTGVuZ3RoOjQ3MDg0NSAgICAgXG4gQ2xhc3MgOmNoYXJhY3RlciAgIDFzdCBRdS46MzEyMDEgICAgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1vZGUgIDpjaGFyYWN0ZXIgICBNZWRpYW4gOjMxMjMyICAgICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiAgICAgICAgICAgICAgICAgICAgTWVhbiAgIDozMTI5MyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgIDNyZCBRdS46MzE0MDEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAgICBNYXguICAgOjMxODA2ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
-<pre><code>    Duration       Start date                     End date                   Start station number
- Min.   :   60   Min.   :2012-10-01 00:02:06   Min.   :2012-10-01 00:11:06   Min.   :31000       
- 1st Qu.:  365   1st Qu.:2012-10-18 16:07:15   1st Qu.:2012-10-18 16:29:47   1st Qu.:31200       
- Median :  597   Median :2012-11-08 08:16:58   Median :2012-11-08 08:28:05   Median :31232       
- Mean   :  911   Mean   :2012-11-09 20:55:42   Mean   :2012-11-09 21:10:54   Mean   :31291       
- 3rd Qu.:  982   3rd Qu.:2012-12-01 22:15:06   3rd Qu.:2012-12-01 22:24:49   3rd Qu.:31401       
- Max.   :84867   Max.   :2012-12-31 23:59:23   Max.   :2013-01-01 02:15:29   Max.   :31806       
- Start station      End station number End station        Bike number        Member type       
- Length:470845      Min.   :31000      Length:470845      Length:470845      Length:470845     
- Class :character   1st Qu.:31201      Class :character   Class :character   Class :character  
- Mode  :character   Median :31232      Mode  :character   Mode  :character   Mode  :character  
-                    Mean   :31293                                                              
-                    3rd Qu.:31401                                                              
-                    Max.   :31806                                                              </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuNClcbmBgYCJ9 -->
-<pre class="r"><code>str(bikeshare.trip.2012.4)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoic3BlY190YmxfZGZbLDldIFs0NzAsODQ1IMOXIDldIChTMzogc3BlY190YmxfZGYvdGJsX2RmL3RibC9kYXRhLmZyYW1lKVxuICQgRHVyYXRpb24gICAgICAgICAgICA6IG51bSBbMTo0NzA4NDVdIDYxMSA2MTIgNzM0IDIxOSA5MjQgMjA1IDc5NCA4MzMgMjUyIDU4OSAuLi5cbiAkIFN0YXJ0IGRhdGUgICAgICAgICAgOiBQT1NJWGN0WzE6NDcwODQ1XSwgZm9ybWF0OiBcIjIwMTItMTAtMDEgMDA6MDI6MDZcIiBcIjIwMTItMTAtMDEgMDA6MDI6NTJcIiBcIjIwMTItMTAtMDEgMDA6MDY6MzRcIiAuLi5cbiAkIEVuZCBkYXRlICAgICAgICAgICAgOiBQT1NJWGN0WzE6NDcwODQ1XSwgZm9ybWF0OiBcIjIwMTItMTAtMDEgMDA6MTI6MTdcIiBcIjIwMTItMTAtMDEgMDA6MTM6MDVcIiBcIjIwMTItMTAtMDEgMDA6MTg6NDhcIiAuLi5cbiAkIFN0YXJ0IHN0YXRpb24gbnVtYmVyOiBudW0gWzE6NDcwODQ1XSAzMTIzMCAzMTYyNCAzMTIzNCAzMTEwNiAzMTEwOSAuLi5cbiAkIFN0YXJ0IHN0YXRpb24gICAgICAgOiBjaHIgWzE6NDcwODQ1XSBcIk1ldHJvIENlbnRlciAvIDEydGggJiBHIFN0IE5XXCIgXCJOb3J0aCBDYXBpdG9sIFN0ICYgRiBTdCBOV1wiIFwiMjB0aCAmIE8gU3QgTlcgLyBEdXBvbnQgU291dGhcIiBcIkNhbHZlcnQgJiBCaWx0bW9yZSBTdCBOV1wiIC4uLlxuICQgRW5kIHN0YXRpb24gbnVtYmVyICA6IG51bSBbMTo0NzA4NDVdIDMxMjEyIDMxMjUxIDMxMjIzIDMxMTA0IDMxNjE1IC4uLlxuICQgRW5kIHN0YXRpb24gICAgICAgICA6IGNociBbMTo0NzA4NDVdIFwiMjFzdCAmIE0gU3QgTldcIiBcIjEydGggJiBMIFN0IE5XXCIgXCJDb252ZW50aW9uIENlbnRlciAvIDd0aCAmIE0gU3QgTldcIiBcIkFkYW1zIE1pbGwgJiBDb2x1bWJpYSBSZCBOV1wiIC4uLlxuICQgQmlrZSBudW1iZXIgICAgICAgICA6IGNociBbMTo0NzA4NDVdIFwiVzAwMzExXCIgXCJXMDAxMzdcIiBcIlcyMDEyNVwiIFwiVzAxNDUxXCIgLi4uXG4gJCBNZW1iZXIgdHlwZSAgICAgICAgIDogY2hyIFsxOjQ3MDg0NV0gXCJNZW1iZXJcIiBcIk1lbWJlclwiIFwiTWVtYmVyXCIgXCJNZW1iZXJcIiAuLi5cbiAtIGF0dHIoKiwgXCJzcGVjXCIpPVxuICAuLiBjb2xzKFxuICAuLiAgIER1cmF0aW9uID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBTdGFydCBkYXRlYCA9IGNvbF9kYXRldGltZShmb3JtYXQgPSBcIlwiKSxcbiAgLi4gICBgRW5kIGRhdGVgID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICAuLiAgIGBTdGFydCBzdGF0aW9uIG51bWJlcmAgPSBjb2xfZG91YmxlKCksXG4gIC4uICAgYFN0YXJ0IHN0YXRpb25gID0gY29sX2NoYXJhY3RlcigpLFxuICAuLiAgIGBFbmQgc3RhdGlvbiBudW1iZXJgID0gY29sX2RvdWJsZSgpLFxuICAuLiAgIGBFbmQgc3RhdGlvbmAgPSBjb2xfY2hhcmFjdGVyKCksXG4gIC4uICAgYEJpa2UgbnVtYmVyYCA9IGNvbF9jaGFyYWN0ZXIoKSxcbiAgLi4gICBgTWVtYmVyIHR5cGVgID0gY29sX2NoYXJhY3RlcigpXG4gIC4uIClcbiJ9 -->
-<pre><code>spec_tbl_df[,9] [470,845 × 9] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
- $ Duration            : num [1:470845] 611 612 734 219 924 205 794 833 252 589 ...
- $ Start date          : POSIXct[1:470845], format: &quot;2012-10-01 00:02:06&quot; &quot;2012-10-01 00:02:52&quot; &quot;2012-10-01 00:06:34&quot; ...
- $ End date            : POSIXct[1:470845], format: &quot;2012-10-01 00:12:17&quot; &quot;2012-10-01 00:13:05&quot; &quot;2012-10-01 00:18:48&quot; ...
- $ Start station number: num [1:470845] 31230 31624 31234 31106 31109 ...
- $ Start station       : chr [1:470845] &quot;Metro Center / 12th &amp; G St NW&quot; &quot;North Capitol St &amp; F St NW&quot; &quot;20th &amp; O St NW / Dupont South&quot; &quot;Calvert &amp; Biltmore St NW&quot; ...
- $ End station number  : num [1:470845] 31212 31251 31223 31104 31615 ...
- $ End station         : chr [1:470845] &quot;21st &amp; M St NW&quot; &quot;12th &amp; L St NW&quot; &quot;Convention Center / 7th &amp; M St NW&quot; &quot;Adams Mill &amp; Columbia Rd NW&quot; ...
- $ Bike number         : chr [1:470845] &quot;W00311&quot; &quot;W00137&quot; &quot;W20125&quot; &quot;W01451&quot; ...
- $ Member type         : chr [1:470845] &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; &quot;Member&quot; ...
- - attr(*, &quot;spec&quot;)=
-  .. cols(
-  ..   Duration = col_double(),
-  ..   `Start date` = col_datetime(format = &quot;&quot;),
-  ..   `End date` = col_datetime(format = &quot;&quot;),
-  ..   `Start station number` = col_double(),
-  ..   `Start station` = col_character(),
-  ..   `End station number` = col_double(),
-  ..   `End station` = col_character(),
-  ..   `Bike number` = col_character(),
-  ..   `Member type` = col_character()
-  .. )</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<div id="test" class="section level3">
-<h3>Test</h3>
+<div id="merge-tripdata-into-one-dataframe" class="section level3">
+<h3>Merge tripdata into one dataframe</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudHJpcC5hbGwueWVhcnMgPC0gbGlzdC5maWxlcyhwYXRoID0gXCIuLi9EYXRhL3RyaXBkYXRhXCIsICAgICAjIElkZW50aWZ5IGFsbCBjc3YgZmlsZXMgaW4gZm9sZGVyXG4gICAgICAgICAgICAgICAgICAgICAgIHBhdHRlcm4gPSBcIiouY3N2XCIsIGZ1bGwubmFtZXMgPSBUUlVFKSAlPiUgXG4gIGxhcHBseShyZWFkX2NzdikgJT4lICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIFN0b3JlIGFsbCBmaWxlcyBpbiBsaXN0XG4gIGJpbmRfcm93cyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIENvbWJpbmUgZGF0YSBzZXRzIGludG8gb25lIGRhdGEgc2V0XG5cbmBgYCJ9 -->
+<pre class="r"><code>trip.all.years &lt;- list.files(path = &quot;../Data/tripdata&quot;,     # Identify all csv files in folder
+                       pattern = &quot;*.csv&quot;, full.names = TRUE) %&gt;% 
+  lapply(read_csv) %&gt;%                                            # Store all files in list
+  bind_rows                                                       # Combine data sets into one data set
+</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="export-merged-tripdata-to-csv" class="section level3">
+<h3>Export merged tripdata to csv</h3>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaXMuZGF0YS5mcmFtZSh0cmlwLmFsbC55ZWFycylcbmBgYCJ9 -->
+<pre class="r"><code>is.data.frame(trip.all.years)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFRSVUVcbiJ9 -->
+<pre><code>[1] TRUE</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxud3JpdGUuY3N2KHRyaXAuYWxsLnllYXJzLFwiLi4vRGF0YS90cmlwZGF0YS9jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLWFsbC5jc3ZcIiwgcm93Lm5hbWVzID0gVFJVRSlcblxuYGBgIn0= -->
+<pre class="r"><code>write.csv(trip.all.years,&quot;../Data/tripdata/capitalbikeshare-tripdata-all.csv&quot;, row.names = TRUE)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQmlrZSBEYXRhIENsZWFuaW5nIgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdAogIHBkZl9kb2N1bWVudDogZGVmYXVsdAphdXRob3I6ICJQaGlsaXBwIFNjaGFhZCIKLS0tCgpJbiB0aGlzIGZpbGUgd2Ugd2lsbCBhbmFseXplIGFuZCBjbGVhbiB1cCB0aGUgZGF0YS4gQXQgdGhlIGVuZCBvZiB0aGUgZmlsZSB0aGUgZGF0YSB3aWxsIGJlIHNhdmVkIGFuZCByZWFkeSBmb3IgZnVyaHRlciBhbmFseXNpcyB3aXRoIHRoZSBkaWZmZXJlbnQgbW9kZWxzIHdlIGhhdmUgdG8gYXBwbHkuCgojIyBJbXBvcnQgbGlicmFyaWVzIApgYGB7cn0KI2luc3RhbGwucGFja2FnZXMoInRpZHl2ZXJzZSIpCiNpbnN0YWxsLnBhY2thZ2VzKCJIbWlzYyIpCmxpYnJhcnkocmVhZHIpCmxpYnJhcnkoSG1pc2MpCmxpYnJhcnkoZHBseXIpCmxpYnJhcnkocGx5cikKCmBgYAoKIyMgaW1wb3J0IGZpbGVzCmBgYHtyfQpiaWtlc2hhcmUudHJpcC4yMDExIDwtIHJlYWRfY3N2KCIuLi9EYXRhLzIwMTEtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3YiKQpiaWtlc2hhcmUudHJpcC4yMDEyLjEgPC0gcmVhZF9jc3YoIi4uL0RhdGEvMjAxMi1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLzIwMTJRMS1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLmNzdiIpCmJpa2VzaGFyZS50cmlwLjIwMTIuMiA8LSByZWFkX2NzdigiLi4vRGF0YS8yMDEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEvMjAxMlEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi4zIDwtIHJlYWRfY3N2KCIuLi9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTMtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3YiKQpiaWtlc2hhcmUudHJpcC4yMDEyLjQgPC0gcmVhZF9jc3YoIi4uL0RhdGEvMjAxMi1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLzIwMTJRNC1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLmNzdiIpCmJpa2VzaGFyZS5ob3VlcmxpIDwtIHJlYWQuY3N2KCIuLi9EYXRhL2hvdXIuY3N2IikKYmlrZXNoYXJlLmRhaWx5IDwtIHJlYWQuY3N2KCIuLi9EYXRhL2RheS5jc3YiKQoKYGBgCgoKYGBge3J9ClZpZXcoKQpjbGFzcyhiaWtlc2hhcmUuZGFpbHkpCmNsYXNzKGJpa2VzaGFyZS50cmlwLjIwMTIuMykKCnN1bW1hcnkoYmlrZXNoYXJlLmRhaWx5KQpzdHIoYmlrZXNoYXJlLmRhaWx5KQpzdW1tYXJ5KGJpa2VzaGFyZS5ob3VlcmxpKQpzdHIoYmlrZXNoYXJlLmhvdWVybGkpCnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMSkKc3RyKGJpa2VzaGFyZS50cmlwLjIwMTEpCnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi4xKQpzdHIoYmlrZXNoYXJlLnRyaXAuMjAxMi4xKQpzdW1tYXJ5KGJpa2VzaGFyZS50cmlwLjIwMTIuMikKc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMikKc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDEyLjMpCnN0cihiaWtlc2hhcmUudHJpcC4yMDEyLjMpCnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi40KQpzdHIoYmlrZXNoYXJlLnRyaXAuMjAxMi40KQpgYGAKCgojIyMgVGVzdApgYGB7cn0KCgpgYGBgYAoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQmlrZSBEYXRhIENsZWFuaW5nIgpvdXRwdXQ6CiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdAogIHBkZl9kb2N1bWVudDogZGVmYXVsdAphdXRob3I6ICJQaGlsaXBwIFNjaGFhZCIKLS0tCgpJbiB0aGlzIGZpbGUgd2Ugd2lsbCBhbmFseXplIGFuZCBjbGVhbiB1cCB0aGUgZGF0YS4gQXQgdGhlIGVuZCBvZiB0aGUgZmlsZSB0aGUgZGF0YSB3aWxsIGJlIHNhdmVkIGFuZCByZWFkeSBmb3IgZnVyaHRlciBhbmFseXNpcyB3aXRoIHRoZSBkaWZmZXJlbnQgbW9kZWxzIHdlIGhhdmUgdG8gYXBwbHkuCgojIyBJbXBvcnQgbGlicmFyaWVzIApgYGB7cn0KI2luc3RhbGwucGFja2FnZXMoInRpZHl2ZXJzZSIpCiNpbnN0YWxsLnBhY2thZ2VzKCJIbWlzYyIpCmxpYnJhcnkodGlkeXZlcnNlKQpsaWJyYXJ5KHJlYWRyKQpsaWJyYXJ5KEhtaXNjKQpsaWJyYXJ5KGRwbHlyKQpsaWJyYXJ5KHBseXIpCgpgYGAKCiMjIGltcG9ydCBmaWxlcwpgYGB7cn0KYmlrZXNoYXJlLnRyaXAuMjAxMSA8LSByZWFkX2NzdigiLi4vRGF0YS8yMDExLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi4xIDwtIHJlYWRfY3N2KCIuLi9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTEtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3YiKQpiaWtlc2hhcmUudHJpcC4yMDEyLjIgPC0gcmVhZF9jc3YoIi4uL0RhdGEvMjAxMi1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLzIwMTJRMi1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLmNzdiIpCmJpa2VzaGFyZS50cmlwLjIwMTIuMyA8LSByZWFkX2NzdigiLi4vRGF0YS8yMDEyLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEvMjAxMlEzLWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikKYmlrZXNoYXJlLnRyaXAuMjAxMi40IDwtIHJlYWRfY3N2KCIuLi9EYXRhLzIwMTItY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS8yMDEyUTQtY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3YiKQpiaWtlc2hhcmUuaG91ZXJsaSA8LSByZWFkLmNzdigiLi4vRGF0YS9ob3VyLmNzdiIpCmJpa2VzaGFyZS5kYWlseSA8LSByZWFkLmNzdigiLi4vRGF0YS9kYXkuY3N2IikKCmBgYAoKCmBgYHtyfQpWaWV3KCkKY2xhc3MoYmlrZXNoYXJlLmRhaWx5KQpjbGFzcyhiaWtlc2hhcmUudHJpcC4yMDEyLjMpCgpzdW1tYXJ5KGJpa2VzaGFyZS5kYWlseSkKc3RyKGJpa2VzaGFyZS5kYWlseSkKc3VtbWFyeShiaWtlc2hhcmUuaG91ZXJsaSkKc3RyKGJpa2VzaGFyZS5ob3VlcmxpKQpzdW1tYXJ5KGJpa2VzaGFyZS50cmlwLjIwMTEpCnN0cihiaWtlc2hhcmUudHJpcC4yMDExKQpzdW1tYXJ5KGJpa2VzaGFyZS50cmlwLjIwMTIuMSkKc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuMSkKc3VtbWFyeShiaWtlc2hhcmUudHJpcC4yMDEyLjIpCnN0cihiaWtlc2hhcmUudHJpcC4yMDEyLjIpCnN1bW1hcnkoYmlrZXNoYXJlLnRyaXAuMjAxMi4zKQpzdHIoYmlrZXNoYXJlLnRyaXAuMjAxMi4zKQpzdW1tYXJ5KGJpa2VzaGFyZS50cmlwLjIwMTIuNCkKc3RyKGJpa2VzaGFyZS50cmlwLjIwMTIuNCkKYGBgCgoKIyMjIE1lcmdlIHRyaXBkYXRhIGludG8gb25lIGRhdGFmcmFtZQpgYGB7cn0KdHJpcC5hbGwueWVhcnMgPC0gbGlzdC5maWxlcyhwYXRoID0gIi4uL0RhdGEvdHJpcGRhdGEiLCAgICAgIyBJZGVudGlmeSBhbGwgY3N2IGZpbGVzIGluIGZvbGRlcgogICAgICAgICAgICAgICAgICAgICAgIHBhdHRlcm4gPSAiKi5jc3YiLCBmdWxsLm5hbWVzID0gVFJVRSkgJT4lIAogIGxhcHBseShyZWFkX2NzdikgJT4lICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIFN0b3JlIGFsbCBmaWxlcyBpbiBsaXN0CiAgYmluZF9yb3dzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMgQ29tYmluZSBkYXRhIHNldHMgaW50byBvbmUgZGF0YSBzZXQKCmBgYAoKIyMjIEV4cG9ydCBtZXJnZWQgdHJpcGRhdGEgdG8gY3N2CmBgYHtyfQppcy5kYXRhLmZyYW1lKHRyaXAuYWxsLnllYXJzKQp3cml0ZS5jc3YodHJpcC5hbGwueWVhcnMsIi4uL0RhdGEvdHJpcGRhdGEvY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS1hbGwuY3N2Iiwgcm93Lm5hbWVzID0gVFJVRSkKCmBgYA==</div>
 
 
 
