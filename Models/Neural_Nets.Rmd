@@ -44,7 +44,7 @@ str(train)
 ```
 
 ```{r}
-data_ann_1 <- nnet(hr ~ weathersit + temp, data = train, size=24, maxit=100, range=0.01, decay=5e-4)
+data_ann_1 <- nnet(hr ~ weathersit + temp, data = train, size=24, maxit=100, range=0.1, decay=5e-4)
 ```
 
 ```{r}
@@ -58,11 +58,19 @@ cm_nn
 ```
 
 ```{r}
-confusionMatrix(as.factor(test$hr), as.factor(pred))
+confusionMatrix(as.factor(pred), as.factor(test$hr))
+```
+
+```{r}
+str(test$hr)
+str(pred)
 ```
 
 ```{r}
 pred_raw <- predict(data_ann_1, test, decision.values=TRUE, type = "raw")
+pred_raw
+```
+```{r}
 pred <- ROCR::prediction(pred_raw, test$hr)
 perf <- ROCR::performance(pred, "tpr", "fpr")
 plot(perf, lwd=2, col="blue")
