@@ -4,81 +4,70 @@ output: html_notebook
 author: ""
 ---
 
+Load libraries and data set
 
 ```{r, echo= FALSE}
-library(nnet)
-library(gamlss.add)
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
+library(neuralnet)
 library(caret)
-library(ROCR)
 library(rstudioapi)
+library(rmarkdown)
 ```
 
 ```{r, echo= FALSE}
 setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
-summary(df)
-head(df)
 ```
 
-```{r}
-df %>%
-  ggplot(aes(x = temp)) +
-  geom_histogram(position = "stack", bins = 40)
+
+Inspect df
+
+```{r, echo= FALSE}
+str(df)
 ```
+
+```{r, echo= FALSE}
+df$season <- as.factor(df$season)
+df$yr <- as.factor(df$yr)
+df$mnth <- as.factor(df$mnth)
+df$hr <- as.factor(df$hr)
+df$holiday <- as.factor(df$holiday)
+df$weekday <- as.factor(df$weekday)
+df$workingday <- as.factor(df$workingday)
+df$weathersit <- as.factor(df$weathersit)
+```
+
+
+Split data train/test
 
 ```{r}
 set.seed(123)
-is_train <- runif(nrow(df)) < 0.8
-mean(is_train)
+indices <- createDataPartition(df$cnt, p=.85, list = F)
 ```
+
+
+```{r echo=FALSE, R.options=list(max.print=10)}
+df %>%
+mutate(train = row_number() %in% indices) %>%
+select(cnt, train) %>%
+table()
+```
+
 
 ```{r}
-train <- df[is_train, ]
-test <- df[!is_train, ]
+train <- df %>%
+slice(indices)
+test_in <- df %>%
+slice(-indices) %>%
+select(-cnt)
+test_truth <- df %>%
+slice(-indices) %>%
+pull(cnt)
 ```
+
 
 ```{r}
-str(train)
+set.seed(123)
+df_net <- neuralnet(cnt ~ hr + temp, train, hidden = c(4,3))
 ```
-
-```{r}
-data_ann_1 <- nnet(hr ~ weathersit + temp, data = train, size=24, maxit=100, range=0.1, decay=5e-4)
-```
-
-```{r}
-plot(data_ann_1)
-```
-
-```{r}
-pred <- predict(data_ann_1, test, type="raw")
-cm_nn <- table(pred=pred, true=test$hr)
-cm_nn
-```
-
-```{r}
-confusionMatrix(as.factor(pred), as.factor(test$hr))
-```
-
-```{r}
-str(test$hr)
-str(pred)
-```
-
-```{r}
-pred_raw <- predict(data_ann_1, test, decision.values=TRUE, type = "raw")
-pred_raw
-```
-```{r}
-pred <- ROCR::prediction(pred_raw, test$hr)
-perf <- ROCR::performance(pred, "tpr", "fpr")
-plot(perf, lwd=2, col="blue")
-abline(a=0, b=1)
-```
-
-
-
-
-
 
