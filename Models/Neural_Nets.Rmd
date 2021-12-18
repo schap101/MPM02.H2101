@@ -15,20 +15,23 @@ library(rstudioapi)
 library(rmarkdown)
 library(dplyr)
 ```
+Load and inspect data
 
 ```{r, echo= FALSE}
-setwd(dirname(getActiveDocumentContext()$path))
+d <- setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
 ```
 
 
 --------------------------------------------------------------------------------
-Inspect df
+Adjust variables type
 
 food <- factor(food, levels = c("low", "medium", "high"), ordered = TRUE)
+
 df$season <- as.factor(df$season)
+
 ```{r, echo= FALSE}
-df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = TRUE)
+df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
 df$yr <- as.factor(df$yr)
 df$mnth <- as.factor(df$mnth)
 df$hr <- as.factor(df$hr)
@@ -46,7 +49,7 @@ str(df)
 
 
 --------------------------------------------------------------------------------
-Split data train/test
+Split data in train & test partition
 
 ```{r}
 set.seed(123)
@@ -60,23 +63,16 @@ str(train)
 
 
 --------------------------------------------------------------------------------
-Train model
+model 1 - not working / -requires numeric/complex matrix/vector arguments
+
 
 ```{r}
-glimpse(head(df))
-```
-
-```{r}
-set.seed(42)
+#set.seed(42)
 df_net = neuralnet(cnt ~ temp + windspeed + season, train, hidden=c(4,3))
 ```
-
-
-
 ```{r}
 plot(df_net, information = T, show.weights = T)
 ```
-
 ```{r}
 pred <- compute(df_net, test %>% select(-hr))
 pred$net.result
@@ -84,18 +80,17 @@ pred$net.result
 ```{r}
 plot(test$cnt, col='blue', pch=1, ylab = "predicted rating NN", xlab = "real rating")
 ```
-
 ```{r}
 sqrt(mean((test$cnt - pred)^2))
 ```
 
 
 --------------------------------------------------------------------------------
-With caret - maybe better?
+Model 2 - With caret -> maybe better?
 
 ```{r}
 set.seed(42)
-tuGrid <- expand.grid(.layer1=c(1:4), .layer2=c(0:4), .layer3=c(0:4))
+tuGrid <- expand.grid(.layer1=c(1:3), .layer2=c(0:3), .layer3=c(0:3))
 
 trCtrl <- trainControl(
   method = 'repeatedcv',
