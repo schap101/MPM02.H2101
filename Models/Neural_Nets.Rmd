@@ -1,7 +1,7 @@
 ---
 title: "Neural Net"
 output: html_notebook
-author: ""
+author: "Régis Michael Andreoli"
 ---
 
 
@@ -24,14 +24,9 @@ df <- read.csv("../Data/hour.csv")
 
 
 --------------------------------------------------------------------------------
-Adjust variables type
-
-food <- factor(food, levels = c("low", "medium", "high"), ordered = TRUE)
-
-df$season <- as.factor(df$season)
-
+# Adjust variables type
 ```{r, echo= FALSE}
-df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
+df$season <- as.factor(df$season)
 df$yr <- as.factor(df$yr)
 df$mnth <- as.factor(df$mnth)
 df$hr <- as.factor(df$hr)
@@ -39,21 +34,33 @@ df$holiday <- as.factor(df$holiday)
 df$weekday <- as.factor(df$weekday)
 df$workingday <- as.factor(df$workingday)
 df$weathersit <- as.factor(df$weathersit)
+df$cnt <- as.numeric(df$cnt)
 ```
 
+# normalize count
+```{r, echo= FALSE}
+```
+
+# Identifying near-zero variance variable
+```{r}
+nearZeroVar(df, saveMetrics = TRUE)
+```
 
 ```{r, echo= FALSE}
 str(df)
 ```
 
-
-
 --------------------------------------------------------------------------------
-Split data in train & test partition
+
+#Split data in train & test partition
+```{r}
+df$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
+str(df)
+```
 
 ```{r}
 set.seed(123)
-indices <- createDataPartition(df$cnt, p=.8, list = F)
+indices <- createDataPartition(df$cnt, p=.1, list = F)
 
 train <- df %>% slice(indices)
 test <- df %>% slice(-indices)
@@ -61,49 +68,24 @@ test <- df %>% slice(-indices)
 str(train)
 ```
 
-
 --------------------------------------------------------------------------------
-model 1 - not working / -requires numeric/complex matrix/vector arguments
-
-
-```{r}
-#set.seed(42)
-df_net = neuralnet(cnt ~ temp + windspeed + season, train, hidden=c(4,3))
-```
-```{r}
-plot(df_net, information = T, show.weights = T)
-```
-```{r}
-pred <- compute(df_net, test %>% select(-hr))
-pred$net.result
-```
-```{r}
-plot(test$cnt, col='blue', pch=1, ylab = "predicted rating NN", xlab = "real rating")
-```
-```{r}
-sqrt(mean((test$cnt - pred)^2))
-```
-
-
---------------------------------------------------------------------------------
-Model 2 - With caret -> maybe better?
+# ANN Model 1 - With Caret
 
 ```{r}
 set.seed(42)
-tuGrid <- expand.grid(.layer1=c(1:3), .layer2=c(0:3), .layer3=c(0:3))
+tuGrid <- expand.grid(.layer1=c(1:6), .layer2=c(1:6), .layer3=c(0:3))
 
 trCtrl <- trainControl(
   method = 'repeatedcv',
-  number = 5,
+  number = 2,
   repeats = 2,
   returnResamp = 'final'
 )
 ```
 
+
 ```{r}
-models <- train(
-  x = df %>% select(-cnt),
-  y = df %>% pull(cnt),
+models <- train(cnt ~ weekday + weathersit, data = train,
   method = 'neuralnet', metric = 'RMSE',
   linear.output = TRUE,
   preProcess = c('center', 'scale'),
@@ -111,11 +93,34 @@ models <- train(
   trControl = trCtrl
   )
 ```
+
 ```{r}
 plot(models)
 ```
+# ANN Model 2 - With Caret - Model to predict amount of rents only due to date variables
 
+```{r}
+tuGrid_2 <- expand.grid(.layer1=c(4:4), .layer2=c(3:4), .layer3=c(0:0))
 
+trCtrl_2 <- trainControl(
+  method = 'repeatedcv',
+  number = 2,
+  repeats = 2,
+  returnResamp = 'final'
+)
+```
 
+```{r}
+models_2 <- train(cnt ~ hr + weekday + mnth, data = train,
+  method = 'neuralnet', metric = 'RMSE',
+  linear.output = TRUE,
+  preProcess = c('center', 'scale'),
+  tuneGrid = tuGrid_2,
+  trControl = trCtrl_2
+  )
+```
 
+```{r}
+plot(models_2)
+```
 
