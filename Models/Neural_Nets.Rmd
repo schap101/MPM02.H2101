@@ -5,7 +5,7 @@ author: "Régis Michael Andreoli"
 ---
 
 
-Load libraries and data set
+# Load libraries and data set
 
 ```{r, echo= FALSE}
 library(tidyverse)
@@ -37,9 +37,7 @@ df$weathersit <- as.factor(df$weathersit)
 df$cnt <- as.numeric(df$cnt)
 ```
 
-# normalize count
-```{r, echo= FALSE}
-```
+
 
 # Identifying near-zero variance variable
 ```{r}
@@ -52,15 +50,15 @@ str(df)
 
 --------------------------------------------------------------------------------
 
-#Split data in train & test partition
+# Normalize dependent var
 ```{r}
 df$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
 str(df)
 ```
-
+#Split data in train & test partition
 ```{r}
 set.seed(123)
-indices <- createDataPartition(df$cnt, p=.1, list = F)
+indices <- createDataPartition(df$cnt, p=.2, list = F)
 
 train <- df %>% slice(indices)
 test <- df %>% slice(-indices)
@@ -100,12 +98,13 @@ plot(models)
 # ANN Model 2 - With Caret - Model to predict amount of rents only due to date variables
 
 ```{r}
-tuGrid_2 <- expand.grid(.layer1=c(4:4), .layer2=c(3:4), .layer3=c(0:0))
+set.seed(44)
+tuGrid_2 <- expand.grid(.layer1=c(3:6), .layer2=c(0:4), .layer3=c(0:3))
 
 trCtrl_2 <- trainControl(
   method = 'repeatedcv',
-  number = 2,
-  repeats = 2,
+  number = 5,
+  repeats = 3,
   returnResamp = 'final'
 )
 ```
@@ -123,4 +122,32 @@ models_2 <- train(cnt ~ hr + weekday + mnth, data = train,
 ```{r}
 plot(models_2)
 ```
+```{r}
+plot(models_2$finalModel)
+```
 
+# Compute prediction with test data. Then denormalized data
+```{r}
+pred_df <- compute(models_2$finalModel, test$-cnt)
+pred <- pred_df$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+pred
+```
+
+# Train best Neuron&Layer model with larger dataset
+
+#Split data in train & test partition
+```{r}
+set.seed(123)
+indices_2 <- createDataPartition(df$cnt, p=.8, list = F)
+
+train_2 <- df %>% slice(indices_2)
+test_2 <- df %>% slice(-indices_2)
+
+str(train)
+```
+
+```{r}
+set.seed(42)
+final_model = neuralnet(cnt ~ hr + weekday + mnth, train_2, hidden = 3 , li
+plot(final_model)
+```
