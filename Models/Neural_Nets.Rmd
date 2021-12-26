@@ -5,21 +5,21 @@ author: "Régis Michael Andreoli"
 ---
 
 
-#1.1 Set up - Load libraries & Data preparation
+1.1 Set up - Load libraries & Data preparation
 
-#2.1 Split data into train and test partition
+2.1 Split data into train and test partition
 
-#3.1 First Model - Train & compare - with diversed predictors
-#3.2 First Model - Test best model
-#3.2 First Model - Finetune best model
-#3.3 First Model - Test final model
+3.1 First Model - Train & compare - with diversed predictors
+3.2 First Model - Test best model
+3.2 First Model - Finetune best model
+3.3 First Model - Test final model
 
-#4.1 Second Model - Train & compare - only as time series
-#4.2 Second Model - Test best model
-#4.3 Second Model - Finetune best model
-#4.4 Second Model - Test final model
+4.1 Second Model - Train & compare - only as time series
+4.2 Second Model - Test best model
+4.3 Second Model - Finetune best model
+4.4 Second Model - Test final model
 
-#5.1 Create SARIMA model and compare with best second model
+5.1 Create SARIMA model and compare with best second model
 
 
 --------------------------------------------------------------------------------
@@ -47,6 +47,10 @@ df$season_1 <- ifelse(df$season == "1", 1, 0)
 df$season_2 <- ifelse(df$season == "2", 1, 0)
 df$season_3 <- ifelse(df$season == "3", 1, 0)
 df$season_4 <- ifelse(df$season == "4", 1, 0)
+df$weathersit_1 <- ifelse(df$weathersit == "1", 1, 0)
+df$weathersit_2 <- ifelse(df$weathersit == "2", 1, 0)
+df$weathersit_3 <- ifelse(df$weathersit == "3", 1, 0)
+df$weathersit_4 <- ifelse(df$weathersit == "4", 1, 0)
 ```
 
 ##1.1 Adjust variables types
@@ -55,6 +59,10 @@ df$season_1 <- as.factor(df$season_1)
 df$season_2 <- as.factor(df$season_2)
 df$season_3 <- as.factor(df$season_3)
 df$season_4 <- as.factor(df$season_4)
+df$weathersit_1 <- as.factor(df$weathersit_1)
+df$weathersit_2 <- as.factor(df$weathersit_2)
+df$weathersit_3 <- as.factor(df$weathersit_3)
+df$weathersit_4 <- as.factor(df$weathersit_4)
 df$season <- as.factor(df$season)
 df$yr <- as.factor(df$yr)
 df$mnth <- as.factor(df$mnth)
@@ -63,30 +71,33 @@ df$holiday <- as.factor(df$holiday)
 df$weekday <- as.factor(df$weekday)
 df$workingday <- as.factor(df$workingday)
 df$weathersit <- as.factor(df$weathersit)
+str(df)
 ```
 
 ##1.1 Normalize dependent var
 ```{r}
-df$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
-str(df)
+data <- df
+data$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
+str(data)
 ```
 
 ##1.1 Identifying near-zero variance variable
 ```{r}
-nearZeroVar(df, saveMetrics = TRUE)
+nearZeroVar(data, saveMetrics = TRUE)
 ```
 
 #2.1 Split data into train and test partition
 
 ```{r}
 set.seed(123)
-indices <- createDataPartition(df$cnt, p=.3, list = F)
+indices <- createDataPartition(data$cnt, p=.5, list = F)
 
-train <- df %>% slice(indices)
-test <- df %>% slice(-indices)
+train <- data %>% slice(indices)
+test <- data %>% slice(-indices)
 
 str(train)
 ```
+
 
 #3.1 First Model - Train & compare - with diversed predictors
 
@@ -94,7 +105,7 @@ str(train)
 ##3.1 Set up model A
 ```{r}
 set.seed(44)
-tuGrid <- expand.grid(.layer1=c(1:4), .layer2=c(0:4), .layer3=c(0:2))
+tuGrid <- expand.grid(.layer1=c(2:4), .layer2=c(2:4), .layer3=c(0,2))
 
 trCtrl <- trainControl(
   method = 'repeatedcv',
@@ -106,7 +117,8 @@ trCtrl <- trainControl(
 
 ##3.1 Train model A
 ```{r}
-models <- train(cnt ~ weekday + weathersit, data = train, method = 'neuralnet', metric = 'RMSE',
+set.seed(42)
+models <- train(cnt ~ weekday + weathersit_1 + weathersit_2 + weathersit_3 + weathersit_4, data = train, method = 'neuralnet', metric = 'RMSE',
   linear.output = TRUE,
   preProcess = c('center', 'scale'),
   tuneGrid = tuGrid,
@@ -122,64 +134,12 @@ plot(models)
 plot(models_$finalModel)
 ```
 
-# ANN Model 2 - With Caret - Model to predict amount of rents only due to date variables
-
-##3.1 Set up model B
-```{r}
-set.seed(44)
-tuGrid_2 <- expand.grid(.layer1=c(1:x), .layer2=c(x:x), .layer3=c(0:x))
-
-trCtrl_2 <- trainControl(
-  method = 'repeatedcv',
-  number = 10,
-  repeats = 5,
-  returnResamp = 'final'
-)
-```
-
-##3.1 Train model B
-```{r}
-models_2 <- train(cnt ~ hr + weekday + mnth, data = train, method = 'neuralnet', metric = 'RMSE',
-  linear.output = TRUE,
-  preProcess = c('center', 'scale'),
-  tuneGrid = tuGrid_2,
-  trControl = trCtrl_2
-  )
-```
-
-```{r}
-plot(models_2)
-```
-```{r}
-plot(models_2$finalModel)
-```
 
 # Compute prediction with test data. Then denormalized data
 ```{r}
-pred_df <- compute(models_2$finalModel, test$cnt)
+pred_df <- compute(models$finalModel, test$cnt)
 pred <- pred_df$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 pred
-```
-
-# Train best Neuron&Layer model with larger dataset
-
-##Split data in train & test partition
-```{r}
-set.seed(123)
-indices_2 <- createDataPartition(df$cnt, p=.8, list = F)
-
-train_2 <- df %>% slice(indices_2)
-test_2 <- df %>% slice(-indices_2)
-
-str(train)
-```
-
-```{r}
-set.seed(42)
-final_model = neuralnet(cnt ~ temp + windspeed, train_2, hidden = 3)
-```
-```{r}
-plot(final_model)
 ```
 
 
@@ -208,5 +168,39 @@ models_2 <- train(cnt ~ hr + weekday + mnth, data = train,
   tuneGrid = tuGrid_3,
   trControl = trCtrl_3
   )
+```
+
+weathersit_1 + weathersit_2 + weathersit_3 + weathersit_4
+```{r}
+pred <- model.matrix(~ cnt + weathersit_1 + weathersit_2 + weathersit_3 + weathersit_4, data = train)
+```
+
+///
+
+```{r}
+set.seed(42)
+tmodel = neuralnet(cnt ~ temp + hum, data = train, hidden = c(3,2), threshold = 0.015, stepmax = 1e+06, rep = 1, lifesign = "full", lifesign.step = 1000, linear.output = TRUE, act.fct = "logistic")
+```
+
+
+```{r}
+plot(tmodel, rep=1)
+```
+
+```{r}
+pred <- compute(tmodel, test %>% select(-cnt))
+pred <- pred$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+control <- test$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+head(pred)
+head(control)
+```
+
+```{r}
+sqrt(mean((control - pred)^2))
+```
+
+```{r}
+plot(control, pred, col='blue', pch=20, ylab = "predicted rating NN", xlab = "real rating")
+abline(0,1)
 ```
 
