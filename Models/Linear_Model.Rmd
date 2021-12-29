@@ -1,20 +1,126 @@
 ---
 title: "Linear Model"
-output: html_notebook
-author: ""
+author: "Felix Bigler"
+date: "11/12/2021"
+output:
+  html_document:
+    toc: yes
+    toc_float: no
+    toc_depth: 4
+    number_sections: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
-```{r}
-plot(cars)
+````{r, echo= FALSE}
+# load library
+library(rstudioapi)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+library(caret)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+````{r, echo=FALSE}
+# set directory read data
+setwd(dirname(getActiveDocumentContext()$path))
+df <- read.csv("../Data/hour.csv")
+`````
+# Data Preperation for the Linear Model
+## Set Categorical Variables as Factors
+```{r}
+df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
+df$yr <- as.factor(df$yr)
+df$mnth <- as.factor(df$mnth)
+df$hr <- as.factor(df$hr)
+df$holiday <- as.factor(df$holiday)
+df$weekday <- as.factor(df$weekday)
+df$workingday <- as.factor(df$workingday)
+df$weathersit <- as.factor(df$weathersit)
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+## Split data into train and test dataset
+In the following the dataset is split into a train and a test dataset in order to evaluate the predicting accuracy of the model on the test dataset each other.
+````{r}
+set.seed(123)
+indices <- createDataPartition(df$cnt, p=.8, list = F)
+train <- df %>% slice(indices)
+test <- df %>% slice(-indices)
+```
+
+# Linear Model
+
+## Multiple Linear Regression Model with Continious Weather Predictors
+
+```{r}
+# Fit a linear model with all continuous variables
+lm.fit.0 <- lm(log(cnt) ~ temp + atemp + hum + windspeed,data=train)
+summary(lm.fit.0)
+```
+## Try to Simplify Model lm.fit.0
+```{r}
+# drop one predictors at a time to evaluate it significance on the other variables with a F-test
+drop1(lm.fit.0,test="F")
+```
+There is evidence that the predictor temperature has no significant influence. However the feels like temperature (atemp) is a result of the temperature, the humidity and the wind. Moreover, the prediction of future bike rental will depend from the weather forecast. In the forecast the feels like temperature is not always available. Therefore we try to fir the model without atemp to simplify it and make it more practical for future usage.
+
+### Accessing the model accuracy
+```{r}
+# Fit a linear model without the predictor atemp and accessing both prediction performances with the test data and comparison of the R-squared value.
+
+lm.fit.1 <- lm(log(cnt) ~ temp + hum + windspeed,data=train)
+
+lm.fit.0.test = lm(formula(lm.fit.0),data=test)
+lm.fit.1.test = lm(formula(lm.fit.1),data=test)
+
+summary(lm.fit.0.test)$r.squared
+summary(lm.fit.1.test)$r.squared
+
+```
+Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemp shall be neglected for the linear model.
+
+## Include Categorical Variables in the Linear Model
+
+```{r}
+# Update the previous model lm.fit.1, including all the categorical variables.
+lm.fit.2 <- update(lm.fit.1,. ~ . + weathersit + hr + season + mnth + workingday + weekday + holiday + yr ,data=train)
+formula(lm.fit.2)
+```
+In the next step we try fo find again a more simple and more practical model without reducing the predciting accuracy of the model too much.
+```{r}
+drop1(lm.fit.2, test = "F")
+```
+
+```{r}
+lm.fit.3 <- update(lm.fit.1,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
+formula(lm.fit.3)
+lm.fit.4 <- update(lm.fit.1,. ~ . + weathersit + hr + season + mnth + weekday ,data=train)
+formula(lm.fit.4)
+```
+
+````{r}
+summary(lm.fit.2)$r.squared
+summary(lm.fit.3)$r.squared
+summary(lm.fit.4)$r.squared
+`````
+
+```{r}
+lm.fit.2.test = lm(formula(lm.fit.2),data=test)
+lm.fit.3.test = lm(formula(lm.fit.3),data=test)
+lm.fit.4.test = lm(formula(lm.fit.4),data=test)
+
+summary(lm.fit.2.test)$r.squared
+summary(lm.fit.3.test)$r.squared
+summary(lm.fit.4.test)$r.squared
+```
+
+
+````{r}
+summary(lm.fit.4)
+plot(lm.fit.4)
+`````
+
+
 
