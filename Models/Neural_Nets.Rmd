@@ -90,7 +90,7 @@ nearZeroVar(data, saveMetrics = TRUE)
 
 ```{r}
 set.seed(123)
-indices <- createDataPartition(data$cnt, p=.5, list = F)
+indices <- createDataPartition(data$cnt, p=.8, list = F)
 
 train <- data %>% slice(indices)
 test <- data %>% slice(-indices)
