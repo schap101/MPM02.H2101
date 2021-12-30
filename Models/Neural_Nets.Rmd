@@ -218,11 +218,25 @@ models_4 <- train(cnt ~ hum + temp + weathersit_1 + weathersit_2 + weathersit_3 
 ```
 
 ```{r}
-save(models_4, file="neural_nets_model_1.Rdata")
+plot(models_4)
 ```
 
+
+
 ```{r}
-plot(models_4)
-plot(models_4$finalModel)
+saveRDS(models_4, "neural_nets_models_1")
 ```
+
+
+```{r}
+models_k <-readRDS("neural_nets_models_1")
+```
+
+
+```{r}
+plot(models_k)
+```
+
+
+
 
