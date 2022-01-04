@@ -26,6 +26,14 @@ library(dplyr)
 setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
 `````
+# Introduction
+
+In this project work for machine learning 1, we would like to examine a dataset of bicycle rental numbers and build different models to predict the number of rentals at a given time.
+
+Obviously, the number of rentals depends on the weather as well as on temporal or seasonal factors. These factors will be investigated.
+
+The historical data is from the Capital BikeSshare system for Washington D.C. USA.The data is available for the year 2011 to 2012.The dataset also contains weather data at the given time points.
+
 # Graphical Data Exploration
 
 ## Influnece of Weather upon Bike Rentals
@@ -52,7 +60,7 @@ summary(df)
 $$
 x_{normalized} = \frac{x-x_{min}}{x_{max}-x_{min}}
 $$
-We assume that we could have used the values without normalization. Since the values are already normalized we will use the as provided in the set.
+For some models it may be useful to use the normalized variables and for other we may re-transform the variables. If so, we will state that in the coressponding chapter.
 
 ````{r,echo=FALSE}
   
@@ -133,7 +141,7 @@ In the next chapter we are inspecting the seasonal and timly influence upon the 
 #### Seasonal Influence 
 
 
-In order to investigate the sesonal influences, the monthly (1 to 12) and seasonal data are included in the dataset as shown below::
+In order to investigate the seasonal influences, the monthly (1 to 12) and seasonal data are included in the dataset as shown below::
 
 - Category 1:      Spring
 - Category 2:      Summer

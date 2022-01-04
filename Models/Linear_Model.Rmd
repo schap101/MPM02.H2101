@@ -20,6 +20,7 @@ library(ggplot2)
 library(gridExtra)
 library(dplyr)
 library(caret)
+library(GGally)
 ```
 
 ````{r, echo=FALSE}
@@ -27,8 +28,9 @@ library(caret)
 setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
 `````
-# Data Preperation for the Linear Model
-## Set Categorical Variables as Factors
+# Linear Regression Model
+## Data Preperation for the Linear Model
+### Set Categorical Variables as Factors
 ```{r}
 df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
 df$yr <- as.factor(df$yr)
@@ -39,10 +41,18 @@ df$weekday <- as.factor(df$weekday)
 df$workingday <- as.factor(df$workingday)
 df$weathersit <- as.factor(df$weathersit)
 ```
+### Re-Transform the Continious Weather Variables
 
+As described in the data exploration chapter, the continuous weather variables have been normalized in the existing dataset. In order to make interpretation of the coefficients more straight forward in the linear model the variables will be re-transformed to the actual values as follows. For more advanced models the normalized variables may be the better choice to fit a model.
+```{r}
+df$temperature <- (df$temp * (39 + 8)) - 8
+df$atemperature <- (df$atemp * (39 + 8)) - 8
+df$humidity <- (df$hum * 100)
+df$wind <- (df$windspeed * 67)
+```
+### Split data into train and test dataset
 
-## Split data into train and test dataset
-In the following the dataset is split into a train and a test dataset in order to evaluate the predicting accuracy of the model on the test dataset each other.
+In the following the dataset will be split into a train and a test dataset. The partition will be used to evaluate the accuracy of the model when used on the test data.
 ````{r}
 set.seed(123)
 indices <- createDataPartition(df$cnt, p=.8, list = F)
@@ -50,77 +60,139 @@ train <- df %>% slice(indices)
 test <- df %>% slice(-indices)
 ```
 
-# Linear Model
-
 ## Multiple Linear Regression Model with Continious Weather Predictors
+First of all we want to include only the continuous variables in the model.
+```{r}
+lm.fit.0.train <- lm(log(cnt) ~ temperature + atemperature + humidity + wind,data=train)
+summary(lm.fit.0.train)
+```
+
+### Simplification of Model lm.fit.0.train
+
+There is evidence that the predictor temperature has no significant influence since the p-value is large with 0.7. However the feels like temperature (atemperature) is a result of the combination of the temperature, the humidity and the wind at a given time. Moreover, the prediction of future bike rental will depend from the weather forecast. In the forecast the feels like temperature is not always available. Therefore we try to fit the model without atemperature to simplify it and make it more practical for future usage.
 
 ```{r}
-# Fit a linear model with all continuous variables
-lm.fit.0 <- lm(log(cnt) ~ temp + atemp + hum + windspeed,data=train)
-summary(lm.fit.0)
+lm.fit.1.train <- lm(log(cnt) ~ temperature + humidity + wind,data=train)
+summary(lm.fit.1.train)
 ```
-## Try to Simplify Model lm.fit.0
-```{r}
-# drop one predictors at a time to evaluate it significance on the other variables with a F-test
-drop1(lm.fit.0,test="F")
-```
-There is evidence that the predictor temperature has no significant influence. However the feels like temperature (atemp) is a result of the temperature, the humidity and the wind. Moreover, the prediction of future bike rental will depend from the weather forecast. In the forecast the feels like temperature is not always available. Therefore we try to fir the model without atemp to simplify it and make it more practical for future usage.
+Interpretation of Regression Coefficients:
+
+- As we can see from the output above the predictor temperature and wind have both a positive influence upon the number of bike rentals. A increase of one unit (temperature) leads to a increase of 5.9 % rentals and 0.6 % when the wind is increased by one unit. The humidity on the other hand has a negative influence. If the humidity is increased by one unit the number of rentals decreases by 2.3 %.
+
 
 ### Accessing the model accuracy
+We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy.
+
 ```{r}
-# Fit a linear model without the predictor atemp and accessing both prediction performances with the test data and comparison of the R-squared value.
+# Fit a linear model without the predictor atempereature and accessing both prediction performances with the test data and comparison of the R-squared value.
 
-lm.fit.1 <- lm(log(cnt) ~ temp + hum + windspeed,data=train)
-
-lm.fit.0.test = lm(formula(lm.fit.0),data=test)
-lm.fit.1.test = lm(formula(lm.fit.1),data=test)
+lm.fit.0.test = lm(formula(lm.fit.0.train),data=test)
+lm.fit.1.test = lm(formula(lm.fit.1.train),data=test)
 
 summary(lm.fit.0.test)$r.squared
 summary(lm.fit.1.test)$r.squared
 
 ```
-Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemp shall be neglected for the linear model.
+Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
 
-## Include Categorical Variables in the Linear Model
+## Multiple Linear Regression Model with Continious and Categorical Variables
 
 ```{r}
-# Update the previous model lm.fit.1, including all the categorical variables.
-lm.fit.2 <- update(lm.fit.1,. ~ . + weathersit + hr + season + mnth + workingday + weekday + holiday + yr ,data=train)
-formula(lm.fit.2)
-```
-In the next step we try fo find again a more simple and more practical model without reducing the predciting accuracy of the model too much.
-```{r}
-drop1(lm.fit.2, test = "F")
+# Update the previous model lm.fit.1.train, including all the categorical variables.
+lm.fit.2.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + workingday + weekday + holiday + yr ,data=train)
+formula(lm.fit.2.train)
 ```
 
+### Simplification of Model lm.fit.2.train
+
+In the next step we try fo find again a more simple and more practical model without reducing the predicting accuracy of the model significantly. With the drop1 function we test influence of the categorical variables with a F test as follows.
+
 ```{r}
-lm.fit.3 <- update(lm.fit.1,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
-formula(lm.fit.3)
-lm.fit.4 <- update(lm.fit.1,. ~ . + weathersit + hr + season + mnth + weekday ,data=train)
-formula(lm.fit.4)
+drop1(lm.fit.2.train, test = "F")
 ```
-
-````{r}
-summary(lm.fit.2)$r.squared
-summary(lm.fit.3)$r.squared
-summary(lm.fit.4)$r.squared
-`````
-
+There is evidence that the variables workingday an holiday have no significant influence according the results of the F-test. We therefore neglect this variables in the model lm.fit.3.train. The graphical analysis in the last chapter supports this step, showing that there is no influence of these variables.
+Moreover the dataset contains of the variable year (yr). This variables indicates whether we are in the year 2011 or in 2012. This variable however is useless in terms of a predicting model. Hence we will neglect it in the model lm.fit.4.train.
 ```{r}
-lm.fit.2.test = lm(formula(lm.fit.2),data=test)
-lm.fit.3.test = lm(formula(lm.fit.3),data=test)
-lm.fit.4.test = lm(formula(lm.fit.4),data=test)
+lm.fit.3.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
+formula(lm.fit.3.train)
+lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday ,data=train)
+formula(lm.fit.4.train)
+```
+### Accessing the model accuracy
+Again we compare the R-squared values of the 3 models.
+```{r}
+lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
+lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
+lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
 
 summary(lm.fit.2.test)$r.squared
 summary(lm.fit.3.test)$r.squared
 summary(lm.fit.4.test)$r.squared
 ```
+Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
 
+```{r}
+summary(lm.fit.4.test)
+```
+- Note from the output above, that the p-values for some month are not significant. More on that on in the next chapter.
+
+## Summary
+As summary we want to answer following 4 questions regarding the linear regression model and its interpretation.
+
+### Is there a relationship betweeen the independent variables and the response variable?
+
+As stated above there is evidence, that the weather as well as the timely and seasonal variables has influence of the number of bike rentals according to the P-values for the continuous variables as well as the outcome of the F-test for the categorical variables.
+
+### How strong is the relationship?
+
+The predictors used in the model lm.fit.4.train explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. It would have been ideal the look at the RSE values to estimate the percentage error of the number of bike rentals. However since the cnt variable has been log transformed we where not able to interpret these the RSE appropriate.
+
+### How large is the effect of each predctor on cnt?
+
+To answer this question we will plot the confidence interval of all the predictors.
+
+```{r}
+ggcoef(lm.fit.4.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
+```
+We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination. The evaluate this assumption we update the model and compare the two R-squared values.
+
+```{r}
+lm.fit.5.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
+lm.fit.5.test = lm(formula(lm.fit.5.train),data=test)
+
+summary(lm.fit.4.test)$r.squared
+summary(lm.fit.5.test)$r.squared
+```
+In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
+Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
+
+### Are there Potential Problem Fitting this data with a Linear Model 
+
+With the plot function, we try to examine our model in more detail by means of residual analysis.To to that we build a model with the entire dataset.
+````{r}
+lm.fit.0.full = lm(formula(lm.fit.4.train),data=df)
+par(mfrow=c(2,2))
+plot(lm.fit.0.full)
+`````
+
+- The residual vs fitted plot shows no clear pattern indicating that that relationship is linear. Also the smoother stays more or less on zero. In a clear non-linear situation this would have been the case.
+
+- The QQ-plot shows that the residuals seem not to follow a normal distribution. This circumstance could be a sign that the linear model is not quite suitable to form a predictive model. We assume that this is due to the distribution of bike rentals. These are not normally distributed and could be considered as amount data.
+
+- Checking the scale-location plot, it seems that the residuals are spread fairly randomly along the horizontal line. Altough the variance seems to decrease on the right hand side of the plot we consider this as "normal".
+
+- In the residual vs leverage, one observation seems to lie outside of the cooks distance. It is the observation 5637 in the dataset. A closer look reveals an error in the dataset. On 27.08.2011 and 28.08.2011 the time seems to be incorrect and therefore the observation 5637 can be considered as an outlier. It would probably make sense to delete these two days from the dataset. We do this in the following step and form a new model.
 
 ````{r}
-summary(lm.fit.4)
-plot(lm.fit.4)
+df2 <- df[!(df$dteday=="2011-08-27" | df$dteday=="2011-08-28"),]
+lm.fit.1.full = lm(formula(lm.fit.4.train),data=df2)
+plot(lm.fit.1.full, which = 5)
+summary(lm.fit.0.full)$r.squared
+summary(lm.fit.1.full)$r.squared
 `````
+- As we can see, all observations are lying now within the cook distance and the R-value also increases marginally when taking out the faulty date entries in a updated dataset.
+
+In the next chapter we will use more advanced linear models to find a better fit for the data.
 
 
 
