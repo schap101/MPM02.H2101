@@ -81,19 +81,44 @@ Interpretation of Regression Coefficients:
 
 
 ### Accessing the model accuracy
-We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy.
+We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy as well as the RSME values.
 
+#### Compare R-squared Values
 ```{r}
 # Fit a linear model without the predictor atempereature and accessing both prediction performances with the test data and comparison of the R-squared value.
 
 lm.fit.0.test = lm(formula(lm.fit.0.train),data=test)
 lm.fit.1.test = lm(formula(lm.fit.1.train),data=test)
 
-summary(lm.fit.0.test)$r.squared
-summary(lm.fit.1.test)$r.squared
+R2_0 <- summary(lm.fit.0.test)$r.squared
+R2_1 <- summary(lm.fit.1.test)$r.squared
 
+print(paste("R-squared of lm.fit.0:",round(R2_0,3)))
+print(paste("R-squared of lm.fit.1:",round(R2_1,3)))
 ```
-Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
+- Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
+
+#### Compare RMSE Values
+```{r}
+control <- test$cnt
+control_log <- log(control)
+predict_0 <- predict(lm.fit.0.test)
+predict_1 <- predict(lm.fit.1.test)
+
+# take inverse of natural log to obtain RMSE with actual unit (number of bike rentals)
+RMSE_0 <- sqrt(mean((exp(control_log) - exp(predict_0))^2))
+RMSE_1 <- sqrt(mean((exp(control_log) - exp(predict_1))^2))
+
+# calculate percentage error
+percent_error_0 <- (RMSE_0/mean(control))*100
+percent_error_1 <- (RMSE_1/mean(control))*100
+
+print(paste("RMSE of lm.fit.0:",round(RMSE_0,1)))
+print(paste("Percentage error of lm.fit.1:",round(percent_error_0,1),"%"))
+print(paste("RMSE of lm.fit.0:",round(RMSE_1,1)))
+print(paste("Percentage error of lm.fit.1:",round(percent_error_1,1),"%"))
+```
+- The RMSE values for both models are roughly 170 units as we can see from the output above. This corresponds to a percentage error of around 90 % of the predicted values if it is compared with the mean of all bike rentals.
 
 ## Multiple Linear Regression Model with Continious and Categorical Variables
 
@@ -119,17 +144,49 @@ lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth 
 formula(lm.fit.4.train)
 ```
 ### Accessing the model accuracy
+
+#### Compare R-Squared Values
+
 Again we compare the R-squared values of the 3 models.
 ```{r}
 lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
 lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
 lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
 
-summary(lm.fit.2.test)$r.squared
-summary(lm.fit.3.test)$r.squared
-summary(lm.fit.4.test)$r.squared
+R2_2 <- summary(lm.fit.2.test)$r.squared
+R2_3 <- summary(lm.fit.3.test)$r.squared
+R2_4 <-summary(lm.fit.4.test)$r.squared
+
+print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
+print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
+print(paste("R-squared of lm.fit.4::",round(R2_4,3)))
 ```
-Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
+- Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
+
+#### Compare RMSE Values
+```{r}
+predict_2 <- predict(lm.fit.2.test)
+predict_3 <- predict(lm.fit.3.test)
+predict_4 <- predict(lm.fit.4.test)
+
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
+RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
+RMSE_4 <- sqrt(mean((exp(control_log) - exp(predict_4))^2))
+
+# Calculate percentage error (deviation to the mean of number of bike rentals)
+percent_error_2 <- (RMSE_2/mean(control))*100
+percent_error_3 <-(RMSE_3/mean(control))*100
+percent_error_4 <-(RMSE_4/mean(control))*100
+
+print(paste("RMSE of lm.fit.2:",round(RMSE_2,1)))
+print(paste("Percentage error of lm.fit.2:",round(percent_error_2,1),"%"))
+print(paste("RMSE of lm.fit.3:",round(RMSE_3,1)))
+print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
+print(paste("RMSE of lm.fit.4:",round(RMSE_4,1)))
+print(paste("Percentage error of lm.fit.4::",round(percent_error_4,1),"%"))
+```
+- The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
 
 ```{r}
 summary(lm.fit.4.test)
@@ -143,9 +200,9 @@ As summary we want to answer following 4 questions regarding the linear regressi
 
 As stated above there is evidence, that the weather as well as the timely and seasonal variables has influence of the number of bike rentals according to the P-values for the continuous variables as well as the outcome of the F-test for the categorical variables.
 
-### How strong is the relationship?
+### How strong is the relationship and how accurate is the model?
 
-The predictors used in the model lm.fit.4.train explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. It would have been ideal the look at the RSE values to estimate the percentage error of the number of bike rentals. However since the cnt variable has been log transformed we where not able to interpret these the RSE appropriate.
+The predictors used in the model lm.fit.4 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.4 we achieve a value of 110.5 which corresponds to a percentage error of around 60 %.
 
 ### How large is the effect of each predctor on cnt?
 
@@ -166,7 +223,7 @@ summary(lm.fit.5.test)$r.squared
 In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
 Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
 
-### Are there Potential Problem Fitting this data with a Linear Model 
+### Are there Potential Problems of Fitting this data with a Linear Regression Model 
 
 With the plot function, we try to examine our model in more detail by means of residual analysis.To to that we build a model with the entire dataset.
 ````{r}
