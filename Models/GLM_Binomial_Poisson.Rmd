@@ -1,0 +1,524 @@
+---
+title: "GLM_Binomial_Model"
+author: "Sofie Hürlimann"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+  html_document:
+    toc: yes
+    toc_depth: 4
+    number_sections: yes
+---
+
+# GLM Binomial and GLM Poisson
+
+## Set up
+Installing and importing the needed packages and libraries
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)    # For knitting document and include_graphics function
+library(ggplot2)  # For plotting
+library(png)
+library("caret")
+library("magrittr")
+library("dplyr")
+library("mosaicCore")
+library(readr)
+library(Metrics)
+
+```
+
+
+
+## Reading in the daily data as "day" and the hourly data as "hour" and having a look at it
+```{r}
+day_0 <- read_csv("Data/day.csv")
+head(day_0)
+```
+
+
+````{r}
+# hour_0 <- read_csv("Data/hour.csv")
+head(hour_0)
+```
+
+For this model we are also going to drop the data from the 27th and 28th of August 2011, for the reasons shown in the last chapter.
+
+```{r}
+day <- day_0[!(day_0$dteday=="2011-08-27" | day_0$dteday=="2011-08-28"),]
+hour <- hour_0[!(hour_0$dteday=="2011-08-27" | hour_0$dteday=="2011-08-28"),]
+```
+
+
+````{r}
+str(hour)
+````
+
+````{r}
+str(day)
+````
+
+## Plotting and inspecting the data
+First we have a look at how the different variables are corresponding with number of bicycles, that are being used 
+```{r , echo=True}
+pairs.daily <- pairs(cnt ~ dteday + season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = day, upper.panel = panel.smooth)
+
+
+```
+
+```{r, echo=True}
+pairs.hour <- pairs(cnt ~ dteday + season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = hour, upper.panel = panel.smooth)
+
+```
+
+
+What we can see here, is that it looks like there is an uptake in bicycle usage when
+the temperature is rising (up to a certain point). When it gets too hot, the demand seems to lower again. This also corresponds in the usage during the different seasons, with the least demand in winter.
+
+The variable for casual or registered users is less of importance here, as it does not necessarily help with the prediction of the bike demand. Especially as we don't see drastically different behaviour regarding usage. Just from the graph above one could assume, that it is slightly more likely that registered users use the bikes also in more extreme weather situations (hot, cold, windy, etc.). Furthermore, we will not use the type of users (registered or casual) as predictors, as they make up our main response variable (count) and therefore would lead to highly fitting models but with no value for prediction.
+
+So let's have another look at the following variables:
+- season
+- mnth
+- hour
+- weathersit
+- temp
+- atemp
+- hum
+- windspeed
+
+```{r, echo=True}
+pairs.hour.new <- pairs(cnt ~ season + mnth + hr+ weathersit + temp + atemp + hum + windspeed, data = hour, upper.panel = panel.smooth)
+```
+
+
+
+
+```{r, echo=True}
+
+ggplot(day,aes(x=(season= as.character(season)), y=cnt, fill=season)) + 
+  geom_boxplot()+labs(x="Seasons", y="Number of Bikes used")
+
+```
+```{r, echo=True}
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=cnt, fill=season)) + 
+  geom_boxplot()+labs(x="Months", y="Number of Bikes used") + scale_x_discrete(limits = month.abb)
+
+```
+
+It looks like late winter/early spring is the least popular time for bike rentals. Let's check, if it might have something to do with the weather.
+
+```{r, echo=True}
+# First we are having a look at the temperature per month to get a better picture of the situation
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=temp, fill=season)) + 
+  geom_boxplot()+labs(x="Months", y="Temperature") + scale_x_discrete(limits = month.abb)
+
+```
+
+The temperature shows a similar, although not identical, pattern as the bike usage, with the lowest temperatures being in late winter/early spring.
+
+```{r pressure, echo=True}
+# Having a look at the wind speed per month
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=windspeed, fill=season)) + 
+  geom_boxplot()+labs(x="Months", y="Wind Speed") + scale_x_discrete(limits = month.abb)
+```
+For the wind speed we cannot say the same. 
+
+```{r, echo=True}
+# Having a look at the temperature per month
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=hum, fill=season)) + 
+  geom_boxplot()+labs(x="Months", y="Humidity") + scale_x_discrete(limits = month.abb)
+```
+
+Neither for the humidity. The pattern looks completely different.
+
+According to those visualizations one would assume, that the temperature is the main predicting factor of those three.
+
+
+## Creating training and testing sets
+
+First we divide the data into a training and a testing set. We use 80% of the data to train the model and 20% to test it. Furthermore we divide the testing set into one we use for the prediction and one to check those predictions.
+
+```{r}
+
+set.seed(123)
+indices.day <- createDataPartition(day$cnt, p = .8, list = F) 
+ 
+day.train <- day %>% slice(indices.day) 
+day.test_in <- day %>% slice(-indices.day) %>% select(-cnt) # contains everything except the count values
+day.test_truth <- day %>% slice(-indices.day) %>% pull(cnt)  # contains the true count values of the testing set
+
+
+set.seed(123)
+indices.hour <- createDataPartition(hour$cnt, p = .8, list = F) 
+ 
+hour.train <- hour %>% slice(indices.hour) 
+hour.test_in <- hour %>% slice(-indices.hour) %>% select(-cnt) 
+hour.test_truth <- hour %>% slice(-indices.hour) %>% pull(cnt)
+
+
+
+```
+
+
+
+## Creating a binomial model
+
+First we have a look at a simple quasibinomial model, with the assumption that there are no interactions and all effects are linear. As we only have two binary variables, we are only going to check those two here. We use ilogit() as we need the count numbers as a value between 0 and 1.
+
+
+```{r}
+glm.binomial.hour.1 <- glm(ilogit(cnt) ~ dteday + season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed, data = hour, family = "quasibinomial")
+
+summary(glm.binomial.hour.1)
+```
+
+
+We decided to take out the holidays, as there are only very few anyways, the assumed temperature (atemp) as it is very close to the temperature (temp) and also dependent on the temperature, humidity and wind speed. We also took out the year.
+
+```{r}
+glm.binomial.hour.2 <- glm(ilogit(cnt) ~ dteday + season + mnth + hr+ + weekday + workingday + weathersit + temp + hum + windspeed, data = hour, family = "quasibinomial")
+
+summary(glm.binomial.hour.2)
+```
+Interestingly the month does not seem to have a significant impact. All the other predictors show a high significance.
+
+
+### Fitting the binomial model with "train" data 
+
+For the binomial model we use the quasibinomial family, as the data is overdispersed and we do not use a binary, but a binomial response variable.
+```{r}
+glm.binomial.1 <- glm(ilogit(cnt) ~ dteday + season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family="quasibinomial")
+
+glm.binomial.train.1 <- glm(formula = formula(glm.binomial.1), data = hour.train)
+```
+
+Making a prediction based on the test data: 
+```{r}
+predicted.binomial.test.1 <- predict(glm.binomial.train.1, newdata = hour.test_in)
+```
+
+```{r}
+summary(predicted.binomial.test.1)
+```
+
+
+Checking root mean square error (RMSE)
+
+```{r}
+# As we used ilogit() for the count data of the model, we need to apply it to the control data as well
+rmse(ilogit(hour.test_truth), predicted.binomial.test.1)
+```
+It looks like there are missing (probably through applying the ilogit() function) and therefore the RMSE could not be calculated.
+
+So let us just have look at a visualisation of our predicted values.
+
+```{r, fig.keep='all'}
+par(oma=c(0, 0, 0, 5))
+plot(hour.test_in$dteday,predicted.binomial.test.1,type="l",col="firebrick3",  xlab = " ", ylab ="ilogit of Number of Bikes used")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction"),col=c("firebrick3"), pch=c(1, 2), lty=c(1,2))
+```
+
+The plot of the model prediction looks like it could work, but checking it with the true data is proving difficult.
+So we try a new approach.
+
+To fit a binomial model we will try to predict the proportion of registered users versus casual users.
+For this we use the percentage of registered users out of the total number of useres as the response variable.
+```{r}
+glm.binomial.2 <- glm((registered/cnt) ~ dteday + season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family="quasibinomial")
+
+glm.binomial.train.2 <- glm(formula = formula(glm.binomial.2), data = hour.train)
+```
+
+
+```{r}
+summary(glm.binomial.2)
+```
+The following predictors seems to show significance:
+- Season
+- Hour
+- Weekday
+- Workingday
+- Temperature
+- Humidity
+
+
+Making a prediction based on the test data:
+```{r}
+predicted.binomial.test.2 <- predict(glm.binomial.train.2, newdata = hour.test_in)
+```
+
+```{r}
+summary(predicted.binomial.test.2)
+```
+
+
+```{r, fig.keep='all'}
+par(oma=c(0, 0, 0, 5))
+plot(hour.test_in$dteday,predicted.binomial.test.2,type="l",col="firebrick3",  xlab = " ", ylab ="Percentage of Registered Users")
+lines(hour.test_in$dteday,(hour.test_in$registered/hour.test_truth),type="p",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+As the hourly data varies a lot, it is difficult to see if the model matches or not.
+
+Checking root mean square error (RMSE)
+```{r}
+# It is important to calculate the percentage for the true numbers as well
+rmse((hour.test_in$registered/hour.test_truth), predicted.binomial.test.2)
+```
+With a FMSE of about 11 percentage points, the model does not look too bad.
+
+But let's try to fit the model with daily data to bring down the variance.
+
+```{r}
+glm.binomial.3 <- glm((registered/cnt) ~ dteday + season + yr + mnth + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=day, family="quasibinomial")
+
+glm.binomial.train.3 <- glm(formula = formula(glm.binomial.3), data = day.train)
+```
+
+```{r}
+summary(glm.binomial.3)
+```
+
+Making a prediction based on the test data:
+```{r}
+predicted.binomial.test.3 <- predict(glm.binomial.train.3, newdata = day.test_in)
+```
+
+```{r}
+summary(predicted.binomial.test.3)
+```
+
+
+```{r, fig.keep='all'}
+par(oma=c(0, 0, 0, 5))
+plot(day.test_in$dteday,predicted.binomial.test.3,type="l",col="firebrick3",  xlab = " ", ylab ="Percentage of Registered Users")
+lines(day.test_in$dteday,(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+Here we see our prediction in red and the true values in blue.
+
+Checking root mean square error (RMSE)
+```{r}
+rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.3)
+```
+We see that our model fitted on daily data became more accurate. With a RMSE of roughly 6 percentage points this seems like a pretty good fit, regarding the ratio depends on human decision (being registered or casual and using a bike or not).
+
+Now we try the model with only the significant predictors from above (summary(glm.binomial.3))
+```{r}
+glm.binomial.4 <- glm((registered/cnt) ~season + workingday + weathersit + temp + windspeed, data=day, family="quasibinomial")
+
+glm.binomial.train.4 <- glm(formula = formula(glm.binomial.4), data = day.train)
+```
+
+```{r}
+summary(glm.binomial.4)
+```
+
+
+Making a prediction based on the test data:
+```{r}
+predicted.binomial.test.4 <- predict(glm.binomial.train.4, newdata = day.test_in)
+```
+
+```{r}
+summary(predicted.binomial.test.4)
+```
+
+
+```{r, fig.keep='all'}
+par(oma=c(0, 0, 0, 5))
+plot(day.test_in$dteday,predicted.binomial.test.4,type="l",col="firebrick3",  xlab = " ", ylab ="Percentage of Registered Users")
+lines(day.test_in$dteday,(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+Here we see our predictions in red and the true data in blue.
+
+Checking root mean square error (RMSE)
+```{r}
+rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.4)
+```
+This seems to have made the model slightly less accurate (RMSE of 0.06142542 compared to 0.0612635 from before). But the difference seems to be minimal. Together with the result from the summary above (summary(glm.binomial.4)) the hypothesis could be made, that registered users make up a bigger part of the total count of users, when the temperature is colder and on working days compared to warmer temperatures and non-working days. Or that casual users, in comparison to registered users, predominantly use the bike service on warmer days and during their spare time.
+
+Let's have a look at the temperature and workingday variable, which we assume has shown the greatest significance (see summary(glm.binomial.4))
+```{r}
+exp(coef(glm.binomial.4)["temp"])
+```
+A change in one temperature unit (as it is normalised in this data frame) leads to a change of roughly 16.5%.
+
+
+```{r}
+exp(coef(glm.binomial.4)["workingday"])
+```
+
+On working days we see the percentage of users being registered 3.08 times higher then on non-working days.
+
+
+To make sure we are not missing anything, we will also fit a model to the date variables to compare. We still will keep in the working day variable, as this is not a weather variable but still was included in the former model.
+
+```{r}
+glm.binomial.5 <- glm((registered/cnt) ~ dteday + yr + mnth + holiday + weekday + workingday, data=day, family="quasibinomial")
+
+glm.binomial.train.5 <- glm(formula = formula(glm.binomial.5), data = day.train)
+```
+
+```{r}
+summary(glm.binomial.5)
+```
+Here we already see, that the working day is assumed as the only significant predictor in this model.
+
+Making a prediction based on the test data:
+```{r}
+predicted.binomial.test.5 <- predict(glm.binomial.train.5, newdata = day.test_in)
+```
+
+```{r}
+summary(predicted.binomial.test.5)
+```
+
+```{r, fig.keep='all'}
+par(oma=c(0, 0, 0, 5))
+plot(day.test_in$dteday,predicted.binomial.test.5,type="l",col="firebrick3",  xlab = " ", ylab ="Percentage of Registered Users")
+lines(day.test_in$dteday,(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+In this visualisation we can already see that the the model has a worse fit.
+
+
+Checking root mean square error (RMSE)
+```{r}
+rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.5)
+```
+Surprisingly, the RMSE is not much higher than from our predicted.binomial.test.4.
+Nevertheless, we would clearly prefer the third or fourth model here.
+
+
+## Creating a Poisson Model
+
+We are using the family quasipoisson because of the overdispersion.
+
+```{r}
+glm.pois.hour <- glm(cnt ~ dteday + season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed, data = hour,
+family = "quasipoisson")
+
+summary(glm.pois.hour)
+```
+
+Here it looks like quite some factors seem to be significant for the number of bikes used.
+With the temperature and the assumed temperature being very similar, we drop the assumed temperature from the model, with the measured temperature being more tangible. 
+
+
+```{r}
+glm.pois2.hour <- glm(cnt ~ dteday + season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + hum + windspeed, data = hour, family = "quasipoisson")
+
+summary(glm.pois2.hour)
+
+```
+Now let's look at it one more time, without the year (as we only have data from two years) and without the holidays (as there are only very few of them). 
+
+```{r}
+glm.pois3.hour <- glm(cnt ~ dteday + season + mnth + hr + weekday + workingday + weathersit + temp + hum + windspeed, data = hour.train, family = "quasipoisson")
+
+summary(glm.pois3.hour)
+
+```
+
+### Fitting the poisson model with "train" data 
+```{r}
+glm.poisson.1 <- glm(cnt ~ dteday + season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family=quasipoisson)
+
+glm.poisson.train.1 <- glm(formula = formula(glm.poisson.1), data = hour.train)
+```
+
+Making a prediction based on the test data:
+```{r}
+predicted.poisson.test.1 <- predict(glm.poisson.train.1, newdata = hour.test_in)
+```
+
+```{r}
+summary(predicted.poisson.test.1)
+```
+Note: Although we see a minimum of -130.4 here, in reality the number cannot go beneath 0.
+
+Checking the root mean square error
+```{r}
+rmse(hour.test_truth, predicted.poisson.test.1)
+```
+Having a root mean square error (RMSE) of 139 when we have numbers of about 0 to about 500 does definitely not sound very good. But we have to keep in mind, that it is based on hourly data. Let's have a look at a visualization of our prediction and the true data.
+
+```{r, fig.keep='all'}
+par(oma=c(0, 0, 0, 5))
+plot(hour.test_in$dteday,predicted.poisson.test.1,type="l",col="firebrick3",  xlab = "  ", ylab ="Number of Bikes used")
+lines(hour.test_in$dteday,hour.test_truth,type="p",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+Here we see our predictions as a red line and the actual numbers in blue dots. 
+As hourly numbers vary strongly, we want to see if this model would fit better on a daily basis.
+
+```{r}
+glm.poisson.2 <- glm(cnt ~ dteday + season + yr + mnth + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=day, family=quasipoisson)
+
+glm.poisson.train.2 <- glm(formula = formula(glm.poisson.2), data = day.train)
+```
+
+making prediction on the test data 
+```{r}
+predicted.poisson.test.2 <- predict(glm.poisson.train.2, newdata = day.test_in)
+```
+
+```{r}
+summary(predicted.poisson.test.2)
+```
+
+Checking RMSE
+```{r}
+rmse(day.test_truth, predicted.poisson.test.2)
+```
+Here we have a RMSE of 811, which is higher than above in total. But as we are looking at daily data here, with numbers up to above 8000, this seems to be a better fit.
+
+
+
+```{r, fig.keep='all', echo=FALSE}
+par(oma=c(0, 0, 0, 5))
+plot(day.test_in$dteday,predicted.poisson.test.2,type="l",col="firebrick3", xlab = "  ", ylab ="Number of Bikes used") 
+lines(day.test_in$dteday,day.test_truth,type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+When looking at the predictions (red) in comparison to the true data (blue), this model does look usable if one wants to plan when to take bikes out of circulation for maintenance or repairs.
+
+
+
+To see, if a variable is not needed, the model was tested by dropping only one of the predictors for each run through (with daily and hourly data). But the best result was achieved by using all the predictors (except for the type of users, for the reasons mentioned at the beginning of this chapter).
+
+```{r, echo=False}
+glm.poisson.3 <- glm(cnt ~ dteday + season  + mnth +  weekday + holiday + workingday +  weathersit + temp + hum + windspeed, data=day)
+
+glm.poisson.train.3 <- glm(formula = formula(lm.poisson.3), data = day.train)
+
+# making prediction on the test data 
+
+predicted.poisson.test.3 <- predict(glm.poisson.train.3, newdata = day.test_in)
+
+# Checking RMSE
+
+# rmse(day.test_truth, predicted.poisson.test.3)
+
+```
+
+
+
+
+
+
+
+
+
+
