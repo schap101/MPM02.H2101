@@ -445,10 +445,67 @@ set.seed(41)
 model_8 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(4),linear.output = TRUE, threshold = 0.005, stepmax = 750000, lifesign.step = 500, lifesign = "full")
 ```
 
+#3.9 Model 9 - all variable plus year
+
+##3.9 Model 9 - set up
+```{r}
+set.seed(41)
+model_9 = neuralnet(cnt ~ yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
+```
+
+```{r}°
+saveRDS(model_9, "neural_nets_model_9.rds")
+```
+
+##3.9 Model 9 - Compute Prediction
+```{r}
+pred_9 <- compute(model_9, test_2 %>% select(-cnt))
+pred_9 <- pred_9$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+control_9 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+head(pred_9)
+head(control_9)
+```
+
+##3.9 Model 9 - Root Mean Square
+```{r}
+sqrt(mean((control_9 - pred_9)^2))
+```
+
+##3.9 Model 9 - Plot Model Performance
+```{r}
+plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+abline(0,1)
+```
 
 
+##3.10 Models 10 - Set up
+```{r}
+set.seed(41)
+tuGrid_3 <- expand.grid(.layer1=c(6:10), .layer2=c(2:5), .layer3=c(0,2,3))
 
+trCtrl_3 <- trainControl(
+  method = 'repeatedcv',
+  number = 3,
+  repeats = 1,
+  returnResamp = 'final',
+)
+```
 
+##3.10 Models 10 - Train and Compare
+```{r}
+models_10 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
+  method = 'neuralnet',
+  metric = 'RMSE',
+  linear.output = TRUE,
+  threshold = 0.05,
+  stepmax = 450000,
+  lifesign.step = 1000,
+  lifesign = "full",
+  preProcess = c('center', 'scale'),
+  tuneGrid = tuGrid_2,
+  trControl = trCtrl_2
+  )
+```
 
 fitAuto<-auto.arima(log(AirPassengers),ic="aic")
 fit
