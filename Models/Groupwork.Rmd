@@ -27,8 +27,8 @@ library(dplyr)
 library(rstudioapi)
 library(caret)
 library(GGally)
-library("magrittr")
-library("mosaicCore")
+library(magrittr)
+library(mosaicCore)
 library(readr)
 library(Metrics)
 library(data.table)
@@ -147,12 +147,11 @@ geom_boxplot()
 
 ```
 The boxplot above indicates, that in situation 1 and 2 the most bikes are rented whereas there is seems to be a drop visible  for condition 3 and the drop is even more significant for situation 4 where severe weather conditions are present.This rental behavior is as we have expected since few people ride bicycles in bad weather situations.
-In the next chapter we are inspecting the seasonal and timley influence upon the rental situation.
+In the next chapter we are inspecting the seasonal and timely influence upon the rental situation.
 
 ## Influnece of Timely and Seasonal aspects upon Bike Rentals
 
 ### Exploration of Categorical Variables
-
 
 #### Seasonal Influence 
 In order to investigate the seasonal influences, the monthly (1 to 12) and seasonal data are included in the dataset as shown below::
@@ -213,7 +212,6 @@ grid.arrange(p1,p2,p3,p4, nrow=2,top = "Timely Aspects vs. Number of Bike Rental
 ```
 
 The above plots indicate, that the hour in which the bike is rented has the most influence of total rentals which seems obvious. On the other hand, whether there is a working day or not, seems not to have a significant influence.
-
 
 In the next chapter we try to find a linear model which suits best the dateset.
 # Linear Regression Model
@@ -439,15 +437,17 @@ summary(lm.fit.1.full)$r.squared
 
 In the next chapter we will use more advanced linear models to find a better fit for the data.
 
+#GLM Model
 ## Reading in the daily data as "day" and the hourly data as "hour" and having a look at it
 ```{r}
-day_0 <- read_csv("Data/day.csv")
+setwd(dirname(getActiveDocumentContext()$path))
+day_0 <- read_csv("../Data/day.csv")
 head(day_0)
 ```
 
 
 ````{r}
-# hour_0 <- read_csv("Data/hour.csv")
+hour_0 <- read_csv("../Data/hour.csv")
 head(hour_0)
 ```
 
@@ -586,7 +586,7 @@ summary(glm.binomial.hour.1)
 We decided to take out the holidays, as there are only very few anyways, the assumed temperature (atemp) as it is very close to the temperature (temp) and also dependent on the temperature, humidity and wind speed. We also took out the year.
 
 ```{r}
-glm.binomial.hour.2 <- glm(ilogit(cnt) ~ dteday + season + mnth + hr+ + weekday + workingday + weathersit + temp + hum + windspeed, data = hour, family = "quasibinomial")
+glm.binomial.hour.2 <- glm(ilogit(cnt) ~ dteday + season + mnth + hr + weekday + workingday + weathersit + temp + hum + windspeed, data = hour, family = "quasibinomial")
 
 summary(glm.binomial.hour.2)
 ```
@@ -758,7 +758,6 @@ exp(coef(glm.binomial.4)["temp"])
 ```
 A change in one temperature unit (as it is normalised in this data frame) leads to a change of roughly 16.5%.
 
-
 ```{r}
 exp(coef(glm.binomial.4)["workingday"])
 ```
@@ -905,21 +904,6 @@ When looking at the predictions (red) in comparison to the true data (blue), thi
 
 To see, if a variable is not needed, the model was tested by dropping only one of the predictors for each run through (with daily and hourly data). But the best result was achieved by using all the predictors (except for the type of users, for the reasons mentioned at the beginning of this chapter).
 
-```{r, echo=False}
-glm.poisson.3 <- glm(cnt ~ dteday + season  + mnth +  weekday + holiday + workingday +  weathersit + temp + hum + windspeed, data=day)
-
-glm.poisson.train.3 <- glm(formula = formula(lm.poisson.3), data = day.train)
-
-# making prediction on the test data 
-
-predicted.poisson.test.3 <- predict(glm.poisson.train.3, newdata = day.test_in)
-
-# Checking RMSE
-
-# rmse(day.test_truth, predicted.poisson.test.3)
-
-```
-
 
 #Support Vector Machine
 ##Load the data
@@ -936,10 +920,10 @@ ncol(dt)
 
 ```
 
-The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position
+The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position. 
 ```{r}
-#remove instant and dteday
-dt <- dt %>% select(-c(1,2))
+#remove instant, dteday, casual and registered 
+dt <- dt %>% select(-c(1,2, 15, 16))
 
 #move cnt to the first position
 dt <- dt %>% select(cnt, everything())
@@ -1689,3 +1673,22 @@ models_10 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + 
 
 fitAuto<-auto.arima(log(AirPassengers),ic="aic")
 fit
+
+#Optimization Problem
+
+
+
+#Conclusion
+The best Models based on the RMSE values
+```{r}
+#RMSE Linear Model
+
+#RMSE GLM Model
+
+#RMSE SVM Model
+
+#RMSE NN Model
+```
+
+
+Justification, best model to find best maintenance window
