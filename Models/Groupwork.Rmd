@@ -3,11 +3,17 @@ title: "MPM.02 Groupwork"
 author: "Felix, Regis, Sofie, Philipp"
 date: "06/01/2022"
 output:
-  pdf_document: default
-  html_notebook: default
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+  html_document:
+    toc: yes
+    toc_float: no
+    toc_depth: 4
+    number_sections: yes
 ---
 
-````{r, echo= FALSE}
+```{r, echo= FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # load library
 library(knitr)    # For knitting document and include_graphics function
@@ -33,11 +39,11 @@ library(rstudioapi)
 library(rmarkdown)
 ```
 
-````{r, echo=FALSE}
+```{r, echo=FALSE}
 # set directory read data
 setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
-`````
+```
 
 
 # Introduction
@@ -65,7 +71,7 @@ We want to explore how different weather situation influences the number of bike
 
 The continuous weather variables are normalized as follows in the dataset:
 
-````{r,echo=FALSE}
+```{r,echo=FALSE}
 str(df)
 summary(df)
 ```
@@ -130,7 +136,7 @@ The data set contains 4 different weather categories which are described as foll
 - Category 4:  Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog 
 
 Since we are considering the response variables count data we log transform the variable with the natural logarithm in all of the following plots.
-````{r,echo=FALSE}
+```{r,echo=FALSE}
 
 ggplot(data = df, mapping = aes(y = log(cnt),
                      x = factor(weathersit),fill= weathersit)) + ylab("Num. of Bike Rentals") + xlab("Weather Conditions") +  labs(fill="Weather\nConditions") +
