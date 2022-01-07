@@ -321,13 +321,10 @@ In the next step we try fo find again a more simple and more practical model wit
 ```{r}
 drop1(lm.fit.2.train, test = "F")
 ```
-There is evidence that the variables workingday an holiday have no significant influence according the results of the F-test. We therefore neglect this variables in the model lm.fit.3.train. The graphical analysis in the last chapter supports this step, showing that there is no influence of these variables.
-Moreover the dataset contains of the variable year (yr). This variables indicates whether we are in the year 2011 or in 2012. This variable however is useless in terms of a predicting model. Hence we will neglect it in the model lm.fit.4.train.
+There is evidence that the variables workingday an holiday have no significant influence according the results of the F-test. We therefore neglect this variables in the model lm.fit.3.train. The graphical analysis in the last chapter supports this step, showing that there is no influence of these variables. We exclude these variables for the final model.
 ```{r}
 lm.fit.3.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
 formula(lm.fit.3.train)
-lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday ,data=train)
-formula(lm.fit.4.train)
 ```
 ### Accessing the model accuracy
 
@@ -337,15 +334,15 @@ Again we compare the R-squared values of the 3 models.
 ```{r}
 lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
 lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
-lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
+
 
 R2_2 <- summary(lm.fit.2.test)$r.squared
 R2_3 <- summary(lm.fit.3.test)$r.squared
-R2_4 <-summary(lm.fit.4.test)$r.squared
+
 
 print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
 print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
-print(paste("R-squared of lm.fit.4::",round(R2_4,3)))
+
 ```
 - Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
 
@@ -353,29 +350,27 @@ print(paste("R-squared of lm.fit.4::",round(R2_4,3)))
 ```{r}
 predict_2 <- predict(lm.fit.2.test)
 predict_3 <- predict(lm.fit.3.test)
-predict_4 <- predict(lm.fit.4.test)
 
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
 RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
 RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
-RMSE_4 <- sqrt(mean((exp(control_log) - exp(predict_4))^2))
+
 
 # Calculate percentage error (deviation to the mean of number of bike rentals)
 percent_error_2 <- (RMSE_2/mean(control))*100
 percent_error_3 <-(RMSE_3/mean(control))*100
-percent_error_4 <-(RMSE_4/mean(control))*100
+
 
 print(paste("RMSE of lm.fit.2:",round(RMSE_2,1)))
 print(paste("Percentage error of lm.fit.2:",round(percent_error_2,1),"%"))
 print(paste("RMSE of lm.fit.3:",round(RMSE_3,1)))
 print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
-print(paste("RMSE of lm.fit.4:",round(RMSE_4,1)))
-print(paste("Percentage error of lm.fit.4::",round(percent_error_4,1),"%"))
+
 ```
 - The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
 
 ```{r}
-summary(lm.fit.4.test)
+summary(lm.fit.3.test)
 ```
 - Note from the output above, that the p-values for some month are not significant. More on that on in the next chapter.
 
@@ -388,23 +383,23 @@ As stated above there is evidence, that the weather as well as the timely and se
 
 ### How strong is the relationship and how accurate is the model?
 
-The predictors used in the model lm.fit.4 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.4 we achieve a value of 110.5 which corresponds to a percentage error of around 60 %.
+The predictors used in the model lm.fit.4 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.3 we achieve a value of 97.4 which corresponds to a percentage error of around 51.7 %.
 
 ### How large is the effect of each predctor on cnt?
 
 To answer this question we will plot the confidence interval of all the predictors.
 
 ```{r}
-ggcoef(lm.fit.4.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
+ggcoef(lm.fit.3.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
 ```
 We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination. The evaluate this assumption we update the model and compare the two R-squared values.
 
 ```{r}
-lm.fit.5.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
-lm.fit.5.test = lm(formula(lm.fit.5.train),data=test)
+lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
+lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
 
+summary(lm.fit.3.test)$r.squared
 summary(lm.fit.4.test)$r.squared
-summary(lm.fit.5.test)$r.squared
 ```
 In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
 Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
@@ -413,7 +408,7 @@ Finally, it can be concluded that the temperature as well as the current time ha
 
 With the plot function, we try to examine our model in more detail by means of residual analysis.To to that we build a model with the entire dataset.
 ````{r}
-lm.fit.0.full = lm(formula(lm.fit.4.train),data=df)
+lm.fit.0.full = lm(formula(lm.fit.3.train),data=df)
 par(mfrow=c(2,2))
 plot(lm.fit.0.full)
 `````
@@ -422,13 +417,13 @@ plot(lm.fit.0.full)
 
 - The QQ-plot shows that the residuals seem not to follow a normal distribution. This circumstance could be a sign that the linear model is not quite suitable to form a predictive model. We assume that this is due to the distribution of bike rentals. These are not normally distributed and could be considered as amount data.
 
-- Checking the scale-location plot, it seems that the residuals are spread fairly randomly along the horizontal line. Altough the variance seems to decrease on the right hand side of the plot we consider this as "normal".
+- Checking the scale-location plot, it seems that the residuals are spread fairly randomly along the horizontal line. Although the variance seems to decrease on the right hand side of the plot we consider this as "normal".
 
 - In the residual vs leverage, one observation seems to lie outside of the cooks distance. It is the observation 5637 in the dataset. A closer look reveals an error in the dataset. On 27.08.2011 and 28.08.2011 the time seems to be incorrect and therefore the observation 5637 can be considered as an outlier. It would probably make sense to delete these two days from the dataset. We do this in the following step and form a new model.
 
 ````{r}
 df2 <- df[!(df$dteday=="2011-08-27" | df$dteday=="2011-08-28"),]
-lm.fit.1.full = lm(formula(lm.fit.4.train),data=df2)
+lm.fit.1.full = lm(formula(lm.fit.3.train),data=df2)
 plot(lm.fit.1.full, which = 5)
 summary(lm.fit.0.full)$r.squared
 summary(lm.fit.1.full)$r.squared
@@ -1675,8 +1670,8 @@ abline(0,1)
 #Conclusion
 The best Models based on the RMSE values
 ```{r}
-#RMSE Linear Model
-
+#RMSE Linear Model RMSE of 97.4
+RMSE_Linear_Model <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
 #RMSE GLM Model
 
 #RMSE SVM Model wit a radial kernel and an RSME of[1] 47.66508
