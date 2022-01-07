@@ -1644,7 +1644,7 @@ abline(0,1)
 ```
 
 ##ANN Reflection & Conclusion:
-* Being able to safe models with saveRDS() & readRDS() is a great relief when working with NN.
+* Being able to save models with saveRDS() & readRDS() is a great relief when working with NN.
 * It seems that R studio doesn't use the full computational potential of the CPU. It turned out that already an Intel quad core 8th gen mobile is able to process two model simultaneously, without any “noticeable” loss in computing speed. This come especially handy as training more elaborated NN models becomes heavily time consuming.
 * Model with higher amount of neurons generally converged in fewer iteration steps. But in the end, as each iteration takes longer to be computed, the model takes more time to converged.
 * One should adapt faster the number of neurons when increasing predictors.
