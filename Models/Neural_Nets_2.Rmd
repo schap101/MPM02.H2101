@@ -1,0 +1,104 @@
+---
+title: "Neural Net"
+output: html_notebook
+author: "Régis Michael Andreoli"
+---
+
+
+1.1 Set up - Load libraries & Data preparation
+
+2.1 Split data into train and test partition
+
+3.1 First Model - Train & compare - with diversed predictors
+3.2 First Model - Test best model
+3.2 First Model - Finetune best model
+3.3 First Model - Test final model
+
+4.1 Second Model - Train & compare - only as time series
+4.2 Second Model - Test best model
+4.3 Second Model - Finetune best model
+4.4 Second Model - Test final model
+
+5.1 Create SARIMA model and compare with best second model
+
+
+--------------------------------------------------------------------------------
+#1.1 Set up - Load libraries & Data preparation
+
+##1.1 Load libraries
+```{r, echo= FALSE}
+library(tidyverse)
+library(neuralnet)
+library(caret)
+library(rstudioapi)
+library(rmarkdown)
+library(dplyr)
+```
+
+##1.1 Load data
+```{r, echo= FALSE}
+d <- setwd(dirname(getActiveDocumentContext()$path))
+df <- read.csv("../Data/hour.csv")
+```
+
+##1.1 Decompose multi factor variable into single factor variable
+```{r, echo= FALSE}
+df$season_1 <- ifelse(df$season == "1", 1, 0)
+df$season_2 <- ifelse(df$season == "2", 1, 0)
+df$season_3 <- ifelse(df$season == "3", 1, 0)
+df$season_4 <- ifelse(df$season == "4", 1, 0)
+df$weathersit_1 <- ifelse(df$weathersit == "1", 1, 0)
+df$weathersit_2 <- ifelse(df$weathersit == "2", 1, 0)
+df$weathersit_3 <- ifelse(df$weathersit == "3", 1, 0)
+df$weathersit_4 <- ifelse(df$weathersit == "4", 1, 0)
+df$hr_0 <- ifelse(df$hr == "0", 1, 0)
+df$hr_1 <- ifelse(df$hr == "1", 1, 0)
+df$hr_2 <- ifelse(df$hr == "2", 1, 0)
+df$hr_3 <- ifelse(df$hr == "3", 1, 0)
+df$hr_4 <- ifelse(df$hr == "4", 1, 0)
+df$hr_5 <- ifelse(df$hr == "5", 1, 0)
+df$hr_6 <- ifelse(df$hr == "6", 1, 0)
+df$hr_7 <- ifelse(df$hr == "7", 1, 0)
+df$hr_8 <- ifelse(df$hr == "8", 1, 0)
+df$hr_9 <- ifelse(df$hr == "9", 1, 0)
+df$hr_10 <- ifelse(df$hr == "10", 1, 0)
+df$hr_11 <- ifelse(df$hr == "11", 1, 0)
+df$hr_12 <- ifelse(df$hr == "12", 1, 0)
+df$hr_13 <- ifelse(df$hr == "13", 1, 0)
+df$hr_14 <- ifelse(df$hr == "14", 1, 0)
+df$hr_15 <- ifelse(df$hr == "15", 1, 0)
+df$hr_16 <- ifelse(df$hr == "16", 1, 0)
+df$hr_17 <- ifelse(df$hr == "17", 1, 0)
+df$hr_18 <- ifelse(df$hr == "18", 1, 0)
+df$hr_19 <- ifelse(df$hr == "19", 1, 0)
+df$hr_20 <- ifelse(df$hr == "20", 1, 0)
+df$hr_21 <- ifelse(df$hr == "21", 1, 0)
+df$hr_22 <- ifelse(df$hr == "22", 1, 0)
+df$hr_23 <- ifelse(df$hr == "23", 1, 0)
+df$weekday_1 <- ifelse(df$weekday == "0", 1, 0)
+df$weekday_2 <- ifelse(df$weekday == "1", 1, 0)
+df$weekday_3 <- ifelse(df$weekday == "2", 1, 0)
+df$weekday_4 <- ifelse(df$weekday == "3", 1, 0)
+df$weekday_5 <- ifelse(df$weekday == "4", 1, 0)
+df$weekday_6 <- ifelse(df$weekday == "5", 1, 0)
+df$weekday_7 <- ifelse(df$weekday == "6", 1, 0)
+df$mnth_1 <- ifelse(df$mnth == "1", 1, 0)
+df$mnth_2 <- ifelse(df$mnth == "2", 1, 0)
+df$mnth_3 <- ifelse(df$mnth == "3", 1, 0)
+df$mnth_4 <- ifelse(df$mnth == "4", 1, 0)
+df$mnth_5 <- ifelse(df$mnth == "5", 1, 0)
+df$mnth_6 <- ifelse(df$mnth == "6", 1, 0)
+df$mnth_7 <- ifelse(df$mnth == "7", 1, 0)
+df$mnth_8 <- ifelse(df$mnth == "8", 1, 0)
+df$mnth_9 <- ifelse(df$mnth == "9", 1, 0)
+df$mnth_10 <- ifelse(df$mnth == "10", 1, 0)
+df$mnth_11 <- ifelse(df$mnth == "11", 1, 0)
+df$mnth_12 <- ifelse(df$mnth == "12", 1, 0)
+```
+
+##1.1 Normalize dependent var
+```{r}
+data <- df
+data$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
+str(data)
+```
