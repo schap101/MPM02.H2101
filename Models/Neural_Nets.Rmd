@@ -447,7 +447,7 @@ model_8 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 +
 
 #3.9 Model 9 - all variable plus year
 
-##3.9 Model 9 - set up
+##3.9x Model 9x - set up
 ```{r}
 set.seed(41)
 model_9 = neuralnet(cnt ~ yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
@@ -476,12 +476,22 @@ sqrt(mean((control_9 - pred_9)^2))
 plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
 abline(0,1)
 ```
+```{r}
+set.seed(44)
+tuGrid_2 <- expand.grid(.layer1=c(4:8), .layer2=c(0,2,3,4), .layer3=c(0,2))
 
+trCtrl_2 <- trainControl(
+  method = 'repeatedcv',
+  number = 5,
+  repeats = 1,
+  returnResamp = 'final',
+)
+```
 
 ##3.10 Models 10 - Set up
 ```{r}
 set.seed(41)
-tuGrid_3 <- expand.grid(.layer1=c(6:10), .layer2=c(2:5), .layer3=c(0,2,3))
+tuGrid_3 <- expand.grid(.layer1=c(6:12), .layer2=c(2:5), .layer3=c(0,2,3))
 
 trCtrl_3 <- trainControl(
   method = 'repeatedcv',
@@ -493,7 +503,7 @@ trCtrl_3 <- trainControl(
 
 ##3.10 Models 10 - Train and Compare
 ```{r}
-models_10 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
+models_10 <- train(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
   method = 'neuralnet',
   metric = 'RMSE',
   linear.output = TRUE,
@@ -502,10 +512,61 @@ models_10 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + 
   lifesign.step = 1000,
   lifesign = "full",
   preProcess = c('center', 'scale'),
-  tuneGrid = tuGrid_2,
-  trControl = trCtrl_2
+  tuneGrid = tuGrid_3,
+  trControl = trCtrl_3
   )
 ```
 
-fitAuto<-auto.arima(log(AirPassengers),ic="aic")
-fit
+##3.10 Model 10 - Save and Load
+```{r}#
+saveRDS(models_10, "neural_nets_models_10.rds")
+```
+
+```{r}
+plot(models_10)
+```
+
+
+#3.11 Model 11
+
+##3.11 Model 11 - Train model
+```{r}#
+set.seed(41)
+model_11 = neuralnet(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
+```
+
+```{r}
+models_11 <-readRDS("neural_nets_model_11.rds")
+```
+
+##3.11 Model 11 - Compute Prediction
+```{r}
+pred_11 <- compute(model_9x, test_2 %>% select(-cnt))
+pred_11 <- pred_11$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+control_11 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+head(pred_11)
+head(control_11)
+```
+
+##3.11 Model 11 - Root Mean Square
+```{r}
+sqrt(mean((control_11 - pred_11)^2))
+```
+
+##3.11 Model 11 - Plot Model Performance
+```{r}
+plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+abline(0,1)
+```
+
+data_ts <- ts(df$cnt)
+x <- stl(data_ts, s.window = "periodic")
+plot(x)
+
+
+arima_model <- auto.arima(data_ts,ic="aic")
+print(arima_model)
+
+pred <- predict(model, n.ahead = 30)
+plot(pred$pred)
+lines(real_d, col = "orange")
