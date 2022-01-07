@@ -159,7 +159,7 @@ In order to investigate the seasonal influences, the monthly (1 to 12) and seaso
 - Category 3:      Fall
 - Category 4:      Winter
 
-````{r,echo=FALSE}
+```{r,echo=FALSE}
 
 p1 <- ggplot(data = df,  mapping = aes(y = log(cnt),
                      x = factor(season),fill= season)) + ylab("Num. of Bike Rentals") + xlab("Season") +  labs(fill="Season") +
@@ -182,7 +182,7 @@ The two boxplot above indicate, that the mos bike rentals take place in summer a
 In order to examine the temporal influences we have the time specification in hours (1 to 24), the weekdays (0 = Monday to 6 = Sunday), working day (1 = yes, 0 = no) as well as vacation day (1 = yes , 0 = no).
 
 
-````{r,echo=FALSE}
+```{r,echo=FALSE}
 
 p1 <- ggplot(data = df,
        mapping = aes(y = log(cnt),
@@ -237,7 +237,7 @@ df$wind <- (df$windspeed * 67)
 ### Split data into train and test dataset
 
 In the following the dataset will be split into a train and a test dataset. The partition will be used to evaluate the accuracy of the model when used on the test data.
-````{r}
+```{r}
 set.seed(123)
 indices <- createDataPartition(df$cnt, p=.8, list = F)
 train <- df %>% slice(indices)
@@ -405,11 +405,11 @@ Finally, it can be concluded that the temperature as well as the current time ha
 ### Are there Potential Problems of Fitting this data with a Linear Regression Model 
 
 With the plot function, we try to examine our model in more detail by means of residual analysis.To to that we build a model with the entire dataset.
-````{r}
+```{r}
 lm.fit.0.full = lm(formula(lm.fit.3.train),data=df)
 par(mfrow=c(2,2))
 plot(lm.fit.0.full)
-`````
+```
 
 - The residual vs fitted plot shows no clear pattern indicating that that relationship is linear. Also the smoother stays more or less on zero. In a clear non-linear situation this would have been the case.
 
@@ -419,28 +419,27 @@ plot(lm.fit.0.full)
 
 - In the residual vs leverage, one observation seems to lie outside of the cooks distance. It is the observation 5637 in the dataset. A closer look reveals an error in the dataset. On 27.08.2011 and 28.08.2011 the time seems to be incorrect and therefore the observation 5637 can be considered as an outlier. It would probably make sense to delete these two days from the dataset. We do this in the following step and form a new model.
 
-````{r}
+```{r}
 df2 <- df[!(df$dteday=="2011-08-27" | df$dteday=="2011-08-28"),]
 lm.fit.1.full = lm(formula(lm.fit.3.train),data=df2)
 plot(lm.fit.1.full, which = 5)
 summary(lm.fit.0.full)$r.squared
 summary(lm.fit.1.full)$r.squared
-`````
+```
 - As we can see, all observations are lying now within the cook distance and the R-value also increases marginally when taking out the faulty date entries in a updated dataset.
 
 In the next chapter we will use more advanced linear models to find a better fit for the data.
 
 #GLM Model
 ## Reading in the daily data as "day" and the hourly data as "hour" and having a look at it
-```{r}
-setwd(dirname(getActiveDocumentContext()$path))
-day_0 <- read_csv("../Data/day.csv")
+```{r, echo=FALSE}
+day_0 <- read.csv("../Data/day.csv")
 head(day_0)
 ```
 
 
-````{r}
-hour_0 <- read_csv("../Data/hour.csv")
+```{r, echo=FALSE}
+hour_0 <- read.csv("../Data/hour.csv")
 head(hour_0)
 ```
 
@@ -451,26 +450,14 @@ day <- day_0[!(day_0$dteday=="2011-08-27" | day_0$dteday=="2011-08-28"),]
 hour <- hour_0[!(hour_0$dteday=="2011-08-27" | hour_0$dteday=="2011-08-28"),]
 ```
 
-
-````{r}
-str(hour)
-````
-
-````{r}
-str(day)
-````
-
 ## Plotting and inspecting the data
 First we have a look at how the different variables are corresponding with number of bicycles, that are being used 
-```{r , echo=True}
-pairs.daily <- pairs(cnt ~ dteday + season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = day, upper.panel = panel.smooth)
-
-
+```{r, echo=TRUE}
+pairs.daily <- pairs(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = day, upper.panel = panel.smooth)
 ```
 
-```{r, echo=True}
-pairs.hour <- pairs(cnt ~ dteday + season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = hour, upper.panel = panel.smooth)
-
+```{r, echo=TRUE}
+pairs.hour <- pairs(cnt ~ season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = hour, upper.panel = panel.smooth)
 ```
 
 
@@ -489,20 +476,20 @@ So let's have another look at the following variables:
 - hum
 - windspeed
 
-```{r, echo=True}
+```{r, echo=TRUE}
 pairs.hour.new <- pairs(cnt ~ season + mnth + hr+ weathersit + temp + atemp + hum + windspeed, data = hour, upper.panel = panel.smooth)
 ```
 
 
 
 
-```{r, echo=True}
+```{r, echo=TRUE}
 
 ggplot(day,aes(x=(season= as.character(season)), y=cnt, fill=season)) + 
   geom_boxplot()+labs(x="Seasons", y="Number of Bikes used")
 
 ```
-```{r, echo=True}
+```{r, echo=TRUE}
 ggplot(day,aes(x=(mnth= month.abb[mnth]), y=cnt, fill=season)) + 
   geom_boxplot()+labs(x="Months", y="Number of Bikes used") + scale_x_discrete(limits = month.abb)
 
@@ -510,7 +497,7 @@ ggplot(day,aes(x=(mnth= month.abb[mnth]), y=cnt, fill=season)) +
 
 It looks like late winter/early spring is the least popular time for bike rentals. Let's check, if it might have something to do with the weather.
 
-```{r, echo=True}
+```{r, echo=TRUE}
 # First we are having a look at the temperature per month to get a better picture of the situation
 ggplot(day,aes(x=(mnth= month.abb[mnth]), y=temp, fill=season)) + 
   geom_boxplot()+labs(x="Months", y="Temperature") + scale_x_discrete(limits = month.abb)
@@ -519,14 +506,14 @@ ggplot(day,aes(x=(mnth= month.abb[mnth]), y=temp, fill=season)) +
 
 The temperature shows a similar, although not identical, pattern as the bike usage, with the lowest temperatures being in late winter/early spring.
 
-```{r pressure, echo=True}
+```{r pressure, echo=TRUE}
 # Having a look at the wind speed per month
 ggplot(day,aes(x=(mnth= month.abb[mnth]), y=windspeed, fill=season)) + 
   geom_boxplot()+labs(x="Months", y="Wind Speed") + scale_x_discrete(limits = month.abb)
 ```
 For the wind speed we cannot say the same. 
 
-```{r, echo=True}
+```{r, echo=TRUE}
 # Having a look at the temperature per month
 ggplot(day,aes(x=(mnth= month.abb[mnth]), y=hum, fill=season)) + 
   geom_boxplot()+labs(x="Months", y="Humidity") + scale_x_discrete(limits = month.abb)
@@ -548,7 +535,7 @@ indices.day <- createDataPartition(day$cnt, p = .8, list = F)
  
 day.train <- day %>% slice(indices.day) 
 day.test_in <- day %>% slice(-indices.day) %>% select(-cnt) # contains everything except the count values
-day.test_truth <- day %>% slice(-indices.day) %>% pull(cnt)  # contains the true count values of the testing set
+day.test_truth <- day %>% slice(-indices.day) %>% pull(cnt)  # contains the TRUE count values of the testing set
 
 
 set.seed(123)
@@ -1215,7 +1202,6 @@ Therefor the winner of the support vecotor models is the one with the radial ker
 ##Data Preparation
 ###Load data
 ```{r, echo=FALSE}
-d <- setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
 ```
 
