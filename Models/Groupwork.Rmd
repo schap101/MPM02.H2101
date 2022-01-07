@@ -1465,7 +1465,7 @@ trCtrl_2 <- trainControl(
 ```
 
 ###Train Models
-```{r}
+```{r, eval=FALSE}
 models_5 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
   method = 'neuralnet',
   metric = 'RMSE',
