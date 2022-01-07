@@ -41,6 +41,9 @@ d <- setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
 ```
 
+Before starting to create NN models, all categorical variables are converted into a "one-hot" resp. binary variable. This is told to be best practice, as it should enhance the prediction performance let the model computing converge faster. Latter is also of great interest due to the long calculation time of NN models.
+Also, the dependent variable is normalized.
+
 ##1.1 Decompose multi factor variable into single factor variable
 ```{r, echo= FALSE}
 df$season_1 <- ifelse(df$season == "1", 1, 0)
@@ -100,7 +103,6 @@ df$mnth_12 <- ifelse(df$mnth == "12", 1, 0)
 ```{r}
 data <- df
 data$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
-str(data)
 ```
 
 ##1.1 Identifying near-zero variance variable
@@ -109,6 +111,9 @@ nearZeroVar(data, saveMetrics = TRUE)
 ```
 
 #3.1 Model 1
+As a first approach to the data set, a several models are computed at once with a preset range of layer parameters. A slightly reduced training data volume is taken (65%). Each model is five-times cross validated. Also, the threshold is set to 0.1, which is rather a higher error tolerance value. Those first parameter settings are chosen in order to compute quantity rather than quality.
+The result shown below suggests that there is no need of a third nor a second layer, and that the first layer doesn’t improve with more than four neurons in the first layer. The Root Mean Square Error is about 183. A prediction-vs-real data plot provides a visualization of the model performance. This plot suggests that there might be potential for improvement.
+
 
 ##3.1 Split data into train and test partition
 ```{r}
@@ -117,8 +122,6 @@ indices_1 <- createDataPartition(data$cnt, p=.65, list = F)
 
 train_1 <- data %>% slice(indices_1)
 test_1 <- data %>% slice(-indices_1)
-
-str(train_1)
 ```
 
 
@@ -184,6 +187,7 @@ abline(0,1)
 ```
 
 #3.2 Model 2
+After the first investigation in the NN layer's behavior, the four-neurons model layout is taken to be computed again. This time, a higher data amount (80%) and an error threshold of 0.01 is set. The result of this more meticulous model shows already great improvement in RSME and the plot is also more satisfying. It is unclear if a model with higher complexity would have performed even better with a 0.01 threshold, but this is the trade-off for a much faster computing time.
 
 ##3.2 Split Data into Train and Test Partition
 ```{r}
@@ -214,8 +218,6 @@ model_2 <-readRDS("neural_nets_model_2.rds")
 pred_2 <- compute(model_2, test_2 %>% select(-cnt))
 pred_2 <- pred_2$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_2 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_2)
-head(control_2)
 ```
 
 ##3.2 Model 2 - Root Mean Square
@@ -229,44 +231,9 @@ plot(control_2, pred_2, col='orange', cex = .3, pch=20, ylab = "predicted rating
 abline(0,1)
 ```
 
-#3.3 Model 3
-
-##3.3 Model 3 - Train
-```{r}#
-set.seed(42)
-model_3 = neuralnet(cnt ~ hum + temp + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23, data = train_2, hidden = c(7,2,2),linear.output = TRUE, threshold = 0.01, stepmax = 500000, lifesign.step = 1000, lifesign = "full")
-```
-
-##3.3 Model 3 - Save and Load
-```{r}#
-saveRDS(model_3, "neural_nets_model_3.rds")
-```
-
-```{r}
-model_3 <-readRDS("neural_nets_model_3.rds")
-```
-
-##3.3 Model 3 - Compute Prediction
-```{r}
-pred_3 <- compute(model_3, test_2 %>% select(-cnt))
-pred_3 <- pred_3$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-control_3 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_3)
-head(control_3)
-```
-
-##3.3 Model 3 - Root Mean Square
-```{r}
-sqrt(mean((control_3 - pred_3)^2))
-```
-
-##3.3 Model 3 - Plot Model Performance
-```{r}
-plot(control_3, pred_3, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
-abline(0,1)
-```
-
 #3.4 Model 4 - all variable - low model complexity
+Now more predictors are added to the model; the weekdays, the months and the wind speed. Again with a four-neuron model, the model is computed with a threshold of 0.05.
+The results shows improvement in RSME (77) and thus suggest that there is valuable information in the added predictors. Again, the plot appear to be better.
 
 ##3.4 Model 4 - set up
 ```{r}
@@ -289,8 +256,6 @@ predict.nn train_2?
 pred_4 <- compute(model_4, test_2 %>% select(-cnt))
 pred_4 <- pred_4$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_4 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_4)
-head(control_4)
 ```
 
 ##3.4 Model 4 - Root Mean Square
@@ -317,6 +282,7 @@ gwplot(net.infert, selected.covariate="induced")
 gwplot(net.infert, selected.covariate="spontaneous")
 
 #3.5 Models 5
+With the new predictors added, the model might benefit from a new layer architecture. Again, a range of model is computed. But this time, more data (80%) and new predictors are added. The result suggest a model architecture of 7,3,0 neurons.
 
 ##3.5 Models 5 - Set up
 ```{r}
@@ -347,10 +313,13 @@ models_5 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + w
   )
 ```
 
-```{r}
+```{r}#
 saveRDS(models_5, "neural_nets_models_5.rds")
 ```
 
+```{r}
+models_5 <-readRDS("neural_nets_models_5.rds")
+```
 
 ```{r}
 plot(models_5)
@@ -361,8 +330,6 @@ plot(models_5)
 pred_5 <- compute(models_5$finalModel, test_2 %>% select(-cnt))
 pred_5 <- pred_5$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_5 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_5)
-head(control_5)
 ```
 
 ##3.5 Model 5 - Root Mean Square
@@ -376,14 +343,16 @@ plot(control_5, pred_5, col='orange', cex = .3, pch=20, ylab = "predicted rating
 abline(0,1)
 ```
 #Model 6
+The 7,3,0 model is computed again but with higher “resolution”. The RSME drop down to 70.
+
 ##3.6 Model 6 - set up
-```{r}
+```{r}#
 set.seed(41)
 model_6 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
 ```
 
-```{r}#
-saveRDS(model_6, "neural_nets_model_6.rds")
+```{r}
+model_6 <-readRDS("neural_nets_model_6.rds")
 ```
 
 ##3.6 Model 6 - Compute Prediction
@@ -391,8 +360,6 @@ saveRDS(model_6, "neural_nets_model_6.rds")
 pred_6 <- compute(model_6, test_2 %>% select(-cnt))
 pred_6 <- pred_6$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_6 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_6)
-head(control_6)
 ```
 
 ##3.6 Model 6 - Root Mean Square
@@ -406,46 +373,11 @@ plot(control_6, pred_6, col='orange', cex = .3, pch=20, ylab = "predicted rating
 abline(0,1)
 ```
 
-#Model 7
-##3.7 Model 7 - set up
-```{r}
-set.seed(41)
-model_7 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(8,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
-```
 
-```{r}#
-saveRDS(model_7, "neural_nets_model_7.rds")
-```
-
-##3.7 Model 7 - Compute Prediction
-```{r}
-pred_7 <- compute(model_7, test_2 %>% select(-cnt))
-pred_7 <- pred_7$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-control_7 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_7)
-head(control_7)
-```
-
-##3.7 Model 7 - Root Mean Square
-```{r}
-sqrt(mean((control_7 - pred_7)^2))
-```
-
-##3.7 Model 7 - Plot Model Performance
-```{r}
-plot(control_7, pred_7, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
-abline(0,1)
-```
-
-#3.8 Model 4.2 - all variable - low model complexity
-
-##3.8 Model 4.2 - set up
-```{r}
-set.seed(41)
-model_8 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(4),linear.output = TRUE, threshold = 0.005, stepmax = 750000, lifesign.step = 500, lifesign = "full")
-```
 
 #3.9 Model 9 - all variable plus year
+After some reflections about the data, one potential mistake stood out. Initially, the variable “year” was left out, since the data set covers only two years. But, as there is an increasing trend in the bike rental over the two years, there might be information in this predictor. 
+The predictor “year” is added to the model 7,3,0. The result shows a great improvement in RSME with a drop to 49. The plot shows an overall better prediction behavior.
 
 ##3.9x Model 9x - set up
 ```{r}
@@ -453,8 +385,8 @@ set.seed(41)
 model_9 = neuralnet(cnt ~ yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
 ```
 
-```{r}°
-saveRDS(model_9, "neural_nets_model_9.rds")
+```{r}
+model_9 <-readRDS("neural_nets_model_9.rds")
 ```
 
 ##3.9 Model 9 - Compute Prediction
@@ -462,8 +394,6 @@ saveRDS(model_9, "neural_nets_model_9.rds")
 pred_9 <- compute(model_9, test_2 %>% select(-cnt))
 pred_9 <- pred_9$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_9 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_9)
-head(control_9)
 ```
 
 ##3.9 Model 9 - Root Mean Square
@@ -476,22 +406,11 @@ sqrt(mean((control_9 - pred_9)^2))
 plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
 abline(0,1)
 ```
-```{r}
-set.seed(44)
-tuGrid_2 <- expand.grid(.layer1=c(4:8), .layer2=c(0,2,3,4), .layer3=c(0,2))
-
-trCtrl_2 <- trainControl(
-  method = 'repeatedcv',
-  number = 5,
-  repeats = 1,
-  returnResamp = 'final',
-)
-```
 
 ##3.10 Models 10 - Set up
 ```{r}
 set.seed(41)
-tuGrid_3 <- expand.grid(.layer1=c(6:12), .layer2=c(2:5), .layer3=c(0,2,3))
+tuGrid_3 <- expand.grid(.layer1=c(6, 8, 10, 12, 14), .layer2=c(6, 8, 10), .layer3=c(2, 3, 4))
 
 trCtrl_3 <- trainControl(
   method = 'repeatedcv',
@@ -503,7 +422,7 @@ trCtrl_3 <- trainControl(
 
 ##3.10 Models 10 - Train and Compare
 ```{r}
-models_10 <- train(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
+models_10c <- train(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
   method = 'neuralnet',
   metric = 'RMSE',
   linear.output = TRUE,
@@ -518,8 +437,8 @@ models_10 <- train(cnt ~ workingday + holiday + yr + hum + temp + windspeed + we
 ```
 
 ##3.10 Model 10 - Save and Load
-```{r}#
-saveRDS(models_10, "neural_nets_models_10.rds")
+```{r}
+saveRDS(models_10b, "neural_nets_models_10b.rds")
 ```
 
 ```{r}
@@ -527,25 +446,28 @@ plot(models_10)
 ```
 
 
-#3.11 Model 11
+#3.13 Model 13
 
-##3.11 Model 11 - Train model
-```{r}#
+##3.13 Model 13 - Train model
+```{r}
 set.seed(41)
-model_11 = neuralnet(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
+model_13 = neuralnet(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(14,8,2),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
 ```
 
 ```{r}
-models_11 <-readRDS("neural_nets_model_11.rds")
+models_13 <-readRDS("neural_nets_model_13.rds")
 ```
+
+
+#3.11 Model 11
+After progressively adding the predictors to the model, the conclusion is that nearly all variables in the data set are useful as predictor, the remaining last two variables; “working day” and “holiday” are finally added to the model. Those two variables might help the model to understand the the case of rarer events, such as holiday or public holiday.
+This two predictors slightly improved the model to an RSME of 46.
 
 ##3.11 Model 11 - Compute Prediction
 ```{r}
 pred_11 <- compute(model_9x, test_2 %>% select(-cnt))
 pred_11 <- pred_11$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_11 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-head(pred_11)
-head(control_11)
 ```
 
 ##3.11 Model 11 - Root Mean Square
@@ -559,6 +481,22 @@ plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rati
 abline(0,1)
 ```
 
+
+#Reflection & Conclusion:
+
+- Being able to safe models with saveRDS() & readRDS() is a great relief when working with NN.
+
+- It seems that R studio doesn't use the full computational potential of the CPU. It turned out that already an Intel quad core 8th gen mobile is able to process two model simultaneously, without any “noticeable” loss in computing speed. This come especially handy as training more elaborated NN models becomes heavily time consuming.
+
+- Model with higher amount of neurons generally converged in fewer iteration steps. But in the end, as each iteration takes longer to be computed, the model takes more time to converged.
+
+- One should adapt faster the number of neurons when increasing predictors.
+
+
+
+
+
+#SARIMA
 data_ts <- ts(df$cnt)
 x <- stl(data_ts, s.window = "periodic")
 plot(x)
