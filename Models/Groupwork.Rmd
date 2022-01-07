@@ -921,12 +921,23 @@ ncol(dt)
 ```
 
 The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position. 
+As already mentioned in section before, the data at the 27 and 28 August is not complete and wrong. Therfore, we will drop it for the SVM as well.
 ```{r}
+#drop the data for the 27 and 28 August 2011
+
+dt <- subset(dt, dt$dteday != '2011-08-27')
+dt <- subset(dt, dt$dteday != '2011-08-28')
+
+
+
 #remove instant, dteday, casual and registered 
 dt <- dt %>% select(-c(1,2, 15, 16))
 
+
+
 #move cnt to the first position
 dt <- dt %>% select(cnt, everything())
+
 
 ```
 
@@ -1094,7 +1105,7 @@ set.seed(9876)
 
 svm.lin.1 <- train(cnt ~ ., data = dt.train,
                    trControl = kfold, method='svmLinear2',
-                   tuneGrid = data.frame(cost = c(.25))
+                   tuneGrid = data.frame(cost = c(1))
                    )
 print(svm.lin.1)
 
@@ -1103,29 +1114,34 @@ print(svm.lin.1)
 Let's compare it to the linear kernel with the SVM implementation in the e1071 package.
 ```{r}
 set.seed(9876)
-svm.lin.2 <- svm(cnt~., data = dt.train, kernel = 'linear', type = 'eps-regression')
+svm.lin.2 <- svm(cnt~., data = dt.train, kernel = 'linear',
+                 type = 'eps-regression',
+                 degree = 1,
+                 coef0 = 1,
+                 cost = 1,
+                 cross = 5)
 
 
 rmse(dt.train$cnt, svm.lin.2$fitted)
-svm.lin.2$cost
-
+summary(svm.lin.2)
 ```
 
-The svm.lin.1 perform better and has a lower cost parameter. svm.lin.1 RMSE: 6.04877 and a cost of 0.25, compared to svm.lin.2 with a RMSE of 8.124774 and a cost of 1. Therefore the svm.lin.1 is used for the prediction.
-
-The cost lowest cost parameter with the higher RMSE value is .25, therefore it is set to this value (RSME 6.048777). The smaller the cost parameter, the more general the data is explained. If the cost parameter is chosen higher, the more specific it explains this data set. Therefore it is best to chose it as low as possible, with the best RSME value.If the cost value is higher, the model tend to over
+The svm.lin.1 perform better and has a lower cost parameter. svm.lin.1 RMSE: 108.4244 and a cost of 1, compared to svm.lin.2 with a RMSE of 105.4065 and a cost of 1. 
+The smaller the cost parameter, the more general the data is explained. If the cost parameter is chosen higher, the more specific it explains this data set. Therefore it is best to chose it as low as possible, with the best RSME value.If the cost value is higher, the model tend to overfit. The svm.lin.2 model has a better RMSE and is faster than the svm.lin.1. Therefore the svm.lin.2 is used for the prediction.
 
 
 ### Prediction with linear kernel
 ```{r}
 set.seed(9876)
-pred.linear <- predict(svm.lin.1, newdata=dt.test)
+pred.linear <- predict(svm.lin.2, newdata=dt.test)
 head(pred.linear)
+rmse(dt.test$cnt, pred.linear)
 
 ```
+RMSE of 102.3627 for the prediction
 
 ## Polynomial kernel
-```{r}
+```{r}#
 set.seed(9876)
 svm.poly.1 <- train(cnt ~., data = dt.train,
                     trControl = kfold,
@@ -1142,7 +1158,7 @@ Lets try the polynomial svm with the e1071 package
 set.seed(9876)
 #Polynomial: (gamma*u'*v + coef0)^degree
 svm.poly.2 <- svm(cnt ~., data = dt.train, kernel = 'polynomial',
-                  cross = 1, coef0 = 1, C= c(0.1, 0.25, 0.5, 1),
+                  cross = 1, coef0 = 1, C = c(0.1, 0.25, 0.5, 1),
                   degree = 1)
 
 svm.poly.2$coef0
@@ -1153,12 +1169,12 @@ svm.poly.2$degree
 
 
 ```
-The model svm.poly.1 achieved a RMSE of 7.449524 with degree =1, scale=0.1 and cost=1, where the svm.poly.2 achieved a RMSE of 8.726882, but much faster. For the model testing, the svm.poly.1 will be used.
+The svm.poly.2 achieved a RMSE of 107.25 with cost 1, degree 1 and coef 1. For the model testing, the svm.poly.2 will be used.
 
 ### Prediction with polynomaial kernel
 ```{r}
 set.seed(9876)
-pred.poly <- predict(svm.poly.1, newdata = dt.test)
+pred.poly <- predict(svm.poly.2, newdata = dt.test)
 head(pred.poly)
 
 
@@ -1174,7 +1190,7 @@ summary(svm.rad.1)
 print(svm.rad.1)
 
 ```
-The svmRadial kernel uses also the kernlab package. The svmRadial kernel uses also the kernlab package. The radial kernel allows us to build more complex models. As the data in our dataset has quite a linear context, it is not neccessary to use more complex models. As well the radial kernel performed the worst and is therefore not furhter optimized. It achieved a RMSE of 10.70453 with sigma = 0.0102241 and C=1.
+The svmRadial kernel uses also the kernlab package. The svmRadial kernel uses also the kernlab package. The radial kernel performed so far best, wit a RSME of  61.25279. The final values used for the model were sigma = 0.01062833 and C = 1.
 
 ### Prediction with radial kernel
 ```{r}
@@ -1197,7 +1213,9 @@ rmse(dt.test$cnt, pred.poly)
 #radial model
 rmse(dt.test$cnt, pred.radial)
 ```
-The polynomial kernel outperformed the linear kernel with an RMSE of 7.491662 against 8.085093, followed by the radial kernel with an RMSE of 9.619971.
+The radial kernel clearly outperformed the other two. the radial kernel has a RSME of 47.66508, the polynomial an RSME of 104.9329 and the linear kernel a RSME of 102.5022.
+Therefor the winner of the support vecotor models is the one with the radial kernel. 
+
 
 ##1.1 Load data
 ```{r, echo= FALSE}
@@ -1676,8 +1694,6 @@ fit
 
 #Optimization Problem
 
-
-
 #Conclusion
 The best Models based on the RMSE values
 ```{r}
@@ -1685,7 +1701,8 @@ The best Models based on the RMSE values
 
 #RMSE GLM Model
 
-#RMSE SVM Model
+#RMSE SVM Model wit a radial kernel and an RSME of[1] 47.66508
+rmse(dt.test$cnt, pred.radial)
 
 #RMSE NN Model
 ```
