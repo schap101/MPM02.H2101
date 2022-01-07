@@ -2,19 +2,320 @@
 title: "Support Vector Machine"
 output: html_notebook
 author: "Philipp Schaad"
+
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+In this section we want to apply a support vector machine to predict the rented bikes
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
-```{r}
-plot(cars)
+# Load libraries
+```{r, set.seed(9876)}
+library(data.table)
+library(ggplot2)
+library(caret)
+library(GGally)
+library(e1071)
+library(kernlab)
+library(cowplot)
+library(Metrics)
+library(dplyr)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+#Load the data
+```{r}
+dt <- fread("../Data/hour.csv")
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+#check the data and format of the data tabel
+```{r}
+head(dt)
+str(dt)
+nrow(dt)
+ncol(dt)
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```
+The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position
+```{r}
+#remove instant and dteday
+dt <- dt %>% select(-c(1,2))
 
+#move cnt to the first position
+dt <- dt %>% select(cnt, everything())
+
+```
+
+#Factor ordinal variables 
+```{r}
+# Season
+dt$season <- factor(
+  dt$season, levels = c(1,2,3,4),
+  labels = c('Spring', 'Summer', 'Fall','Winter'),
+  ordered = TRUE)
+is.factor(dt$season)
+# Year
+dt$yr <- factor(dt$yr,
+                levels = c(0, 1),
+                labels = c(2011, 2012),
+                ordered = TRUE)
+is.factor(dt$yr)
+
+# Month
+dt$mnth <- factor(
+  dt$mnth, levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+  labels = c('January','February', 'March', 'April',
+             'May', 'June', 'July', 'August',
+             'September','October', 'November', 'December'),
+  ordered = TRUE)
+is.factor(dt$mnth)
+
+# Hour
+dt$hr <- as.factor(dt$hr)
+is.factor(dt$hr)
+
+# Holiday
+dt$holiday <- factor(dt$holiday,
+                     levels = c(0, 1),
+                     labels = c('Workday', 'Weekend'))
+
+
+# Weekday
+dt$weekday <- factor(
+ dt$weekday,levels = c(1,2,3,4,5,6,0),
+  labels = c('Monday','Tuesday','Wednesday','Thursday',
+             'Friday', 'Saturday','Sunday'),
+  ordered = TRUE)
+
+# Workingday
+dt$workingday <- factor(dt$workingday,
+                        levels = c(0,1),
+                        labels = c('Workday', 'Weekend'))
+
+# Weathersit
+dt$weathersit <- factor(
+  dt$weathersit,
+  levels = c(1,2,3,4),
+  labels = c('Clear, Few clouds, Partly cloudy, Partly cloudy', 'Mist+Clouds',
+             'Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist', 'Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds'))
+
+dt %>% glimpse()
+```
+
+
+#Plot data
+## Rentals by Season and Temperature
+```{r}
+colr = c("olivedrab3", 'yellow', 'orange', 'grey50')
+# Rentals by Season & Temperature
+options(repr.plot.width=12, repr.plot.height=8)
+ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
+  theme_bw(base_size = 20) + scale_color_manual(values = colr) +
+  labs(title = "Rentals by Season & Temperature", x = "Temperature Celsius", y = "Total Rentals") +
+  scale_y_continuous(labels = scales::label_comma())
+
+```
+## Rentals by Season, Temperature and Year
+```{r}
+#Rentals by Season & Temperature & Year
+ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
+  theme_bw(base_size = 20) + scale_color_manual(values = colr) +
+  labs(title = "Rentals by Season, Temperature & Year", x = "Temperature Celsius Normalized", y = "Total Rentals") +
+  scale_y_continuous(labels = scales::label_comma()) +
+  facet_grid(~yr)
+```
+## Rentals by Humidity and Season, Rental by Windspeed and Season
+```{r}
+
+# Rentals by Humidity & Season 
+a1 = ggplot(dt, aes(hum, cnt, color = season)) + geom_point() +
+  theme_bw(base_size = 16) + scale_color_manual(values = colr) + facet_grid(~yr) +
+  labs(title = "Rentals by Humidity & Season", x = "Humidity", y = "Total Rentals") +
+  scale_y_continuous(labels = scales::label_comma()) + 
+  theme(legend.position="bottom")
+# Rentals by Windspeed & Season
+b1 = ggplot(dt, aes(windspeed, cnt, color = season)) + geom_point() +
+  theme_bw(base_size = 18) + scale_color_manual(values = colr) + facet_grid(~yr) +
+  labs(title = "Rentals by Windspeed & Season", x = "Wind Speed", y = "Total Rentals") +
+  scale_y_continuous(labels = scales::label_comma()) + 
+  theme(legend.position="bottom")
+options(repr.plot.width=16, repr.plot.height=8)
+plot_grid(a1,b1, ncol = 2, nrow = 1)
+```
+
+## Rental and Temperature by Seasion
+```{r}
+
+ggplot(dt, aes(temp, cnt, color = season)) +
+  geom_jitter(width = 0.25) + scale_color_manual(values = colr) +
+  labs(y="Count of Rentals", title = "Rentals & Temperature by Season") +
+  facet_grid(~season) + theme_bw(base_size = 18)
+```
+
+## Rentals and Temperature by Weather
+```{r}
+w = c('skyblue1','skyblue2','skyblue3','skyblue4','grey40')
+ggplot(dt, aes(temp, cnt, color = weathersit)) + 
+  geom_jitter(width = 0.25, show.legend = F) + 
+  scale_color_manual(values = w) +
+  labs(y="Count of Rentals", title = "Rentals & Temperature by Weather") + 
+  facet_grid(~weathersit) + theme_bw(base_size = 18)
+```
+#Multicollinearity
+Check for multicollinearity between the different response variables
+```{r}
+m <- dt
+# make all data types numeric
+cols <- c("season", "weathersit", "workingday", "holiday", "mnth", 
+       "hr", "weekday","yr")
+m[,cols] <- m %>% select(all_of(cols)) %>% lapply(as.numeric)
+
+#checking multicolinearity with VIF
+fit1 <- lm(cnt ~., data = m)
+summary(fit1)
+car::vif(fit1)
+```
+VIF is the Variance Inflation Factor and can be used to detect the presence of multicollinearity.
+$$
+VIF = \frac{1}{(1-R^2)}
+$$
+
+According to Zuur et al. 2010, a VIF > 10 shows multicollinearity. But also more restrictive values such as 3 or even 1 can be chosen. We start with 10. temp and atemp show a high multicolinearity. Therefore, the atemp, which represents the feeling temperature, will be removed from the original dataset.
+
+```{r}
+dt <- dt %>% select(everything(), -atemp)
+```
+
+
+#Train - test split
+Split the data in a trainset with 75% of the data and a testset with 25% of the data
+```{r}
+index <- createDataPartition(dt$cnt, p = 0.75, list=F)
+dt.train <- dt[index, ]
+dt.test <- dt[-index, ]
+```
+
+# SVM model
+
+## Kfold cross validation
+```{r}
+kfold <- trainControl(method = 'cv', number = 5)
+```
+
+## Linear kernel
+Using a linear kernel an a k-fold cross validation
+```{r}
+set.seed(9876)
+
+svm.lin.1 <- train(cnt ~ ., data = dt.train,
+                   trControl = kfold, method='svmLinear2',
+                   tuneGrid = data.frame(cost = c(.25))
+                   )
+print(svm.lin.1)
+
+```
+
+
+Let's compare it to the linear kernel with the SVM implementation in the e1071 package.
+```{r}
+set.seed(9876)
+svm.lin.2 <- svm(cnt~., data = dt.train, kernel = 'linear', type = 'eps-regression')
+
+
+rmse(dt.train$cnt, svm.lin.2$fitted)
+svm.lin.2$cost
+
+```
+The svm.lin.1 perform better and has a lower cost parameter. svm.lin.1 RMSE: 6.04877 and a cost of 0.25, compared to svm.lin.2 with a RMSE of 8.124774 and a cost of 1. Therefore the svm.lin.1 is used for the prediction.
+
+The cost lowest cost parameter with the higher RMSE value is .25, therefore it is set to this value (RSME 6.048777). The smaller the cost parameter, the more general the data is explained. If the cost parameter is chosen higher, the more specific it explains this data set. Therefore it is best to chose it as low as possible, with the best RSME value.If the cost value is higher, the model tend to over
+
+
+### Prediction with linear kernel
+```{r}
+set.seed(9876)
+pred.linear <- predict(svm.lin.1, newdata=dt.test)
+head(pred.linear)
+
+```
+
+
+
+## Polynomial kernel
+```{r}
+set.seed(9876)
+svm.poly.1 <- train(cnt ~., data = dt.train,
+                    trControl = kfold,
+                    method = 'svmPoly'
+                    )
+summary(svm.poly.1)
+print(svm.poly.1)
+
+```
+The svmPoly kernel uses the kernlab package. To tune the model, the degree, scale and C parameter can be changed to tune the model.
+
+Lets try the polynomial svm with the e1071 package
+```{r}
+set.seed(9876)
+#Polynomial: (gamma*u'*v + coef0)^degree
+svm.poly.2 <- svm(cnt ~., data = dt.train, kernel = 'polynomial',
+                  cross = 1, coef0 = 1, C= c(0.1, 0.25, 0.5, 1),
+                  degree = 1)
+
+svm.poly.2$coef0
+svm.poly.2
+rmse(dt.train$cnt, svm.poly.2$fitted)
+svm.poly.2$degree
+
+
+
+```
+
+The model svm.poly.1 achieved a RMSE of 7.449524 with degree =1, scale=0.1 and cost=1, where the svm.poly.2 achieved a RMSE of 8.726882, but much faster. For the model testing, the svm.poly.1 will be used.
+
+### Prediction with polynomaial kernel
+```{r}
+set.seed(9876)
+pred.poly <- predict(svm.poly.1, newdata = dt.test)
+head(pred.poly)
+
+
+```
+
+
+## Radial kernel
+```{r}
+set.seed(9876)
+
+svm.rad.1 <- train(cnt ~., data=dt.train,
+                   trConrol = kfold,
+                   method = 'svmRadial')
+summary(svm.rad.1)
+print(svm.rad.1)
+
+```
+The svmRadial kernel uses also the kernlab package. The svmRadial kernel uses also the kernlab package. The radial kernel allows us to build more complex models. As the data in our dataset has quite a linear context, it is not neccessary to use more complex models. As well the radial kernel performed the worst and is therefore not furhter optimized. It achieved a RMSE of 10.70453 with sigma = 0.0102241 and C=1.
+
+### Prediction with radial kernel
+```{r}
+set.seed(9876)
+pred.radial <- predict(svm.rad.1, newdata = dt.test)
+head(pred.radial)
+```
+
+## Model comparision
+Comparing the predictions based on their RMSE
+
+```{r}
+set.seed(9876)
+#linear model
+rmse(dt.test$cnt, pred.linear)
+
+#polynomial model
+rmse(dt.test$cnt, pred.poly)
+
+#radial model
+rmse(dt.test$cnt, pred.radial)
+
+
+
+```
+The polynomial kernel outperformed the linear kernel with an RMSE of 7.491662 against 8.085093, followed by the radial kernel with an RMSE of 9.619971.
