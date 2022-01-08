@@ -1674,27 +1674,17 @@ models_10 <-readRDS("neural_nets_models_10.rds")
 plot(models_10)
 ```
 
-
-##ANN Model 13
-
-###Train model
-```{r, eval=FALSE}
-set.seed(41)
-model_13 = neuralnet(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(14,8,2),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
-```
-
-```{r}
-models_13 <-readRDS("neural_nets_model_13.rds")
-```
-
-
 ##ANN Model 11
 After progressively adding the predictors to the model, the conclusion is that nearly all variables in the data set are useful as predictor, the remaining last two variables; “working day” and “holiday” are finally added to the model. Those two variables might help the model to understand the the case of rarer events, such as holiday or public holiday.
 This two predictors slightly improved the model to an RSME of 46.
 
+```{r}
+model_11 <-readRDS("neural_nets_model_11.rds")
+```
+
 ###Compute Prediction
 ```{r, echo=FALSE}
-pred_11 <- compute(model_9x, test_2 %>% select(-cnt))
+pred_11 <- compute(model_11, test_2 %>% select(-cnt))
 pred_11 <- pred_11$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_11 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
@@ -1710,7 +1700,10 @@ plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rati
 abline(0,1)
 ```
 
-##ANN Reflection & Conclusion:
+##Further models
+The best prediction performance is achieved with a 14/8/2 layer architecture, with a RSME of 45. Further attempts with much higher layer architecture, for example the approach with 2/3 of the predictors as input neurons -> 34/12/4 do not perform better in RSME (54).
+
+##ANN Reflection & Conclsion:
 * Being able to save models with saveRDS() & readRDS() is a great relief when working with NN.
 * It seems that R studio doesn't use the full computational potential of the CPU. It turned out that already an Intel quad core 8th gen mobile is able to process two model simultaneously, without any “noticeable” loss in computing speed. This come especially handy as training more elaborated NN models becomes heavily time consuming.
 * Model with higher amount of neurons generally converged in fewer iteration steps. But in the end, as each iteration takes longer to be computed, the model takes more time to converged.
