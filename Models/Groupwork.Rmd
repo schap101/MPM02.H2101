@@ -52,7 +52,8 @@ In this project work for machine learning 1, we would like to examine a dataset 
 
 Obviously, the number of rentals depends on the weather as well as on temporal or seasonal factors. These factors will be investigated.
 
-The historical data is from the Capital BikeShare system for Washington D.C. USA.The data is available for the year 2011 to 2012.The dataset also contains weather data at the given time points.
+The historical data is from the Capital BikeShare system for Washington D.C. USA.The data is available for the year 2011 to 2012.The dataset also contains weather data at the given time points. 
+To form a usecase here, the company Capital BikeShare would like to predict the amount of rentals at a given time to be able to better plan the work resources in the future. We as a data science startup were engaged to estimate the number of bikes based on the data.
 
 # Graphical Data Exploration
 
@@ -79,7 +80,7 @@ summary(df)
 $$
 x_{normalized} = \frac{x-x_{min}}{x_{max}-x_{min}}
 $$
-For some models it may be useful to use the normalized variables and for other we may re-transform the variables. If so, we will state that in the coressponding chapter.
+For some models it may be useful to use the normalized variables and for other we may re-transform the variables. If so, we will state that in the corresponding chapter.
 
 ```{r,echo=FALSE}
 p1 <-  ggplot(data = df,
@@ -120,8 +121,9 @@ fig.align = 'center'
 
 ```
 
+We consider the response variables as an amount altough we are a bit unsure here. However the results in the next chapter shows that using the log function improves the linear regression model quite a bit.
 
-In all 4 scatter plots the linear model lines (green) as well as the gam model lines (red) are plotted. For both temperature variables the rentals seems to increase until the temperature reaches a certain value.At the beginning of the observations (low temp.) ans well as the end (high temp.) the linear model seems to overestimate the number of rentals.
+In all 4 scatter plots above the linear model lines (green) as well as the gam model lines (red) are plotted. For both temperature variables the rentals seems to increase until the temperature reaches a certain value.At the beginning of the observations (low temp.) ans well as the end (high temp.) the linear model seems to overestimate the number of rentals.
 For the normalized humidity there is a decrease in rentals with increasing humidity. The is not the case between 0 and 25 % humidity where the linear model overestimates the number of rentals. We assume that in very cold and very hot weather the humidity is rather low and so the number of bike rentals because of the influence of temperature.
 In conclusion of the above exploration, it can be stated that the behavior cannot be completely represented with a linear model. There are nonlinear aspects which should be considered in the prediction models.
 In the next chapter we would like to examine the categorical variables which are available in the dataset.
@@ -245,7 +247,7 @@ test <- df %>% slice(-indices)
 ```
 
 ## Multiple Linear Regression Model with Continious Weather Predictors
-First of all we want to include only the continuous variables in the model.
+First of all we want to include only the continuous variables in the model. As stated in the previous chapter we consider the response variable as amount data and therefore take the log of it to build the model. Indeed, if we take the log we get much better for all basic linear regression fits.
 ```{r}
 lm.fit.0.train <- lm(log(cnt) ~ temperature + atemperature + humidity + wind,data=train)
 summary(lm.fit.0.train)
@@ -429,6 +431,86 @@ summary(lm.fit.1.full)$r.squared
 - As we can see, all observations are lying now within the cook distance and the R-value also increases marginally when taking out the faulty date entries in a updated dataset.
 
 In the next chapter we will use more advanced linear models to find a better fit for the data.
+
+# General Additive Model (GAM)
+
+In this chapter we would like to use the GAM model to address for possible non-linear relationships and improve the basic linear mode lm.fit.3.
+
+## Check if model with non-linear function ist better
+
+```{r}
+gam_0_train <- gam(log(cnt) ~ temperature + humidity + wind,data=train)
+gam_1_train <- gam(log(cnt) ~ s(temperature) + humidity + wind,data=train)
+gam_2_train <- gam(log(cnt) ~ temperature + s(humidity) + wind,data=train)
+gam_3_train <- gam(log(cnt) ~ temperature + humidity + s(wind),data=train)
+
+anova(gam_0_train,gam_1_train,gam_2_train,gam_3_train,test="F")
+```
+- There is strong evidence that for all models applying the smoothing splines for the 3 continuous weather predictors is needed to improve the model. Consequently we will use the model applying the smoothing splines on all 3 weather predictor.
+
+### Compare RMSE Values
+```{r}
+gam_4_train <- gam(log(cnt) ~ s(temperature) + s(humidity) + s(wind),data=train)
+
+gam_0_test <- gam(formula(gam_0_train),data=test)
+gam_1_test <- gam(formula(gam_1_train),data=test)
+gam_2_test <- gam(formula(gam_2_train),data=test)
+gam_3_test <- gam(formula(gam_3_train),data=test)
+gam_4_test <- gam(formula(gam_4_train),data=test)
+
+predict_gam_0 <- predict(gam_0_test)
+predict_gam_1 <- predict(gam_1_test)
+predict_gam_2 <- predict(gam_2_test)
+predict_gam_3 <- predict(gam_3_test)
+predict_gam_4 <- predict(gam_4_test)
+
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_gam_0 <- sqrt(mean((exp(control_log) - exp(predict_gam_0))^2))
+RMSE_gam_1 <- sqrt(mean((exp(control_log) - exp(predict_gam_1))^2))
+RMSE_gam_2 <- sqrt(mean((exp(control_log) - exp(predict_gam_2))^2))
+RMSE_gam_3 <- sqrt(mean((exp(control_log) - exp(predict_gam_3))^2))
+RMSE_gam_4 <- sqrt(mean((exp(control_log) - exp(predict_gam_4))^2))
+
+print(paste("RMSE of gam_01(simple linear model):",round(RMSE_gam_0,1)))
+print(paste("RMSE of gam_02(s(temperature)):",round(RMSE_gam_1,1)))
+print(paste("RMSE of gam_02(s(humidity)):",round(RMSE_gam_2,1)))
+print(paste("RMSE of gam_02(s(wind)):",round(RMSE_gam_3,1)))
+print(paste("RMSE of gam_02(s(on all variables)):",round(RMSE_gam_4,1)))
+```
+- from the output above we can conclude that for all variables we get an improvement of the RMSE value when applying smoothing splines on it. Therefore we conclude that the relationship between predictors and response variable is not linear.
+
+- for the gam_01 model we get the same result as for the lm.fit.1 model since it is nothing else than a simple linear model without any non linear functions in the gam() function.
+
+## Add categorical variables to GAM Model gam_04
+```{r}
+gam_5_train <- update(gam_4_train,. ~ . + weathersit + hr + season + mnth + weekday + yr  ,data=train)
+summary(gam_5_train)
+```
+- From the output above we can again conclude that there is strong evidence that the 3 continuous weather predictors have a non-linear effect according to the edf and p-values.
+
+```{r}
+gam_5_test <- gam(formula(gam_5_train),data=test)
+predict_gam_5 <- predict(gam_5_test)
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
+```
+- We get a RSME of 90.4. Comparing to the lm.fit.3 with a RSME 97.4 we have an improvement of roughly 7.5 %.
+
+- Below for the plots with the smoothing splines for each variable with and without the residuals.
+
+## Summary
+
+- It can be stated that using a GAA model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
+```{r}
+par(mfrow=c(1,3))
+plot(gam_5_test,se=TRUE,col="blue")
+```
+
+```{r}
+par(mfrow=c(1,3))
+plot(gam_5_test,residuals =TRUE,cex=2,col="blue")
+```
 
 #GLM Model
 ## Reading in the daily data as "day" and the hourly data as "hour" and having a look at it
@@ -1637,10 +1719,14 @@ abline(0,1)
 #Optimization Problem
 
 #Conclusion
-The best Models based on the RMSE values
+## The best Models based on the RMSE values
 ```{r}
 #RMSE Linear Model RMSE of 97.4
 RMSE_Linear_Model <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
+
+#RMSE Gam Model (RMSE of 90.4)
+RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+
 #RMSE GLM Model
 
 #RMSE SVM Model wit a radial kernel and an RSME of[1] 47.66508
@@ -1649,5 +1735,6 @@ rmse(dt.test$cnt, pred.radial)
 #RMSE NN Model
 ```
 
+## Which model should the company use?
 
 Justification, best model to find best maintenance window
