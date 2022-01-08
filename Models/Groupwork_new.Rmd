@@ -1226,7 +1226,7 @@ dt$weathersit <- factor(
 ##Multicollinearity
 
 Check for multicollinearity between the different response variables
-```{r}
+```{r, echo=FALSE}
 m <- dt
 # make all data types numeric
 cols <- c("season", "weathersit", "workingday", "holiday", "mnth", 
@@ -1382,7 +1382,7 @@ The svmRadial kernel uses the kernlab package. The radial kernel performed so fa
 
 ### Prediction with radial kernel
 
-```{r, eval=FALSE}
+```{r, echo=FALSE}
 set.seed(9876)
 pred.radial <- predict(svm.rad.1, newdata = dt.test)
 rmse(dt.test$cnt, pred.radial)
