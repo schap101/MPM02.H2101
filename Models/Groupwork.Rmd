@@ -1727,6 +1727,7 @@ RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
 rmse(dt.test$cnt, pred.radial)
 
 #RMSE NN Model
+45
 ```
 
 ## Which model should the company use?
