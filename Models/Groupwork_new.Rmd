@@ -87,7 +87,7 @@ x_{normalized} = \frac{x-x_{min}}{x_{max}-x_{min}}
 $$
 For some models it may be useful to use the normalized variables and for other we may re-transform the variables. If so, we will state that in the corresponding chapter.
 
-```{r,echo=FALSE, message=FALSE, }
+```{r,echo=FALSE, message=FALSE, out.width="60%"}
 p1 <-  ggplot(data = df,
          mapping = aes(y = log(cnt),
                      x = temp)) + xlab("Normalized Temperature") + ylab("Num. of Bike Rentals") + 
@@ -132,17 +132,11 @@ fig.align = 'center'
 dt <- subset(dt, dt$dteday != '2011-08-27')
 dt <- subset(dt, dt$dteday != '2011-08-28')
 
-
-
 #remove instant, dteday, casual and registered 
 dt <- dt %>% select(-c(1,2, 15, 16))
 
-
-
 #move cnt to the first position
 dt <- dt %>% select(cnt, everything())
-
-
 ```
 
 ```{r, echo=FALSE}
@@ -214,7 +208,7 @@ The data set contains 4 different weather categories which are described as foll
 
 Since we are considering the response variables count data we log transform the variable with the natural logarithm in all of the following plots.
 
-```{r,echo=FALSE}
+```{r,echo=FALSE, out.width="60%"}
 
 ggplot(data = df, mapping = aes(y = log(cnt),
                      x = factor(weathersit),fill= weathersit)) + ylab("Num. of Bike Rentals") + xlab("Weather Conditions") +  labs(fill="Weather\nConditions") +
@@ -238,7 +232,7 @@ In order to investigate the seasonal influences, the monthly (1 to 12) and seaso
 - Category 3:      Fall
 - Category 4:      Winter
 
-```{r,echo=FALSE}
+```{r,echo=FALSE, out.width="60%"}
 
 p1 <- ggplot(data = df,  mapping = aes(y = log(cnt),
                      x = factor(season),fill= season)) + ylab("Num. of Bike Rentals") + xlab("Season") +  labs(fill="Season") +
@@ -261,7 +255,7 @@ The two boxplot above indicate, that the mos bike rentals take place in summer a
 In order to examine the temporal influences we have the time specification in hours (1 to 24), the weekdays (0 = Monday to 6 = Sunday), working day (1 = yes, 0 = no) as well as vacation day (1 = yes , 0 = no).
 
 
-```{r,echo=FALSE}
+```{r,echo=FALSE, out.width="60%"}
 
 p1 <- ggplot(data = df,
        mapping = aes(y = log(cnt),
@@ -295,7 +289,8 @@ The columns detday and instant are of no use. detday is represented in the varia
 As already mentioned in section before, the data at the 27 and 28 August is not complete and wrong. Therefore, we will drop it for the SVM as well.
 
 ### Rentals by Season, Temperature and Year
-```{r}
+```{r, out.width="60%", echo=FALSE}
+colr = c("olivedrab3", 'yellow', 'orange', 'grey50')
 #Rentals by Season & Temperature & Year
 ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
   theme_bw(base_size = 20) + scale_color_manual(values = colr) +
@@ -306,7 +301,7 @@ ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
 It looks like there is an increasing trend between the total rentals from 2011 to 2012. We do not know if this trend continues.
 
 ### Rentals and Temperature by Weather
-```{r}
+```{r, echo=FALSE, out.width="60%"}
 w = c('skyblue1','skyblue2','skyblue3','skyblue4','grey40')
 ggplot(dt, aes(temp, cnt, color = weathersit)) + 
   geom_jitter(width = 0.25, show.legend = F) + 
@@ -641,11 +636,30 @@ hour_0 <- read.csv("../Data/hour.csv")
 # head(hour_0)
 ```
 
-For this model we are also going to drop the data from the 27th and 28th of August 2011, for the reasons shown in the last chapter.
+For this model we are also going to drop the data from the 27th and 28th of August 2011, for the reasons shown in the last chapter and factorize the variables as required.
 
 ```{r, echo=FALSE}
 day <- day_0[!(day_0$dteday=="2011-08-27" | day_0$dteday=="2011-08-28"),]
 hour <- hour_0[!(hour_0$dteday=="2011-08-27" | hour_0$dteday=="2011-08-28"),]
+```
+
+```{r, echo=FALSE}
+day$season <- factor(day$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
+day$yr <- as.factor(day$yr)
+day$mnth <- as.factor(day$mnth)
+day$holiday <- as.factor(day$holiday)
+day$weekday <- as.factor(day$weekday)
+day$workingday <- as.factor(day$workingday)
+day$weathersit <- as.factor(day$weathersit)
+
+hour$season <- factor(hour$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
+hour$yr <- as.factor(hour$yr)
+hour$mnth <- as.factor(hour$mnth)
+hour$hr <- as.factor(hour$hr)
+hour$holiday <- as.factor(hour$holiday)
+hour$weekday <- as.factor(hour$weekday)
+hour$workingday <- as.factor(hour$workingday)
+hour$weathersit <- as.factor(hour$weathersit)
 ```
 
 ## Plotting and inspecting the data
@@ -1140,6 +1154,74 @@ While the second poisson model is more accurate, for practical reasons the third
 
 
 # Support Vector Machine
+
+```{r, echo=FALSE}
+dt <- fread("../Data/hour.csv")
+```
+
+```{r, echo=FALSE}
+#drop the data for the 27 and 28 August 2011
+
+dt <- subset(dt, dt$dteday != '2011-08-27')
+dt <- subset(dt, dt$dteday != '2011-08-28')
+
+#remove instant, dteday, casual and registered 
+dt <- dt %>% select(-c(1,2, 15, 16))
+
+#move cnt to the first position
+dt <- dt %>% select(cnt, everything())
+```
+
+```{r, echo=FALSE}
+# Season
+dt$season <- factor(
+  dt$season, levels = c(1,2,3,4),
+  labels = c('Spring', 'Summer', 'Fall','Winter'),
+  ordered = TRUE)
+
+# Year
+dt$yr <- factor(dt$yr,
+                levels = c(0, 1),
+                labels = c(2011, 2012),
+                ordered = TRUE)
+
+# Month
+dt$mnth <- factor(
+  dt$mnth, levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+  labels = c('January','February', 'March', 'April',
+             'May', 'June', 'July', 'August',
+             'September','October', 'November', 'December'),
+  ordered = TRUE)
+
+# Hour
+dt$hr <- as.factor(dt$hr)
+
+# Holiday
+dt$holiday <- factor(dt$holiday,
+                     levels = c(0, 1),
+                     labels = c('Workday', 'Weekend'))
+
+# Weekday
+dt$weekday <- factor(
+ dt$weekday,levels = c(1,2,3,4,5,6,0),
+  labels = c('Monday','Tuesday','Wednesday','Thursday',
+             'Friday', 'Saturday','Sunday'),
+  ordered = TRUE)
+
+# Workingday
+dt$workingday <- factor(dt$workingday,
+                        levels = c(0,1),
+                        labels = c('Workday', 'Weekend'))
+
+# Weathersit
+dt$weathersit <- factor(
+  dt$weathersit,
+  levels = c(1,2,3,4),
+  labels = c('Clear, Few clouds, Partly cloudy, Partly cloudy', 'Mist+Clouds',
+             'Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist', 'Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds'))
+
+#dt %>% glimpse()
+```
 
 ##Multicollinearity
 
@@ -1658,7 +1740,7 @@ plot(control_6, pred_6, col='orange', cex = .3, pch=20, ylab = "predicted counts
 abline(0,1)
 ```
 
-## ANN Model 9: New Pred.: Year, Layer 7/3/0, Threshold 0.01
+## ANN Model 9: more Predictors, Layer 7/3/0, Threshold 0.01
 After some reflections about the data, one potential mistake stood out. Initially, the variable “year” was left out, since the data set covers only two years. But, as there is an increasing trend in the bike rental over the two years, there might be information in this predictor. 
 The predictor “year” is added to the model 7,3,0. The result shows a great improvement in RSME with a drop to 49. The plot shows an overall better prediction behavior.
 
@@ -1689,7 +1771,36 @@ plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted counts
 abline(0,1)
 ```
 
+## ANN Model 11: all Predictors, Layer 7/3/0, Threshold 0,01
+
+It turned out that the year is an important predictor. Now, to make sure that no information is missed, all meaningful predictors are used. The same model layout of model 9 is taken. The Result is an RSME of 46.
+
+```{r}
+model_11 <-readRDS("neural_nets_model_11.rds")
+```
+
+
+```{r, echo=FALSE}
+# Compute Prediction
+pred_11 <- compute(model_11, test_2 %>% select(-cnt))
+pred_11 <- pred_11$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+control_11 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+```
+
+### Root Mean Square
+```{r, echo=FALSE}
+sqrt(mean((control_11 - pred_11)^2))
+```
+
+### Plot Prediction against Real Data
+```{r, echo=FALSE, out.width="60%"}
+plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+abline(0,1)
+```
+
 ## ANN Models 10: Computing a Range of Model
+
+After progressively adding the predictors to the model, the conclusion is that nearly all variables in the data are useful as predictor. The last two variables; “working day” and “holiday” were finally added to the model. Those two variables might help the model to understand the case of rarer events, such as holiday or public holiday. Again, a range of models is computed to find out the best model layout. The threshold is set to 0.05.
 
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -1730,33 +1841,6 @@ models_10 <-readRDS("neural_nets_models_10.rds")
 plot(models_10)
 ```
 
-## ANN Model 11
-After progressively adding the predictors to the model, the conclusion is that nearly all variables in the data set are useful as predictor, the remaining last two variables; “working day” and “holiday” are finally added to the model. Those two variables might help the model to understand the the case of rarer events, such as holiday or public holiday.
-This two predictors slightly improved the model to an RSME of 46.
-
-```{r}
-model_11 <-readRDS("neural_nets_model_11.rds")
-```
-
-
-```{r, echo=FALSE}
-# Compute Prediction
-pred_11 <- compute(model_11, test_2 %>% select(-cnt))
-pred_11 <- pred_11$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-control_11 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-```
-
-### Root Mean Square
-```{r, echo=FALSE}
-sqrt(mean((control_11 - pred_11)^2))
-```
-
-### Plot Prediction against Real Data
-```{r, echo=FALSE, out.width="60%"}
-plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
-abline(0,1)
-```
-
 ## Further models
 The best prediction performance is achieved with a 14/8/2 layer architecture, with a RSME of 45. Further attempts with much higher layer architecture, for example the approach with 2/3 of the predictors as input neurons -> 34/12/4 do not perform better in RSME (54).
 
@@ -1764,13 +1848,8 @@ The best prediction performance is achieved with a 14/8/2 layer architecture, wi
 * Being able to save models with saveRDS() & readRDS() is a great relief when working with NN.
 * It seems that R studio doesn't use the full computational potential of the CPU. It turned out that already an Intel quad core 8th gen mobile is able to process two model simultaneously, without any “noticeable” loss in computing speed. This come especially handy as training more elaborated NN models becomes heavily time consuming.
 * Model with higher amount of neurons generally converged in fewer iteration steps. But in the end, as each iteration takes longer to be computed, the model takes more time to converged.
-* One should adapt faster the number of neurons when increasing predictors.
-
-
 
 # Optimization Problem
-
-
 
 For our use case we created the following hypothetical optimization problem:
 
