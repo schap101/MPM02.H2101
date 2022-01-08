@@ -553,18 +553,13 @@ print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
 - It can be stated that using a GAM model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
 ```{r, echo=FALSE, out.height="50%", fig.align = 'center', warning=FALSE}
 par(mfrow=c(1,3))
-plot(gam_5_test,se=TRUE,col="blue")
+plot(gam_5_train,se=TRUE,col="blue")
 ```
 
 ```{r, echo=FALSE, eval=FALSE, warning=FALSE}
 par(mfrow=c(1,3))
 plot(gam_5_test,residuals =TRUE,cex=2,col="blue")
 ```
-
-
-
-
-
 
 # GLM Binomial and Poisson 
 
@@ -965,7 +960,6 @@ The RMSE is lower than from our predicted.binomial.test.4, but still above predi
 
 We would clearly prefer the third or fourth model here. With the fourth model being a little less accurate, but also needing less predictors, which might make the handling easier.
 
-
 ## Creating a Poisson Model
 
 We are using the family quasipoisson because of the overdispersion.
@@ -1225,6 +1219,7 @@ svm.lin.1 <- train(cnt ~ ., data = dt.train,
                    tuneGrid = data.frame(cost = c(1))
                    )
 ```
+
 #### Save resp. Load Model
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -1287,6 +1282,7 @@ svm.poly.2
 rmse(dt.train$cnt, svm.poly.2$fitted)
 svm.poly.2$degree
 ```
+
 #### Save resp. Load Model
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -1318,6 +1314,7 @@ summary(svm.rad.1)
 print(svm.rad.1)
 
 ```
+
 #### Save resp. Load Model
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -1352,6 +1349,7 @@ print(paste("SVM polynomial kernel", rmse(dt.test$cnt, pred.poly)))
 #radial model
 print(paste("SVM radial kernel", rmse(dt.test$cnt, pred.radial)))
 ```
+
 The radial kernel clearly outperformed the other two. the radial kernel has a RMSE of 45.8, the polynomial an RMSE of 107.2 and the linear kernel a RMSE of 106.2.
 Therefor the winner of the support vector machine models is the one with the radial kernel. It also takes the most time to run. The linear model is much faster but has a higher RMSE value.
 
@@ -1370,9 +1368,9 @@ Also, the dependent variable is normalized.
 ### Break multi factor variables down into single factor variables
 
 Here we show an example of how this is done. The list is not conclusive.
-- df$season_1 <- ifelse(df$season == "1", 1, 0) 
-- df$season_2 <- ifelse(df$season == "2", 1, 0) 
-- df$season_3 <- ifelse(df$season == "3", 1, 0) 
+df$season_1 <- ifelse(df$season == "1", 1, 0) 
+df$season_2 <- ifelse(df$season == "2", 1, 0) 
+df$season_3 <- ifelse(df$season == "3", 1, 0) 
 
 ```{r, echo=FALSE}
 df$season_1 <- ifelse(df$season == "1", 1, 0)
@@ -1743,7 +1741,7 @@ sqrt(mean((control_11 - pred_11)^2))
 
 ### Plot Prediction against Real Data
 ```{r, echo=FALSE, out.width="40%", fig.align = 'center'}
-plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted counts NN", xlab = "real counts")
 abline(0,1)
 ```
 
