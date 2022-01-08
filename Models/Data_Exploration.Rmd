@@ -62,7 +62,7 @@ x_{normalized} = \frac{x-x_{min}}{x_{max}-x_{min}}
 $$
 For some models it may be useful to use the normalized variables and for other we may re-transform the variables. If so, we will state that in the coressponding chapter.
 
-````{r,echo=FALSE}
+````{r,echo=FALSE,message=FALSE}
   
 p1 <-  ggplot(data = df,
          mapping = aes(y = log(cnt),

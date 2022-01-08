@@ -81,33 +81,17 @@ Interpretation of Regression Coefficients:
 
 
 ### Accessing the model accuracy
-We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy as well as the RSME values.
-
-#### Compare R-squared Values
-```{r}
-# Fit a linear model without the predictor atempereature and accessing both prediction performances with the test data and comparison of the R-squared value.
-
-lm.fit.0.test = lm(formula(lm.fit.0.train),data=test)
-lm.fit.1.test = lm(formula(lm.fit.1.train),data=test)
-
-R2_0 <- summary(lm.fit.0.test)$r.squared
-R2_1 <- summary(lm.fit.1.test)$r.squared
-
-print(paste("R-squared of lm.fit.0:",round(R2_0,3)))
-print(paste("R-squared of lm.fit.1:",round(R2_1,3)))
-```
-- Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
+We evaluate the accuracy of both models by testing them with the test data partition amd compare the RMSE values.
 
 #### Compare RMSE Values
 ```{r}
 control <- test$cnt
-control_log <- log(control)
-predict_0 <- predict(lm.fit.0.test)
-predict_1 <- predict(lm.fit.1.test)
+lm.fit.0.test = predict(lm.fit.0.train,newdata=test)
+lm.fit.1.test = predict(lm.fit.1.train,newdata=test)
 
 # take inverse of natural log to obtain RMSE with actual unit (number of bike rentals)
-RMSE_0 <- sqrt(mean((exp(control_log) - exp(predict_0))^2))
-RMSE_1 <- sqrt(mean((exp(control_log) - exp(predict_1))^2))
+RMSE_0 <- sqrt(mean((control - exp(lm.fit.0.test))^2))
+RMSE_1 <- sqrt(mean((control - exp(lm.fit.1.test))^2))
 
 # calculate percentage error
 percent_error_0 <- (RMSE_0/mean(control))*100
@@ -143,29 +127,15 @@ formula(lm.fit.3.train)
 ```
 ### Accessing the model accuracy
 
-#### Compare R-Squared Values
-
-Again we compare the R-squared values of the 3 models.
-```{r}
-lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
-lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
-
-R2_2 <- summary(lm.fit.2.test)$r.squared
-R2_3 <- summary(lm.fit.3.test)$r.squared
-
-print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
-print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
-```
-- Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
-
 #### Compare RMSE Values
 ```{r}
-predict_2 <- predict(lm.fit.2.test)
-predict_3 <- predict(lm.fit.3.test)
+
+lm.fit.2.test = predict(lm.fit.2.train,newdata=test)
+lm.fit.3.test = predict(lm.fit.3.train,newdata=test)
 
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
-RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
+RMSE_2 <- sqrt(mean((control - exp(lm.fit.2.test))^2))
+RMSE_3 <- sqrt(mean((control - exp(lm.fit.3.test))^2))
 
 # Calculate percentage error (deviation to the mean of number of bike rentals)
 percent_error_2 <- (RMSE_2/mean(control))*100
@@ -179,10 +149,6 @@ print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
 ```
 - The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
 
-```{r}
-summary(lm.fit.3.test)
-```
-- Note from the output above, that the p-values for some month are not significant. More on that on in the next chapter.
 
 ## Summary
 As summary we want to answer following 4 questions regarding the linear regression model and its interpretation.
@@ -193,7 +159,7 @@ As stated above there is evidence, that the weather as well as the timely and se
 
 ### How strong is the relationship and how accurate is the model?
 
-The predictors used in the model lm.fit.4 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.4 we achieve a value of 110.5 which corresponds to a percentage error of around 60 %.
+The predictors used in the model lm.fit.3 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.4 we achieve a value of 110.5 which corresponds to a percentage error of around 60 %.
 
 ### How large is the effect of each predctor on cnt?
 
@@ -244,7 +210,7 @@ In the next chapter we will use more advanced linear models to find a better fit
 
 # General Additive Model (GAM)
 
-In this chapter we would like to use the GAM model to address for possible non-linear relationships.
+In this chapter we would like to use the GAM model to address for possible non-linear relationships and improve the basic linear mode lm.fit.3.
 
 ## Check if model with non-linear function ist better
 
@@ -262,24 +228,18 @@ anova(gam_0_train,gam_1_train,gam_2_train,gam_3_train,test="F")
 ```{r}
 gam_4_train <- gam(log(cnt) ~ s(temperature) + s(humidity) + s(wind),data=train)
 
-gam_0_test <- gam(formula(gam_0_train),data=test)
-gam_1_test <- gam(formula(gam_1_train),data=test)
-gam_2_test <- gam(formula(gam_2_train),data=test)
-gam_3_test <- gam(formula(gam_3_train),data=test)
-gam_4_test <- gam(formula(gam_4_train),data=test)
-
-predict_gam_0 <- predict(gam_0_test)
-predict_gam_1 <- predict(gam_1_test)
-predict_gam_2 <- predict(gam_2_test)
-predict_gam_3 <- predict(gam_3_test)
-predict_gam_4 <- predict(gam_4_test)
+gam_0_test <- predict(gam_0_train,newdata=test)
+gam_1_test <- predict(gam_1_train,newdata=test)
+gam_2_test <- predict(gam_2_train,newdata=test)
+gam_3_test <- predict(gam_3_train,newdata=test)
+gam_4_test <- predict(gam_4_train,newdata=test)
 
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_gam_0 <- sqrt(mean((exp(control_log) - exp(predict_gam_0))^2))
-RMSE_gam_1 <- sqrt(mean((exp(control_log) - exp(predict_gam_1))^2))
-RMSE_gam_2 <- sqrt(mean((exp(control_log) - exp(predict_gam_2))^2))
-RMSE_gam_3 <- sqrt(mean((exp(control_log) - exp(predict_gam_3))^2))
-RMSE_gam_4 <- sqrt(mean((exp(control_log) - exp(predict_gam_4))^2))
+RMSE_gam_0 <- sqrt(mean((control - exp(gam_0_test))^2))
+RMSE_gam_1 <- sqrt(mean((control - exp(gam_1_test))^2))
+RMSE_gam_2 <- sqrt(mean((control - exp(gam_2_test))^2))
+RMSE_gam_3 <- sqrt(mean((control - exp(gam_3_test))^2))
+RMSE_gam_4 <- sqrt(mean((control - exp(gam_4_test))^2))
 
 print(paste("RMSE of gam_01(simple linear model):",round(RMSE_gam_0,1)))
 print(paste("RMSE of gam_02(s(temperature)):",round(RMSE_gam_1,1)))
@@ -299,15 +259,18 @@ summary(gam_5_train)
 - From the output above we can again conclude that there is strong evidence that the 3 continuous weather predictors have a non-linear effect according to the edf and p-values.
 
 ```{r}
-gam_5_test <- gam(formula(gam_5_train),data=test)
-predict_gam_5 <- predict(gam_5_test)
+gam_5_test <- predict(gam_5_train,newdata=test)
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+RMSE_gam_5 <- sqrt(mean((control - exp(gam_5_test))^2))
 print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
 ```
-- We get a RSME of 90.4. Comparing to the lm.fit.3 with a RSME 97.4 we have an improvement of roughly 7.5 %.
+- We get a RSME of 91.5. Comparing to the lm.fit.3 with a RSME 97.4 we have an improvement of roughly 7.5 %.
 
 - Below for the plots with the smoothing splines for each variable with and without the residuals.
+
+## Summary
+
+- It can be stated that using a GAA model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
 ```{r}
 par(mfrow=c(1,3))
 plot(gam_5_test,se=TRUE,col="blue")
