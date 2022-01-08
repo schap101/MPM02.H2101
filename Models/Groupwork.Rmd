@@ -24,6 +24,7 @@ library(gridExtra)
 library(dplyr)
 library(rstudioapi)
 library(caret)
+library(mgcv)
 library(GGally)
 library(magrittr)
 library(mosaicCore)
@@ -967,23 +968,16 @@ When looking at the predictions (red) in comparison to the true data (blue), thi
 To see, if a variable is not needed, the model was tested by dropping only one of the predictors for each run through (with daily and hourly data). But the best result was achieved by using all the predictors (except for the type of users, for the reasons mentioned at the beginning of this chapter).
 
 
-#Support Vector Machine
-##Load the data
+# Support Vector Machine
+## Load the data
 ```{r}
 dt <- fread("../Data/hour.csv")
 ```
 
-##check the data and format of the data tabel
-```{r}
-head(dt)
-str(dt)
-nrow(dt)
-ncol(dt)
-
-```
+## Prepare the data
 
 The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position. 
-As already mentioned in section before, the data at the 27 and 28 August is not complete and wrong. Therfore, we will drop it for the SVM as well.
+As already mentioned in section before, the data at the 27 and 28 August is not complete and wrong. Therefore, we will drop it for the SVM as well.
 ```{r}
 #drop the data for the 27 and 28 August 2011
 
@@ -1003,20 +997,19 @@ dt <- dt %>% select(cnt, everything())
 
 ```
 
-#Factor ordinal variables 
+## Factor ordinal variables 
 ```{r}
 # Season
 dt$season <- factor(
   dt$season, levels = c(1,2,3,4),
   labels = c('Spring', 'Summer', 'Fall','Winter'),
   ordered = TRUE)
-is.factor(dt$season)
+
 # Year
 dt$yr <- factor(dt$yr,
                 levels = c(0, 1),
                 labels = c(2011, 2012),
                 ordered = TRUE)
-is.factor(dt$yr)
 
 # Month
 dt$mnth <- factor(
@@ -1025,17 +1018,14 @@ dt$mnth <- factor(
              'May', 'June', 'July', 'August',
              'September','October', 'November', 'December'),
   ordered = TRUE)
-is.factor(dt$mnth)
 
 # Hour
 dt$hr <- as.factor(dt$hr)
-is.factor(dt$hr)
 
 # Holiday
 dt$holiday <- factor(dt$holiday,
                      levels = c(0, 1),
                      labels = c('Workday', 'Weekend'))
-
 
 # Weekday
 dt$weekday <- factor(
@@ -1056,11 +1046,11 @@ dt$weathersit <- factor(
   labels = c('Clear, Few clouds, Partly cloudy, Partly cloudy', 'Mist+Clouds',
              'Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist', 'Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds'))
 
-dt %>% glimpse()
+#dt %>% glimpse()
 ```
 
-#Plot data
-## Rentals by Season and Temperature
+## Plot data
+### Rentals by Season and Temperature
 ```{r}
 colr = c("olivedrab3", 'yellow', 'orange', 'grey50')
 # Rentals by Season & Temperature
@@ -1070,9 +1060,11 @@ ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
   labs(title = "Rentals by Season & Temperature", x = "Temperature Celsius", y = "Total Rentals") +
   scale_y_continuous(labels = scales::label_comma())
 
-```
 
-## Rentals by Season, Temperature and Year
+```
+Interestingly, in this plot, the number of total rentals for spring is lower then for winter. But also the temperature when the rentals happen has more variablity than during the spring. The Temperature Celsius is normalized, therefore it ranges between 0 and 1.
+
+### Rentals by Season, Temperature and Year
 ```{r}
 #Rentals by Season & Temperature & Year
 ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
@@ -1081,27 +1073,10 @@ ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
   scale_y_continuous(labels = scales::label_comma()) +
   facet_grid(~yr)
 ```
+It looks like there is an increasing trend between the total rentals from 2011 to 2012. We do not know if this trend continues.
 
-## Rentals by Humidity and Season, Rental by Windspeed and Season
-```{r}
 
-# Rentals by Humidity & Season 
-a1 = ggplot(dt, aes(hum, cnt, color = season)) + geom_point() +
-  theme_bw(base_size = 16) + scale_color_manual(values = colr) + facet_grid(~yr) +
-  labs(title = "Rentals by Humidity & Season", x = "Humidity", y = "Total Rentals") +
-  scale_y_continuous(labels = scales::label_comma()) + 
-  theme(legend.position="bottom")
-# Rentals by Windspeed & Season
-b1 = ggplot(dt, aes(windspeed, cnt, color = season)) + geom_point() +
-  theme_bw(base_size = 18) + scale_color_manual(values = colr) + facet_grid(~yr) +
-  labs(title = "Rentals by Windspeed & Season", x = "Wind Speed", y = "Total Rentals") +
-  scale_y_continuous(labels = scales::label_comma()) + 
-  theme(legend.position="bottom")
-options(repr.plot.width=16, repr.plot.height=8)
-plot_grid(a1,b1, ncol = 2, nrow = 1)
-```
-
-## Rental and Temperature by Seasion
+### Rental and Temperature by Seasion
 ```{r}
 
 ggplot(dt, aes(temp, cnt, color = season)) +
@@ -1109,8 +1084,9 @@ ggplot(dt, aes(temp, cnt, color = season)) +
   labs(y="Count of Rentals", title = "Rentals & Temperature by Season") +
   facet_grid(~season) + theme_bw(base_size = 18)
 ```
+Spring has clearly the lowest number of total rentals.
 
-## Rentals and Temperature by Weather
+### Rentals and Temperature by Weather
 ```{r}
 w = c('skyblue1','skyblue2','skyblue3','skyblue4','grey40')
 ggplot(dt, aes(temp, cnt, color = weathersit)) + 
@@ -1119,8 +1095,9 @@ ggplot(dt, aes(temp, cnt, color = weathersit)) +
   labs(y="Count of Rentals", title = "Rentals & Temperature by Weather") + 
   facet_grid(~weathersit) + theme_bw(base_size = 18)
 ```
+When looking at different weather condition, from the best weather on the left to the worst weather on the right. The most rentals clearly happen when the weather is good. During the worst weather, almost no rentals happen. The weather seems to play a bigger role then the temperature.
 
-#Multicollinearity
+##Multicollinearity
 Check for multicollinearity between the different response variables
 ```{r}
 m <- dt
@@ -1139,13 +1116,13 @@ VIF is the Variance Inflation Factor and can be used to detect the presence of m
 $$
 VIF = \frac{1}{(1-R^2)}
 $$
-According to Zuur et al. 2010, a VIF > 10 shows multicollinearity. But also more restrictive values such as 3 or even 1 can be chosen. We start with 10. temp and atemp show a high multicolinearity. Therefore, the atemp, which represents the feeling temperature, will be removed from the original dataset.
+According to Zuur et al. 2010, a VIF > 10 shows multicollinearity. But also more restrictive values such as 3 or even 1 can be chosen. We start with 10. temp and atemp show a high multicolinearity. Therefore, the atemp, which represents the feeling temperature, will be removed from the original dataset and temp will be kept.
 
 ```{r}
 dt <- dt %>% select(everything(), -atemp)
 ```
 
-#Train - test split
+## Train - test split
 Split the data in a trainset with 75% of the data and a testset with 25% of the data
 ```{r}
 index <- createDataPartition(dt$cnt, p = 0.75, list=F)
@@ -1153,16 +1130,17 @@ dt.train <- dt[index, ]
 dt.test <- dt[-index, ]
 ```
 
-# SVM model
+## SVM model
 
-## Kfold cross validation
+### Kfold cross validation
+Setting the variable "kfold" to the method cross-validation and number of folds to 5.
 ```{r}
 kfold <- trainControl(method = 'cv', number = 5)
 ```
 
-## Linear kernel
+### Linear kernel
 Using a linear kernel an a k-fold cross validation
-```{r}
+```{r, eval=FALSE}
 set.seed(9876)
 
 svm.lin.1 <- train(cnt ~ ., data = dt.train,
@@ -1172,9 +1150,17 @@ svm.lin.1 <- train(cnt ~ ., data = dt.train,
 print(svm.lin.1)
 
 ```
+#### Save resp. Load Model
+```{r, eval=FALSE}
+saveRDS(svm.lin.1, "svm.lin.1.rds")
+```
+
+```{r}
+svm.lin.1 <-readRDS("svm.lin.1.rds")
+```
 
 Let's compare it to the linear kernel with the SVM implementation in the e1071 package.
-```{r}
+```{r, eval=FALSE}
 set.seed(9876)
 svm.lin.2 <- svm(cnt~., data = dt.train, kernel = 'linear',
                  type = 'eps-regression',
@@ -1188,39 +1174,35 @@ rmse(dt.train$cnt, svm.lin.2$fitted)
 summary(svm.lin.2)
 ```
 
-The svm.lin.1 perform better and has a lower cost parameter. svm.lin.1 RMSE: 108.4244 and a cost of 1, compared to svm.lin.2 with a RMSE of 105.4065 and a cost of 1. 
-The smaller the cost parameter, the more general the data is explained. If the cost parameter is chosen higher, the more specific it explains this data set. Therefore it is best to chose it as low as possible, with the best RSME value.If the cost value is higher, the model tend to overfit. The svm.lin.2 model has a better RMSE and is faster than the svm.lin.1. Therefore the svm.lin.2 is used for the prediction.
+#### Save resp. Load Model
+```{r, eval=FALSE}
+saveRDS(svm.lin.2, "svm.lin.2.rds")
+```
 
+```{r}
+svm.lin.2 <-readRDS("svm.lin.2.rds")
+```
+The svm.lin.1 perform better and has a lower cost parameter. svm.lin.1 RMSE: 104.8963 and a cost of 1, compared to svm.lin.2 with a RMSE of 104.3788 and a cost of 1. 
+The smaller the cost parameter, the more general the data is explained. If the cost parameter is chosen higher, the more specific it explains this data set. Therefore it is best to chose it as low as possible, with the best RSME value.If the cost value is higher, the model tend to overfit. The svm.lin.2 model has a slightely better RMSE and is much faster than the svm.lin.1. Therefore the svm.lin.2 is used for the prediction.
 
 ### Prediction with linear kernel
 ```{r}
 set.seed(9876)
 pred.linear <- predict(svm.lin.2, newdata=dt.test)
-head(pred.linear)
 rmse(dt.test$cnt, pred.linear)
 
 ```
-RMSE of 102.3627 for the prediction
+The linear kernel achieve a RMSE of 106.9027 for the prediction. Lets see if we can get better results with different kernels.
 
-## Polynomial kernel
-```{r}#
-set.seed(9876)
-svm.poly.1 <- train(cnt ~., data = dt.train,
-                    trControl = kfold,
-                    method = 'svmPoly'
-                    )
-summary(svm.poly.1)
-print(svm.poly.1)
+### Polynomial kernel
 
-```
-The svmPoly kernel uses the kernlab package. To tune the model, the degree, scale and C parameter can be changed to tune the model.
+We use the e1071 package to train a polynomial kernel. To tune the model, the degree, scale and C parameter can be changed to tune the model.
+```{r, eval=FALSE}
 
-Lets try the polynomial svm with the e1071 package
-```{r}
 set.seed(9876)
 #Polynomial: (gamma*u'*v + coef0)^degree
 svm.poly.2 <- svm(cnt ~., data = dt.train, kernel = 'polynomial',
-                  cross = 1, coef0 = 1, C = c(0.1, 0.25, 0.5, 1),
+                  cross = 5, coef0 = 1, C = c(0.1, 0.25, 0.5, 1),
                   degree = 1)
 
 svm.poly.2$coef0
@@ -1231,18 +1213,27 @@ svm.poly.2$degree
 
 
 ```
-The svm.poly.2 achieved a RMSE of 107.25 with cost 1, degree 1 and coef 1. For the model testing, the svm.poly.2 will be used.
+#### Save resp. Load Model
+```{r, eval=FALSE}
+saveRDS(svm.poly.2, "svm.poly.2.rds")
+```
+
+```{r}
+svm.poly.2 <-readRDS("svm.poly.2.rds")
+```
+The svm.poly.2 achieved a RMSE of 105.9098 with cost 1, degree 1 and coef 1. For the model testing, the svm.poly.2 will be used. Let's see how well the model works with the test data.
 
 ### Prediction with polynomaial kernel
 ```{r}
 set.seed(9876)
 pred.poly <- predict(svm.poly.2, newdata = dt.test)
-head(pred.poly)
-
+rmse(dt.test$cnt, pred.poly)
 
 ```
-## Radial kernel
-```{r}
+The RMSE for the predictions on the testdata for the svm with a polynomial kernel is 108.1839. Let's have a look how a svm with a radial kernel performec.
+
+### Radial kernel
+```{r, eval=FALSE}
 set.seed(9876)
 
 svm.rad.1 <- train(cnt ~., data=dt.train,
@@ -1252,16 +1243,26 @@ summary(svm.rad.1)
 print(svm.rad.1)
 
 ```
-The svmRadial kernel uses also the kernlab package. The svmRadial kernel uses also the kernlab package. The radial kernel performed so far best, wit a RSME of  61.25279. The final values used for the model were sigma = 0.01062833 and C = 1.
+#### Save resp. Load Model
+```{r, eval=FALSE}
+saveRDS(svm.rad.1, "svm.rad.1.rds")
+```
+
+```{r}
+svm.rad.1 <-readRDS("svm.rad.1.rds")
+```
+The svmRadial kernel uses the kernlab package. The radial kernel performed so far best, with a RSME of  51.06311. The final values used for the model were sigma = 0.0107185 and C = 1.
 
 ### Prediction with radial kernel
 ```{r}
 set.seed(9876)
 pred.radial <- predict(svm.rad.1, newdata = dt.test)
-head(pred.radial)
-```
+rmse(dt.test$cnt, pred.radial)
 
-## Model comparision
+```
+The RMSE for the predicted values with the SVM with a radial kernel is 49.56235.
+
+### Model comparision
 Comparing the predictions based on their RMSE
 
 ```{r}
@@ -1275,8 +1276,8 @@ rmse(dt.test$cnt, pred.poly)
 #radial model
 rmse(dt.test$cnt, pred.radial)
 ```
-The radial kernel clearly outperformed the other two. the radial kernel has a RSME of 47.66508, the polynomial an RSME of 104.9329 and the linear kernel a RSME of 102.5022.
-Therefor the winner of the support vecotor models is the one with the radial kernel. 
+The radial kernel clearly outperformed the other two. the radial kernel has a RSME of 49.55235, the polynomial an RSME of 108.1839 and the linear kernel a RSME of 106.9027.
+Therefor the winner of the support vector machine models is the one with the radial kernel. It also takes the most time to run. The linear model is much faster but has a higher RMSE value.
 
 
 #Artificial Neural Network
@@ -1736,5 +1737,6 @@ rmse(dt.test$cnt, pred.radial)
 ```
 
 ## Which model should the company use?
+
 
 Justification, best model to find best maintenance window
