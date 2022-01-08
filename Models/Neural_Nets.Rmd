@@ -446,34 +446,6 @@ plot(models_10)
 ```
 
 
-#3.13 Model 13
-
-##3.13 Model 13 - Train model
-```{r}
-set.seed(41)
-model_13 = neuralnet(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(14,8,2),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
-```
-
-##3.13 Model 13 - Save and Load
-```{r}
-saveRDS(model_13, "neural_nets_model_13.rds")
-```
-
-```{r}
-model_13 <-readRDS("neural_nets_model_13.rds")
-```
-
-##3.13 Model 13 - Compute Prediction
-```{r}
-pred_13 <- compute(model_13, test_2 %>% select(-cnt))
-pred_13 <- pred_13$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-control_13 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
-```
-
-##3.13 Model 13 - Root Mean Square
-```{r}
-sqrt(mean((control_13 - pred_13)^2))
-```
 
 
 #3.11 Model 11
@@ -498,17 +470,35 @@ plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rati
 abline(0,1)
 ```
 
+#3.12 Model y2
 
-#Reflection & Conclusion:
+##3.12 Model y2 - Train model
+```{r}
+set.seed(41)
+model_y2 = neuralnet(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(34,12,4),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
+```
 
-- Being able to safe models with saveRDS() & readRDS() is a great relief when working with NN.
+##3.13 Model 13 - Save and Load
+```{r}
+saveRDS(model_13, "neural_nets_model_13.rds")
+```
 
-- It seems that R studio doesn't use the full computational potential of the CPU. It turned out that already an Intel quad core 8th gen mobile is able to process two model simultaneously, without any “noticeable” loss in computing speed. This come especially handy as training more elaborated NN models becomes heavily time consuming.
+```{r}
+model_13 <-readRDS("neural_nets_model_13.rds")
+```
 
-- Model with higher amount of neurons generally converged in fewer iteration steps. But in the end, as each iteration takes longer to be computed, the model takes more time to converged.
+##3.13 Model 13 - Compute Prediction
+```{r}
+pred_13 <- compute(model_13, test_2 %>% select(-cnt))
+pred_13 <- pred_13$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+control_13 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
+```
 
-- One should adapt faster the number of neurons when increasing predictors.
-
+##3.13 Model 13 - Root Mean Square
+```{r}
+sqrt(mean((control_13 - pred_13)^2))
+#[1] 45.00108
+```
 
 
 
