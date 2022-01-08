@@ -1292,6 +1292,12 @@ Before starting to create NN models, all categorical variables are converted int
 Also, the dependent variable is normalized.
 
 ###Break multi factor variables down into single factor variables
+
+df$season_1 <- ifelse(df$season == "1", 1, 0)
+df$season_2 <- ifelse(df$season == "2", 1, 0)
+df$season_3 <- ifelse(df$season == "3", 1, 0)
+...
+
 ```{r, echo=FALSE}
 df$season_1 <- ifelse(df$season == "1", 1, 0)
 df$season_2 <- ifelse(df$season == "2", 1, 0)
@@ -1346,20 +1352,20 @@ df$mnth_11 <- ifelse(df$mnth == "11", 1, 0)
 df$mnth_12 <- ifelse(df$mnth == "12", 1, 0)
 ```
 
-###Normalize dependent variable
-```{r, echo=FALSE}
+### Normalize dependent variable
+```{r}
 data <- df
 data$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
 ```
 
-##ANN Model 1
-As a first approach to the data set, a few models are computed at once with a preset range of layer. A slightly reduced training data volume is taken (65%). Each model is five-times cross validated. Also, the threshold is set to 0.1, which is high error tolerance value. Those first parameter settings are chosen in order to compute quantity rather than quality.
+## ANN Model 1:  Computing a RAnge of Model
+s a first approach to the data set, a few models are computed at once with a preset range of layer. A slightly reduced training data volume is taken (65%). Each model is five-times cross validated. Also, the threshold is set to 0.1, which is high error tolerance value. Those first parameter settings are chosen in order to compute quantity rather than quality.
 The result shown below suggests that there is no need of a third nor a second layer, and that the first layer doesn’t improve with more than four neurons in the first layer. The Root Mean Square Error is about 183. A prediction-vs-real data plot provides a visualization of the model performance. This plot suggests that there might be potential for improvement. 
 
-As the output neuron is set with "linear.output = TRUE", which means that the output is a continous number and not a factor.
+The output neuron is set with "linear.output = TRUE", which means that the output is a continuous number and not a factor.
 
 
-###Split Data into Train and Test Partition
+### Split Data into Train and Test Partition
 ```{r}
 set.seed(123)
 indices_1 <- createDataPartition(data$cnt, p=.65, list = F)
@@ -1414,21 +1420,21 @@ pred_1 <- pred_1$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_1 <- test_1$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
-###Root Mean Square
+### Root Mean Square
 ```{r}
 sqrt(mean((control_1 - pred_1)^2))
 ```
 
-###Plot Prediction against Real Data
+### Plot Prediction against Real Data
 ```{r}
 plot(control_1, pred_1, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
 abline(0,1)
 ```
 
-##ANN Model 2
+## ANN Model 2: Layer 4/0/0, Threshold 0.01
 After the first investigation in the NN layer's behavior, the four-neurons model layout is taken to be computed again. This time, a higher data amount (80%) and an error threshold of 0.01 is set. The result of this more meticulous model shows already great improvement in RSME and the plot is also more satisfying. It is unclear if a model with higher complexity would have performed even better with a 0.01 threshold, but this is the trade-off for a much faster computing time.
 
-###Split Data into Train and Test Partition
+### Split Data into Train and Test Partition
 ```{r}
 set.seed(42)
 indices_2 <- createDataPartition(data$cnt, p=.8, list = F)
@@ -1437,13 +1443,13 @@ train_2 <- data %>% slice(indices_2)
 test_2 <- data %>% slice(-indices_2)
 ```
 
-###Train Model
+### Train Model
 ```{r, eval=FALSE}
 set.seed(42)
 model_2 = neuralnet(cnt ~ hum + temp + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23, data = train_2, hidden = 4,linear.output = TRUE, threshold = 0.01, stepmax = 500000, lifesign.step = 1000, lifesign = "full")
 ```
 
-###Save resp. Load Model
+### Save resp. Load Model
 ```{r, eval=FALSE}
 saveRDS(model_2, "neural_nets_model_2.rds")
 ```
@@ -1452,73 +1458,61 @@ saveRDS(model_2, "neural_nets_model_2.rds")
 model_2 <-readRDS("neural_nets_model_2.rds")
 ```
 
-###Compute Prediction
+### Compute Prediction
 ```{r}
 pred_2 <- compute(model_2, test_2 %>% select(-cnt))
 pred_2 <- pred_2$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_2 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
-###Root Mean Square
+### Root Mean Square
 ```{r}
 sqrt(mean((control_2 - pred_2)^2))
 ```
 
-###Plot Prediction against Real Data
+### Plot Prediction against Real Data
 ```{r}
 plot(control_2, pred_2, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
 abline(0,1)
 ```
 
-##ANN Model 4: more Predictors, Layer 4/0/0, Threshold 0.05
+## ANN Model 4: more Predictors, Layer 4/0/0, Threshold 0.05
 Now more predictors are added to the model; the weekdays, the months and the wind speed. Again with a four-neuron model, the model is computed with a threshold of 0.05.
 The results shows improvement in RSME (77) and thus suggest that there is valuable information in the added predictors. Again, the plot appear to be better.
 
-###Train Model
+### Train Model
 ```{r, eval=FALSE}
 set.seed(41)
 model_4 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(4),linear.output = TRUE, threshold = 0.05, stepmax = 600000, lifesign.step = 1000, lifesign = "full")
 ```
 
-###Load model (computed in advance)
+### Load model (computed in advance)
 ```{r}
 model_4 <-readRDS("neural_nets_model_4.rds")
 ```
 
-###Compute Prediction
+### Compute Prediction
 ```{r, echo=FALSE}
 pred_4 <- compute(model_4, test_2 %>% select(-cnt))
 pred_4 <- pred_4$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_4 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
-###Root Mean Square
+### Root Mean Square
 ```{r, echo=FALSE}
 sqrt(mean((control_4 - pred_4)^2))
 ```
 
-###Plot Model Performance
+### Plot Model Performance
 ```{r, echo=FALSE}
 plot(control_4, pred_4, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
 abline(0,1)
 ```
 
-confidence.interval(x, alpha = 0.05)
-
-confidence.interval(model)
-
-gwplot(x, rep = NULL, max = NULL, min = NULL, file = NULL,
-selected.covariate = 1, selected.response = 1, highlight = FALSE,
-type = "p", col = "black", ...)
-
-gwplot(net.infert, selected.covariate="parity")
-gwplot(net.infert, selected.covariate="induced")
-gwplot(net.infert, selected.covariate="spontaneous")
-
-##ANN Models 5
+## ANN Models 5: Computing a Range of Model
 With the new predictors added, the model might benefit from a new layer architecture. Again, a range of model is computed. But this time, more data (80%) and new predictors are added. The result suggest a model architecture of 7,3,0 neurons.
 
-###Set up Parameter Range
+### Set up Parameter Range
 ```{r, eval=FALSE}
 set.seed(44)
 tuGrid_2 <- expand.grid(.layer1=c(4:8), .layer2=c(0,2,3,4), .layer3=c(0,2))
@@ -1635,7 +1629,7 @@ plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted rating
 abline(0,1)
 ```
 
-##ANN Models 10
+##ANN Models 10: Computing a RAnge of Model
 
 ###Set up Parameter Range
 ```{r, eval=FALSE}
