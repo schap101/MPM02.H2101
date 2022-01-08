@@ -371,36 +371,17 @@ Interpretation of Regression Coefficients:
 
 
 ### Accessing the model accuracy
-We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy as well as the RMSE values.
-
-#### Compare R-squared Values
-```{r, echo=FALSE}
-# Fit a linear model without the predictor atempereature and accessing both
-# prediction performances with the test data and comparison of the
-# R-squared value.
-
-lm.fit.0.test = lm(formula(lm.fit.0.train),data=test)
-lm.fit.1.test = lm(formula(lm.fit.1.train),data=test)
-
-R2_0 <- summary(lm.fit.0.test)$r.squared
-R2_1 <- summary(lm.fit.1.test)$r.squared
-
-print(paste("R-squared of lm.fit.0:",round(R2_0,3)))
-print(paste("R-squared of lm.fit.1:",round(R2_1,3)))
-```
-- Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
+We evaluate the accuracy of both models by testing them with the test data partition. The RMSE value will serve as the accuray of the models.
 
 #### Compare RMSE Values
 ```{r, echo=FALSE}
 control <- test$cnt
-control_log <- log(control)
-predict_0 <- predict(lm.fit.0.test)
-predict_1 <- predict(lm.fit.1.test)
+lm.fit.0.test = predict(lm.fit.0.train,newdata=test)
+lm.fit.1.test = predict(lm.fit.1.train,newdata=test)
 
-# take inverse of natural log to obtain RMSE with actual unit
-# (number of bike rentals)
-RMSE_0 <- sqrt(mean((exp(control_log) - exp(predict_0))^2))
-RMSE_1 <- sqrt(mean((exp(control_log) - exp(predict_1))^2))
+# take inverse of natural log to obtain RMSE with actual unit (number of bike rentals)
+RMSE_0 <- sqrt(mean((control - exp(lm.fit.0.test))^2))
+RMSE_1 <- sqrt(mean((control - exp(lm.fit.1.test))^2))
 
 # calculate percentage error
 percent_error_0 <- (RMSE_0/mean(control))*100
@@ -439,45 +420,23 @@ lm.fit.3.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season +
 ```
 ### Accessing the model accuracy
 
-#### Compare R-Squared Values
-
-Again we compare the R-squared values of the 3 models.
-```{r, echo=FALSE}
-lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
-lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
-
-
-R2_2 <- summary(lm.fit.2.test)$r.squared
-R2_3 <- summary(lm.fit.3.test)$r.squared
-
-
-print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
-print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
-
-```
-- Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
-
 #### Compare RMSE Values
 ```{r, echo=FALSE}
-predict_2 <- predict(lm.fit.2.test)
-predict_3 <- predict(lm.fit.3.test)
+lm.fit.2.test = predict(lm.fit.2.train,newdata=test)
+lm.fit.3.test = predict(lm.fit.3.train,newdata=test)
 
-# take inverse of natural log to calculate RMSE with actual unit
-# (number of bike rentals)
-RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
-RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
-
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_2 <- sqrt(mean((control - exp(lm.fit.2.test))^2))
+RMSE_3 <- sqrt(mean((control - exp(lm.fit.3.test))^2))
 
 # Calculate percentage error (deviation to the mean of number of bike rentals)
 percent_error_2 <- (RMSE_2/mean(control))*100
 percent_error_3 <-(RMSE_3/mean(control))*100
 
-
 print(paste("RMSE of lm.fit.2:",round(RMSE_2,1)))
 print(paste("Percentage error of lm.fit.2:",round(percent_error_2,1),"%"))
 print(paste("RMSE of lm.fit.3:",round(RMSE_3,1)))
 print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
-
 ```
 - The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
 
@@ -499,16 +458,7 @@ To answer this question we will plot the confidence interval of all the predicto
 ```{r, out.width="40%", fig.align = 'center', echo=FALSE}
 ggcoef(lm.fit.3.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
 ```
-We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination. The evaluate this assumption we update the model and compare the two R-squared values.
-
-```{r, echo=FALSE}
-lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
-lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
-
-print(summary(lm.fit.3.test)$r.squared)
-print(summary(lm.fit.4.test)$r.squared)
-```
-In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
+We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination.
 Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
 
 ### Are there Potential Problems of Fitting this data with a Linear Regression Model 
@@ -559,24 +509,18 @@ anova(gam_0_train,gam_1_train,gam_2_train,gam_3_train,test="F")
 ```{r, echo=FALSE}
 gam_4_train <- gam(log(cnt) ~ s(temperature) + s(humidity) + s(wind),data=train)
 
-gam_0_test <- gam(formula(gam_0_train),data=test)
-gam_1_test <- gam(formula(gam_1_train),data=test)
-gam_2_test <- gam(formula(gam_2_train),data=test)
-gam_3_test <- gam(formula(gam_3_train),data=test)
-gam_4_test <- gam(formula(gam_4_train),data=test)
-
-predict_gam_0 <- predict(gam_0_test)
-predict_gam_1 <- predict(gam_1_test)
-predict_gam_2 <- predict(gam_2_test)
-predict_gam_3 <- predict(gam_3_test)
-predict_gam_4 <- predict(gam_4_test)
+gam_0_test <- predict(gam_0_train,newdata=test)
+gam_1_test <- predict(gam_1_train,newdata=test)
+gam_2_test <- predict(gam_2_train,newdata=test)
+gam_3_test <- predict(gam_3_train,newdata=test)
+gam_4_test <- predict(gam_4_train,newdata=test)
 
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_gam_0 <- sqrt(mean((exp(control_log) - exp(predict_gam_0))^2))
-RMSE_gam_1 <- sqrt(mean((exp(control_log) - exp(predict_gam_1))^2))
-RMSE_gam_2 <- sqrt(mean((exp(control_log) - exp(predict_gam_2))^2))
-RMSE_gam_3 <- sqrt(mean((exp(control_log) - exp(predict_gam_3))^2))
-RMSE_gam_4 <- sqrt(mean((exp(control_log) - exp(predict_gam_4))^2))
+RMSE_gam_0 <- sqrt(mean((control - exp(gam_0_test))^2))
+RMSE_gam_1 <- sqrt(mean((control - exp(gam_1_test))^2))
+RMSE_gam_2 <- sqrt(mean((control - exp(gam_2_test))^2))
+RMSE_gam_3 <- sqrt(mean((control - exp(gam_3_test))^2))
+RMSE_gam_4 <- sqrt(mean((control - exp(gam_4_test))^2))
 
 print(paste("RMSE of gam_01(simple linear model):",round(RMSE_gam_0,1)))
 print(paste("RMSE of gam_02(s(temperature)):",round(RMSE_gam_1,1)))
@@ -595,25 +539,24 @@ gam_5_train <- update(gam_4_train,. ~ . + weathersit + hr + season + mnth + week
 ```
 
 ```{r, echo=FALSE}
-gam_5_test <- gam(formula(gam_5_train),data=test)
-predict_gam_5 <- predict(gam_5_test)
+gam_5_test <- predict(gam_5_train,newdata=test)
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+RMSE_gam_5 <- sqrt(mean((control - exp(gam_5_test))^2))
 print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
 ```
-- We get a RMSE of 90.4. Comparing to the lm.fit.3 with a RMSE 97.4 we have an improvement of roughly 7.5 %.
+- We get a RMSE of 90.4. Comparing to the lm.fit.3 with a RMSE 99.3 we have an improvement of roughly 9%.
 
 - Below for the plots with the smoothing splines for each variable with and without the residuals.
 
 ## Summary
 
-- It can be stated that using a GAA model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
-```{r, echo=FALSE, out.width="40%", fig.align = 'center'}
+- It can be stated that using a GAM model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
+```{r, echo=FALSE, out.height="50%", fig.align = 'center', warning=FALSE}
 par(mfrow=c(1,3))
 plot(gam_5_test,se=TRUE,col="blue")
 ```
 
-```{r, echo=FALSE, eval=FALSE}
+```{r, echo=FALSE, eval=FALSE, warning=FALSE}
 par(mfrow=c(1,3))
 plot(gam_5_test,residuals =TRUE,cex=2,col="blue")
 ```
@@ -981,7 +924,8 @@ A change in one temperature unit (as it is normalized in this data frame) leads 
 To make sure we are not missing anything, we will also fit a model to the date variables to compare. We still will keep in the working day variable, as this is not a weather variable but still was included in the former model.
 
 ```{r, echo=TRUE, results='hide'}
-glm.binomial.5 <- glm((registered/cnt) ~ yr + mnth + holiday + weekday + workingday, data=day, family="quasibinomial")
+glm.binomial.5 <- glm((registered/cnt) ~ yr + mnth + holiday + weekday +
+                        workingday, data=day, family="quasibinomial")
 
 glm.binomial.train.5 <- glm(formula = formula(glm.binomial.5), data = day.train)
 ```
@@ -1000,7 +944,7 @@ predicted.binomial.test.5 <- predict(glm.binomial.train.5, newdata = day.test_in
 summary(predicted.binomial.test.5)
 ```
 
-```{r, echo=FALSE, out.width= "60%"}
+```{r, echo=FALSE, out.width= "60%", fig.align='center'}
 par(oma=c(0, 0, 0, 5))
 plot(as.Date(day.test_in$dteday),(predicted.binomial.test.5),type="l",col="firebrick3",  xlab = " ", ylab ="Ratio of Registered/Total Users")
 lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
@@ -1072,7 +1016,7 @@ rmse(hour.test_truth, predicted.poisson.test.1)
 ```
 Having a root mean square error (RMSE) of 101.6 when we have a median of 183.1 does definitely not sound very good. But we have to keep in mind, that it is based on hourly data. Let's have a look at a visualization of our prediction and the true data.
 
-```{r, echo=FALSE , out.width= "60%", fig.align='center'}
+```{r, echo=FALSE , out.width= "40%", fig.align='center'}
 par(oma=c(0, 0, 0, 5))
 plot(as.Date(hour.test_in$dteday),predicted.poisson.test.1,type="l",
      col="firebrick3",  xlab = "  ", ylab ="Number of Bikes used")
@@ -1087,7 +1031,9 @@ As hourly numbers vary strongly, we get quite some variance.
 Now we want to see if this model would fit better on a daily basis.
 
 ```{r, echo=FALSE}
-glm.poisson.2 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=day, family=quasipoisson)
+glm.poisson.2 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday +
+                       weathersit + temp + hum + windspeed, data=day,
+                     family=quasipoisson)
 
 glm.poisson.train.2 <- glm(formula = formula(glm.poisson.2), data = day.train)
 ```
@@ -1107,22 +1053,22 @@ rmse(day.test_truth, predicted.poisson.test.2)
 ```
 Here we have a RMSE of 695, which is higher than above in total. But as we are looking at daily data here, with a median of 4720 and numbers up to above 8000, this seems to be a better fit.
 
-
-
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width="40%", fig.align='center'}
 par(oma=c(0, 0, 0, 5))
 plot(as.Date(day.test_in$dteday),predicted.poisson.test.2,type="l",col="firebrick3", xlab = "  ", ylab ="Number of Bikes used") 
 lines(as.Date(day.test_in$dteday),day.test_truth,type="l",col="deepskyblue2")
 legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
        c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
 ```
+
 When looking at the predictions (red) in comparison to the true data (blue), this model does look usable if one wants to plan when to take bikes out of circulation for maintenance or repairs.
 
 To see, if a variable is not needed, the model was tested by dropping only one of the predictors for each run through (with daily and hourly data). But the best result was achieved by using all the predictors (except for the type of users, for the reasons mentioned at the beginning of this chapter as well as the specific dates).
 
 For practical purposes we have a look at a model with less weather data:
 ```{r, echo=TRUE, results='hide'}
-glm.poisson.3 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp, data=day, family=quasipoisson)
+glm.poisson.3 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday +
+                       weathersit + temp, data=day, family=quasipoisson)
 glm.poisson.train.3 <- glm(formula = formula(glm.poisson.3), data = day.train)
 summary(glm.poisson.3)
 ```
@@ -1865,10 +1811,6 @@ The bikes we own cost us on average 1$ a day for maintenance and so on, regardle
 If a bike is in use, we will earn 3\$ a day.
 
 The demand depends on the months. The daily demand coefficients look as follows:
- | Jan | Feb | Mar | Apr |May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|
- |:------:|:------:|:------|:------|:------|:-------|:-------|:-------|:-------|:-------|:-------|:-------|
- |1.5|1.5|1.9|2.3|2.7|3.0|3.2|3.5|3.5|3.3|3.0|2.2
- |a_1|a_2|a_3|a_4|a_5|a_6|a_7|a_8|a_9|a_10|a_11|a_12|
 
       Jan   Feb   Mar   Apr   May   Jun   Jul   Aug   Sep   Oct   Nov   Dec
       1.5   1.5   1.9   2.3   2.7   3.0   3.2   3.5   3.5   3.3   3.0   2.2
@@ -1902,10 +1844,10 @@ This equation resolved to x will give es the maximum amount of bikes we should b
 
 ```{r, echo=FALSE, warning=FALSE}
 #RMSE Linear Model RMSE of 97.4
-print(paste("RMSE Linear Model: ",RMSE_Linear_Model <- sqrt(mean((exp(control_log) - exp(predict_3))^2))))
+print(paste("RMSE Linear Model: ",RMSE_Linear_Model <- sqrt(mean((control - exp(lm.fit.3.test))^2))))
 
 #RMSE Gam Model (RMSE of 90.4)
-print(paste("RMSE GAM Model: ",RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))))
+print(paste("RMSE GAM Model: ",RMSE_gam_5 <- sqrt(mean(control - exp(gam_5_test))^2)))
 
 #RMSE GLM 
 # Binomial (RMSE of 0.06111774) 
