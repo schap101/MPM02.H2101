@@ -12,7 +12,6 @@ output:
     toc: yes
     toc_depth: '4'
 ---
-
 ````{r, echo= FALSE}
 # load library
 library(rstudioapi)
@@ -21,6 +20,7 @@ library(gridExtra)
 library(dplyr)
 library(caret)
 library(GGally)
+library(mgcv)
 ```
 
 ````{r, echo=FALSE}
@@ -136,12 +136,10 @@ In the next step we try fo find again a more simple and more practical model wit
 drop1(lm.fit.2.train, test = "F")
 ```
 There is evidence that the variables workingday an holiday have no significant influence according the results of the F-test. We therefore neglect this variables in the model lm.fit.3.train. The graphical analysis in the last chapter supports this step, showing that there is no influence of these variables.
-Moreover the dataset contains of the variable year (yr). This variables indicates whether we are in the year 2011 or in 2012. This variable however is useless in terms of a predicting model. Hence we will neglect it in the model lm.fit.4.train.
+
 ```{r}
 lm.fit.3.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
 formula(lm.fit.3.train)
-lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday ,data=train)
-formula(lm.fit.4.train)
 ```
 ### Accessing the model accuracy
 
@@ -151,15 +149,12 @@ Again we compare the R-squared values of the 3 models.
 ```{r}
 lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
 lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
-lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
 
 R2_2 <- summary(lm.fit.2.test)$r.squared
 R2_3 <- summary(lm.fit.3.test)$r.squared
-R2_4 <-summary(lm.fit.4.test)$r.squared
 
 print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
 print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
-print(paste("R-squared of lm.fit.4::",round(R2_4,3)))
 ```
 - Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
 
@@ -167,29 +162,25 @@ print(paste("R-squared of lm.fit.4::",round(R2_4,3)))
 ```{r}
 predict_2 <- predict(lm.fit.2.test)
 predict_3 <- predict(lm.fit.3.test)
-predict_4 <- predict(lm.fit.4.test)
 
 # take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
 RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
 RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
-RMSE_4 <- sqrt(mean((exp(control_log) - exp(predict_4))^2))
 
 # Calculate percentage error (deviation to the mean of number of bike rentals)
 percent_error_2 <- (RMSE_2/mean(control))*100
 percent_error_3 <-(RMSE_3/mean(control))*100
-percent_error_4 <-(RMSE_4/mean(control))*100
 
 print(paste("RMSE of lm.fit.2:",round(RMSE_2,1)))
 print(paste("Percentage error of lm.fit.2:",round(percent_error_2,1),"%"))
 print(paste("RMSE of lm.fit.3:",round(RMSE_3,1)))
 print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
-print(paste("RMSE of lm.fit.4:",round(RMSE_4,1)))
-print(paste("Percentage error of lm.fit.4::",round(percent_error_4,1),"%"))
+
 ```
 - The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
 
 ```{r}
-summary(lm.fit.4.test)
+summary(lm.fit.3.test)
 ```
 - Note from the output above, that the p-values for some month are not significant. More on that on in the next chapter.
 
@@ -209,16 +200,16 @@ The predictors used in the model lm.fit.4 explain about 80 % of the variance in 
 To answer this question we will plot the confidence interval of all the predictors.
 
 ```{r}
-ggcoef(lm.fit.4.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
+ggcoef(lm.fit.3.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
 ```
 We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination. The evaluate this assumption we update the model and compare the two R-squared values.
 
 ```{r}
-lm.fit.5.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
-lm.fit.5.test = lm(formula(lm.fit.5.train),data=test)
+lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
+lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
 
+summary(lm.fit.3.test)$r.squared
 summary(lm.fit.4.test)$r.squared
-summary(lm.fit.5.test)$r.squared
 ```
 In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
 Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
@@ -251,5 +242,79 @@ summary(lm.fit.1.full)$r.squared
 
 In the next chapter we will use more advanced linear models to find a better fit for the data.
 
+# General Additive Model (GAM)
 
+In this chapter we would like to use the GAM model to address for possible non-linear relationships.
+
+## Check if model with non-linear function ist better
+
+```{r}
+gam_0_train <- gam(log(cnt) ~ temperature + humidity + wind,data=train)
+gam_1_train <- gam(log(cnt) ~ s(temperature) + humidity + wind,data=train)
+gam_2_train <- gam(log(cnt) ~ temperature + s(humidity) + wind,data=train)
+gam_3_train <- gam(log(cnt) ~ temperature + humidity + s(wind),data=train)
+
+anova(gam_0_train,gam_1_train,gam_2_train,gam_3_train,test="F")
+```
+- There is strong evidence that for all models applying the smoothing splines for the 3 continuous weather predictors is needed to improve the model. Consequently we will use the model applying the smoothing splines on all 3 weather predictor.
+
+### Compare RMSE Values
+```{r}
+gam_4_train <- gam(log(cnt) ~ s(temperature) + s(humidity) + s(wind),data=train)
+
+gam_0_test <- gam(formula(gam_0_train),data=test)
+gam_1_test <- gam(formula(gam_1_train),data=test)
+gam_2_test <- gam(formula(gam_2_train),data=test)
+gam_3_test <- gam(formula(gam_3_train),data=test)
+gam_4_test <- gam(formula(gam_4_train),data=test)
+
+predict_gam_0 <- predict(gam_0_test)
+predict_gam_1 <- predict(gam_1_test)
+predict_gam_2 <- predict(gam_2_test)
+predict_gam_3 <- predict(gam_3_test)
+predict_gam_4 <- predict(gam_4_test)
+
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_gam_0 <- sqrt(mean((exp(control_log) - exp(predict_gam_0))^2))
+RMSE_gam_1 <- sqrt(mean((exp(control_log) - exp(predict_gam_1))^2))
+RMSE_gam_2 <- sqrt(mean((exp(control_log) - exp(predict_gam_2))^2))
+RMSE_gam_3 <- sqrt(mean((exp(control_log) - exp(predict_gam_3))^2))
+RMSE_gam_4 <- sqrt(mean((exp(control_log) - exp(predict_gam_4))^2))
+
+print(paste("RMSE of gam_01(simple linear model):",round(RMSE_gam_0,1)))
+print(paste("RMSE of gam_02(s(temperature)):",round(RMSE_gam_1,1)))
+print(paste("RMSE of gam_02(s(humidity)):",round(RMSE_gam_2,1)))
+print(paste("RMSE of gam_02(s(wind)):",round(RMSE_gam_3,1)))
+print(paste("RMSE of gam_02(s(on all variables)):",round(RMSE_gam_4,1)))
+```
+- from the output above we can conclude that for all variables we get an improvement of the RMSE value when applying smoothing splines on it. Therefore we conclude that the relationship between predictors and response variable is not linear.
+
+- for the gam_01 model we get the same result as for the lm.fit.1 model since it is nothing else than a simple linear model without any non linear functions in the gam() function.
+
+## Add categorical variables to GAM Model gam_04
+```{r}
+gam_5_train <- update(gam_4_train,. ~ . + weathersit + hr + season + mnth + weekday + yr  ,data=train)
+summary(gam_5_train)
+```
+- From the output above we can again conclude that there is strong evidence that the 3 continuous weather predictors have a non-linear effect according to the edf and p-values.
+
+```{r}
+gam_5_test <- gam(formula(gam_5_train),data=test)
+predict_gam_5 <- predict(gam_5_test)
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
+```
+- We get a RSME of 90.4. Comparing to the lm.fit.3 with a RSME 97.4 we have an improvement of roughly 7.5 %.
+
+- Below for the plots with the smoothing splines for each variable with and without the residuals.
+```{r}
+par(mfrow=c(1,3))
+plot(gam_5_test,se=TRUE,col="blue")
+```
+
+```{r}
+par(mfrow=c(1,3))
+plot(gam_5_test,residuals =TRUE,cex=2,col="blue")
+```
 
