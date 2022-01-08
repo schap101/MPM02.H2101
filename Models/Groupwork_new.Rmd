@@ -6,6 +6,7 @@ output:
   pdf_document:
     toc: yes
     toc_depth: '4'
+    number_sections: yes
   html_document:
     toc: yes
     toc_float: no
@@ -13,7 +14,7 @@ output:
     number_sections: yes
 ---
 
-```{r, echo= FALSE}
+```{r, echo= FALSE, warning=FALSE, error=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # load library
 library(knitr)    # For knitting document and include_graphics function
@@ -46,6 +47,9 @@ setwd(dirname(getActiveDocumentContext()$path))
 df <- read.csv("../Data/hour.csv")
 ```
 
+```{r, echo=FALSE}
+dt <- fread("../Data/hour.csv")
+```
 
 # Introduction
 
@@ -73,7 +77,7 @@ We want to explore how different weather situation influences the number of bike
 
 The continuous weather variables are normalized as follows in the dataset:
 
-```{r,echo=FALSE}
+```{r,echo= FALSE, warning=FALSE, error=FALSE, message=FALSE}
 str(df)
 summary(df)
 ```
@@ -83,7 +87,7 @@ x_{normalized} = \frac{x-x_{min}}{x_{max}-x_{min}}
 $$
 For some models it may be useful to use the normalized variables and for other we may re-transform the variables. If so, we will state that in the corresponding chapter.
 
-```{r,echo=FALSE}
+```{r,echo=FALSE, message=FALSE, }
 p1 <-  ggplot(data = df,
          mapping = aes(y = log(cnt),
                      x = temp)) + xlab("Normalized Temperature") + ylab("Num. of Bike Rentals") + 
@@ -122,907 +126,7 @@ fig.align = 'center'
 
 ```
 
-We consider the response variables as an amount altough we are a bit unsure here. However the results in the next chapter shows that using the log function improves the linear regression model quite a bit.
-
-In all 4 scatter plots above the linear model lines (green) as well as the gam model lines (red) are plotted. For both temperature variables the rentals seems to increase until the temperature reaches a certain value.At the beginning of the observations (low temp.) ans well as the end (high temp.) the linear model seems to overestimate the number of rentals.
-For the normalized humidity there is a decrease in rentals with increasing humidity. The is not the case between 0 and 25 % humidity where the linear model overestimates the number of rentals. We assume that in very cold and very hot weather the humidity is rather low and so the number of bike rentals because of the influence of temperature.
-In conclusion of the above exploration, it can be stated that the behavior cannot be completely represented with a linear model. There are nonlinear aspects which should be considered in the prediction models.
-In the next chapter we would like to examine the categorical variables which are available in the dataset.
-
-### Exploration of Categorical Variables
-
-The data set contains 4 different weather categories which are described as follows:
-
-- Category 1:      Clear, Few clouds, Partly cloudy, Partly cloudy
-- Category 2:      Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
-- Category 3:        Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds 
-- Category 4:  Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog 
-
-Since we are considering the response variables count data we log transform the variable with the natural logarithm in all of the following plots.
-```{r,echo=FALSE}
-
-ggplot(data = df, mapping = aes(y = log(cnt),
-                     x = factor(weathersit),fill= weathersit)) + ylab("Num. of Bike Rentals") + xlab("Weather Conditions") +  labs(fill="Weather\nConditions") +
-geom_boxplot() 
-
-
-```
-The boxplot above indicates, that in situation 1 and 2 the most bikes are rented whereas there is seems to be a drop visible  for condition 3 and the drop is even more significant for situation 4 where severe weather conditions are present.This rental behavior is as we have expected since few people ride bicycles in bad weather situations.
-In the next chapter we are inspecting the seasonal and timely influence upon the rental situation.
-
-## Influnece of Timely and Seasonal aspects upon Bike Rentals
-
-### Exploration of Categorical Variables
-
-#### Seasonal Influence 
-In order to investigate the seasonal influences, the monthly (1 to 12) and seasonal data are included in the dataset as shown below::
-
-- Category 1:      Spring
-- Category 2:      Summer
-- Category 3:      Fall
-- Category 4:      Winter
-
-```{r,echo=FALSE}
-
-p1 <- ggplot(data = df,  mapping = aes(y = log(cnt),
-                     x = factor(season),fill= season)) + ylab("Num. of Bike Rentals") + xlab("Season") +  labs(fill="Season") +
-geom_boxplot() 
-
-
-p2 <- ggplot(data = df,
-       mapping = aes(y = log(cnt),
-                     x = factor(mnth),fill= mnth)) + ylab("Num. of Bike Rentals") + xlab("Month") +  labs(fill="Monthn") +
-geom_boxplot()
-grid.arrange(p1,p2, nrow=2,top = "Seasonal Aspects vs. Number of Bike Rentals")
-
-fig.align = 'center'
-```
-
-The two boxplot above indicate, that the mos bike rentals take place in summer and fall which we have expected.
-
-#### Timely Influence 
-
-In order to examine the temporal influences we have the time specification in hours (1 to 24), the weekdays (0 = Monday to 6 = Sunday), working day (1 = yes, 0 = no) as well as vacation day (1 = yes , 0 = no).
-
-
-```{r,echo=FALSE}
-
-p1 <- ggplot(data = df,
-       mapping = aes(y = log(cnt),
-                     x = factor(hr),fill= hr)) + ylab("Num. of Bike Rentals") + xlab("Hour") +  labs(fill="Hour") +
-geom_boxplot() 
-
-p2 <- ggplot(data = df,
-       mapping = aes(y = log(cnt),
-                     x = factor(weekday),fill= weekday)) + ylab("Num. of Bike Rentals") + xlab("Weekday") +  labs(fill="Day") +
-geom_boxplot()
-
-p3 <- ggplot(data = df,
-       mapping = aes(y = log(cnt),
-                     x = factor(workingday),fill= workingday)) + ylab("Num. of Bike Rentals") + xlab("Workingday") +  labs(fill="Day") +
-geom_boxplot() 
-
-p4 <- ggplot(data = df,
-       mapping = aes(y = log(cnt),
-                     x = factor(holiday),fill= holiday)) + ylab("Num. of Bike Rentals") + xlab("Holidays") +  labs(fill="Day") +
-geom_boxplot() 
-
-grid.arrange(p1,p2,p3,p4, nrow=2,top = "Timely Aspects vs. Number of Bike Rentals")
-
-
-```
-
-The above plots indicate, that the hour in which the bike is rented has the most influence of total rentals which seems obvious. On the other hand, whether there is a working day or not, seems not to have a significant influence.
-
-In the next chapter we try to find a linear model which suits best the dateset.
-# Linear Regression Model
-## Data Preperation for the Linear Model
-### Set Categorical Variables as Factors
-```{r}
-df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
-df$yr <- as.factor(df$yr)
-df$mnth <- as.factor(df$mnth)
-df$hr <- as.factor(df$hr)
-df$holiday <- as.factor(df$holiday)
-df$weekday <- as.factor(df$weekday)
-df$workingday <- as.factor(df$workingday)
-df$weathersit <- as.factor(df$weathersit)
-```
-### Re-Transform the Continious Weather Variables
-
-As described in the data exploration chapter, the continuous weather variables have been normalized in the existing dataset. In order to make interpretation of the coefficients more straight forward in the linear model the variables will be re-transformed to the actual values as follows. For more advanced models the normalized variables may be the better choice to fit a model.
-```{r}
-df$temperature <- (df$temp * (39 + 8)) - 8
-df$atemperature <- (df$atemp * (39 + 8)) - 8
-df$humidity <- (df$hum * 100)
-df$wind <- (df$windspeed * 67)
-```
-### Split data into train and test dataset
-
-In the following the dataset will be split into a train and a test dataset. The partition will be used to evaluate the accuracy of the model when used on the test data.
-```{r}
-set.seed(123)
-indices <- createDataPartition(df$cnt, p=.8, list = F)
-train <- df %>% slice(indices)
-test <- df %>% slice(-indices)
-```
-
-## Multiple Linear Regression Model with Continious Weather Predictors
-First of all we want to include only the continuous variables in the model. As stated in the previous chapter we consider the response variable as amount data and therefore take the log of it to build the model. Indeed, if we take the log we get much better for all basic linear regression fits.
-```{r}
-lm.fit.0.train <- lm(log(cnt) ~ temperature + atemperature + humidity + wind,data=train)
-summary(lm.fit.0.train)
-```
-
-### Simplification of Model lm.fit.0.train
-
-There is evidence that the predictor temperature has no significant influence since the p-value is large with 0.7. However the feels like temperature (atemperature) is a result of the combination of the temperature, the humidity and the wind at a given time. Moreover, the prediction of future bike rental will depend from the weather forecast. In the forecast the feels like temperature is not always available. Therefore we try to fit the model without atemperature to simplify it and make it more practical for future usage.
-
-```{r}
-lm.fit.1.train <- lm(log(cnt) ~ temperature + humidity + wind,data=train)
-summary(lm.fit.1.train)
-```
-Interpretation of Regression Coefficients:
-
-- As we can see from the output above the predictor temperature and wind have both a positive influence upon the number of bike rentals. A increase of one unit (temperature) leads to a increase of 5.9 % rentals and 0.6 % when the wind is increased by one unit. The humidity on the other hand has a negative influence. If the humidity is increased by one unit the number of rentals decreases by 2.3 %.
-
-
-### Accessing the model accuracy
-We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy as well as the RSME values.
-
-#### Compare R-squared Values
-```{r}
-# Fit a linear model without the predictor atempereature and accessing both prediction performances with the test data and comparison of the R-squared value.
-
-lm.fit.0.test = lm(formula(lm.fit.0.train),data=test)
-lm.fit.1.test = lm(formula(lm.fit.1.train),data=test)
-
-R2_0 <- summary(lm.fit.0.test)$r.squared
-R2_1 <- summary(lm.fit.1.test)$r.squared
-
-print(paste("R-squared of lm.fit.0:",round(R2_0,3)))
-print(paste("R-squared of lm.fit.1:",round(R2_1,3)))
-```
-- Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
-
-#### Compare RMSE Values
-```{r}
-control <- test$cnt
-control_log <- log(control)
-predict_0 <- predict(lm.fit.0.test)
-predict_1 <- predict(lm.fit.1.test)
-
-# take inverse of natural log to obtain RMSE with actual unit (number of bike rentals)
-RMSE_0 <- sqrt(mean((exp(control_log) - exp(predict_0))^2))
-RMSE_1 <- sqrt(mean((exp(control_log) - exp(predict_1))^2))
-
-# calculate percentage error
-percent_error_0 <- (RMSE_0/mean(control))*100
-percent_error_1 <- (RMSE_1/mean(control))*100
-
-print(paste("RMSE of lm.fit.0:",round(RMSE_0,1)))
-print(paste("Percentage error of lm.fit.1:",round(percent_error_0,1),"%"))
-print(paste("RMSE of lm.fit.0:",round(RMSE_1,1)))
-print(paste("Percentage error of lm.fit.1:",round(percent_error_1,1),"%"))
-```
-- The RMSE values for both models are roughly 170 units as we can see from the output above. This corresponds to a percentage error of around 90 % of the predicted values if it is compared with the mean of all bike rentals.
-
-## Multiple Linear Regression Model with Continious and Categorical Variables
-
-```{r}
-# Update the previous model lm.fit.1.train, including all the categorical variables.
-lm.fit.2.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + workingday + weekday + holiday + yr ,data=train)
-formula(lm.fit.2.train)
-```
-
-### Simplification of Model lm.fit.2.train
-
-In the next step we try fo find again a more simple and more practical model without reducing the predicting accuracy of the model significantly. With the drop1 function we test influence of the categorical variables with a F test as follows.
-
-```{r}
-drop1(lm.fit.2.train, test = "F")
-```
-There is evidence that the variables workingday an holiday have no significant influence according the results of the F-test. We therefore neglect this variables in the model lm.fit.3.train. The graphical analysis in the last chapter supports this step, showing that there is no influence of these variables. We exclude these variables for the final model.
-```{r}
-lm.fit.3.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
-formula(lm.fit.3.train)
-```
-### Accessing the model accuracy
-
-#### Compare R-Squared Values
-
-Again we compare the R-squared values of the 3 models.
-```{r}
-lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
-lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
-
-
-R2_2 <- summary(lm.fit.2.test)$r.squared
-R2_3 <- summary(lm.fit.3.test)$r.squared
-
-
-print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
-print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
-
-```
-- Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
-
-#### Compare RMSE Values
-```{r}
-predict_2 <- predict(lm.fit.2.test)
-predict_3 <- predict(lm.fit.3.test)
-
-# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
-RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
-
-
-# Calculate percentage error (deviation to the mean of number of bike rentals)
-percent_error_2 <- (RMSE_2/mean(control))*100
-percent_error_3 <-(RMSE_3/mean(control))*100
-
-
-print(paste("RMSE of lm.fit.2:",round(RMSE_2,1)))
-print(paste("Percentage error of lm.fit.2:",round(percent_error_2,1),"%"))
-print(paste("RMSE of lm.fit.3:",round(RMSE_3,1)))
-print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
-
-```
-- The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
-
-```{r}
-summary(lm.fit.3.test)
-```
-- Note from the output above, that the p-values for some month are not significant. More on that on in the next chapter.
-
-## Summary
-As summary we want to answer following 4 questions regarding the linear regression model and its interpretation.
-
-### Is there a relationship betweeen the independent variables and the response variable?
-
-As stated above there is evidence, that the weather as well as the timely and seasonal variables has influence of the number of bike rentals according to the P-values for the continuous variables as well as the outcome of the F-test for the categorical variables.
-
-### How strong is the relationship and how accurate is the model?
-
-The predictors used in the model lm.fit.4 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.3 we achieve a value of 97.4 which corresponds to a percentage error of around 51.7 %.
-
-### How large is the effect of each predctor on cnt?
-
-To answer this question we will plot the confidence interval of all the predictors.
-
-```{r}
-ggcoef(lm.fit.3.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
-```
-We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination. The evaluate this assumption we update the model and compare the two R-squared values.
-
-```{r}
-lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
-lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
-
-summary(lm.fit.3.test)$r.squared
-summary(lm.fit.4.test)$r.squared
-```
-In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
-Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
-
-### Are there Potential Problems of Fitting this data with a Linear Regression Model 
-
-With the plot function, we try to examine our model in more detail by means of residual analysis.To to that we build a model with the entire dataset.
-```{r}
-lm.fit.0.full = lm(formula(lm.fit.3.train),data=df)
-par(mfrow=c(2,2))
-plot(lm.fit.0.full)
-```
-
-- The residual vs fitted plot shows no clear pattern indicating that that relationship is linear. Also the smoother stays more or less on zero. In a clear non-linear situation this would have been the case.
-
-- The QQ-plot shows that the residuals seem not to follow a normal distribution. This circumstance could be a sign that the linear model is not quite suitable to form a predictive model. We assume that this is due to the distribution of bike rentals. These are not normally distributed and could be considered as amount data.
-
-- Checking the scale-location plot, it seems that the residuals are spread fairly randomly along the horizontal line. Although the variance seems to decrease on the right hand side of the plot we consider this as "normal".
-
-- In the residual vs leverage, one observation seems to lie outside of the cooks distance. It is the observation 5637 in the dataset. A closer look reveals an error in the dataset. On 27.08.2011 and 28.08.2011 the time seems to be incorrect and therefore the observation 5637 can be considered as an outlier. It would probably make sense to delete these two days from the dataset. We do this in the following step and form a new model.
-
-```{r}
-df2 <- df[!(df$dteday=="2011-08-27" | df$dteday=="2011-08-28"),]
-lm.fit.1.full = lm(formula(lm.fit.3.train),data=df2)
-plot(lm.fit.1.full, which = 5)
-summary(lm.fit.0.full)$r.squared
-summary(lm.fit.1.full)$r.squared
-```
-- As we can see, all observations are lying now within the cook distance and the R-value also increases marginally when taking out the faulty date entries in a updated dataset.
-
-In the next chapter we will use more advanced linear models to find a better fit for the data.
-
-# General Additive Model (GAM)
-
-In this chapter we would like to use the GAM model to address for possible non-linear relationships and improve the basic linear mode lm.fit.3.
-
-## Check if model with non-linear function ist better
-
-```{r}
-gam_0_train <- gam(log(cnt) ~ temperature + humidity + wind,data=train)
-gam_1_train <- gam(log(cnt) ~ s(temperature) + humidity + wind,data=train)
-gam_2_train <- gam(log(cnt) ~ temperature + s(humidity) + wind,data=train)
-gam_3_train <- gam(log(cnt) ~ temperature + humidity + s(wind),data=train)
-
-anova(gam_0_train,gam_1_train,gam_2_train,gam_3_train,test="F")
-```
-- There is strong evidence that for all models applying the smoothing splines for the 3 continuous weather predictors is needed to improve the model. Consequently we will use the model applying the smoothing splines on all 3 weather predictor.
-
-### Compare RMSE Values
-```{r}
-gam_4_train <- gam(log(cnt) ~ s(temperature) + s(humidity) + s(wind),data=train)
-
-gam_0_test <- gam(formula(gam_0_train),data=test)
-gam_1_test <- gam(formula(gam_1_train),data=test)
-gam_2_test <- gam(formula(gam_2_train),data=test)
-gam_3_test <- gam(formula(gam_3_train),data=test)
-gam_4_test <- gam(formula(gam_4_train),data=test)
-
-predict_gam_0 <- predict(gam_0_test)
-predict_gam_1 <- predict(gam_1_test)
-predict_gam_2 <- predict(gam_2_test)
-predict_gam_3 <- predict(gam_3_test)
-predict_gam_4 <- predict(gam_4_test)
-
-# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_gam_0 <- sqrt(mean((exp(control_log) - exp(predict_gam_0))^2))
-RMSE_gam_1 <- sqrt(mean((exp(control_log) - exp(predict_gam_1))^2))
-RMSE_gam_2 <- sqrt(mean((exp(control_log) - exp(predict_gam_2))^2))
-RMSE_gam_3 <- sqrt(mean((exp(control_log) - exp(predict_gam_3))^2))
-RMSE_gam_4 <- sqrt(mean((exp(control_log) - exp(predict_gam_4))^2))
-
-print(paste("RMSE of gam_01(simple linear model):",round(RMSE_gam_0,1)))
-print(paste("RMSE of gam_02(s(temperature)):",round(RMSE_gam_1,1)))
-print(paste("RMSE of gam_02(s(humidity)):",round(RMSE_gam_2,1)))
-print(paste("RMSE of gam_02(s(wind)):",round(RMSE_gam_3,1)))
-print(paste("RMSE of gam_02(s(on all variables)):",round(RMSE_gam_4,1)))
-```
-- from the output above we can conclude that for all variables we get an improvement of the RMSE value when applying smoothing splines on it. Therefore we conclude that the relationship between predictors and response variable is not linear.
-
-- for the gam_01 model we get the same result as for the lm.fit.1 model since it is nothing else than a simple linear model without any non linear functions in the gam() function.
-
-## Add categorical variables to GAM Model gam_04
-```{r}
-gam_5_train <- update(gam_4_train,. ~ . + weathersit + hr + season + mnth + weekday + yr  ,data=train)
-summary(gam_5_train)
-```
-- From the output above we can again conclude that there is strong evidence that the 3 continuous weather predictors have a non-linear effect according to the edf and p-values.
-
-```{r}
-gam_5_test <- gam(formula(gam_5_train),data=test)
-predict_gam_5 <- predict(gam_5_test)
-# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
-RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
-print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
-```
-- We get a RSME of 90.4. Comparing to the lm.fit.3 with a RSME 97.4 we have an improvement of roughly 7.5 %.
-
-- Below for the plots with the smoothing splines for each variable with and without the residuals.
-
-## Summary
-
-- It can be stated that using a GAA model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
-```{r}
-par(mfrow=c(1,3))
-plot(gam_5_test,se=TRUE,col="blue")
-```
-
-```{r}
-par(mfrow=c(1,3))
-plot(gam_5_test,residuals =TRUE,cex=2,col="blue")
-```
-
-
-
-
-
-
-# GLM Binomial and Poisson 
-
-## Reading in the daily data as "day" and the hourly data as "hour" 
-
 ```{r, echo=FALSE}
-day_0 <- read.csv("../Data/day.csv")
-# head(day_0)
-```
-
-
-```{r, echo=FALSE}
-hour_0 <- read.csv("../Data/hour.csv")
-# head(hour_0)
-```
-
-For this model we are also going to drop the data from the 27th and 28th of August 2011, for the reasons shown in the last chapter.
-
-```{r}
-day <- day_0[!(day_0$dteday=="2011-08-27" | day_0$dteday=="2011-08-28"),]
-hour <- hour_0[!(hour_0$dteday=="2011-08-27" | hour_0$dteday=="2011-08-28"),]
-```
-
-## Plotting and inspecting the data
-
-First we have a look at how the different variables are corresponding with number of bicycles, that are being used daily: 
-```{r, echo=FALSE}
-pairs.daily <- pairs(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = day, upper.panel = panel.smooth)
-```
-And with the number of bicycles, that are being used hourly:
-```{r, echo=FALSE}
-pairs.hour <- pairs(cnt ~ season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered, data = hour, upper.panel = panel.smooth)
-```
-
-
-What we can see here, is that it looks like there is an uptake in bicycle usage when the temperature is rising (up to a certain point). When it gets too hot, the demand seems to lower again. This also corresponds in the usage during the different seasons, with the least demand in winter.
-
-The variable for casual or registered users is less of importance here, as it does not necessarily help with the prediction of the bike demand. Especially as we don't see drastically different behaviour regarding usage. Just from the graph above one could assume, that it is slightly more likely that registered users use the bikes also in more extreme weather situations (hot, cold, windy, etc.). Furthermore, we will not use the type of users (registered or casual) as predictors, as they make up our main response variable (count) and therefore would lead to highly fitting models but with no value for prediction.
-
-So let's have another look at the following variables:
-- season
-- mnth
-- hour
-- weathersit
-- temp
-- atemp
-- hum
-- windspeed
-
-```{r, echo=FALSE}
-pairs.hour.new <- pairs(cnt ~ season + mnth + hr+ weathersit + temp + atemp + hum + windspeed, data = hour, upper.panel = panel.smooth)
-```
-
-
-```{r, echo=FALSE}
-
-ggplot(day,aes(x=(season= as.character(season)), y=cnt, fill=season)) + 
-  geom_boxplot()+labs(x="Seasons", y="Number of Bikes Used per Day")
-
-```
-Here we can see that spring (season 1) is the least popular season for bike usage. This seems a little contraintuitiv as one would assume it would be winter. So we have a closer look at the usage per month.
-
-```{r, echo=FALSE}
-ggplot(day,aes(x=(mnth= month.abb[mnth]), y=cnt, fill=season)) + 
-  geom_boxplot()+labs(x="Months", y="Number of Bikes Used per Day") + scale_x_discrete(limits = month.abb)
-
-```
-It looks like late winter/early spring is the least popular time for bike rentals. Let's check, if it might have something to do with the weather.
-
-```{r, echo=FALSE}
-# First we are having a look at the temperature per month to get a better picture of the situation
-ggplot(day,aes(x=(mnth= month.abb[mnth]), y=temp, fill=season)) + 
-  geom_boxplot()+labs(x="Months", y="Temperature") + scale_x_discrete(limits = month.abb)
-
-```
-The temperature shows a similar, although not identical, pattern as the bike usage, with the lowest temperatures being in late winter/early spring.
-
-```{r pressure, echo=FALSE}
-# Having a look at the wind speed per month
-ggplot(day,aes(x=(mnth= month.abb[mnth]), y=windspeed, fill=season)) + 
-  geom_boxplot()+labs(x="Months", y="Wind Speed") + scale_x_discrete(limits = month.abb)
-```
-For the wind speed we cannot say the same. 
-
-```{r, echo=FALSE}
-# Having a look at the temperature per month
-ggplot(day,aes(x=(mnth= month.abb[mnth]), y=hum, fill=season)) + 
-  geom_boxplot()+labs(x="Months", y="Humidity") + scale_x_discrete(limits = month.abb)
-```
-Neither for the humidity. The pattern looks completely different.
-
-According to those visualizations one would assume, that the temperature is the main predicting factor of those three.
-
-
-## Creating training and testing sets
-
-First we divide the data into a training and a testing set. We use 80% of the data to train the model and 20% to test it. Furthermore we divide the testing set into one we use for the prediction and one to check those predictions.
-
-```{r, echo=TRUE}
-set.seed(123)
-indices.day <- createDataPartition(day$cnt, p = .8, list = F) 
-day.train <- day %>% slice(indices.day) 
-day.test_in <- day %>% slice(-indices.day) %>% select(-cnt) # contains everything except the count values
-day.test_truth <- day %>% slice(-indices.day) %>% pull(cnt)  # contains the TRUE count values of the testing set
-
-
-set.seed(123)
-indices.hour <- createDataPartition(hour$cnt, p = .8, list = F) 
-hour.train <- hour %>% slice(indices.hour) 
-hour.test_in <- hour %>% slice(-indices.hour) %>% select(-cnt) 
-hour.test_truth <- hour %>% slice(-indices.hour) %>% pull(cnt)
-
-```
-
-
-
-## Creating a binomial model
-
-First we have a look at a simple quasibinomial model, with the assumption that there are no interactions and all effects are linear. As we only have two binary variables, we are only going to check those two here. We use ilogit() as we need the count numbers as a value between 0 and 1.
-
-
-```{r, echo=TRUE}
-glm.binomial.hour.1 <- glm(ilogit(cnt) ~ season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed, data = hour, family = "quasibinomial")
-summary(glm.binomial.hour.1)
-```
-
-
-We decided to take out the holidays, as there are only very few anyways, the assumed temperature (atemp) as it is very close to the temperature (temp) and also dependent on the temperature, humidity and wind speed. We also took out the year. Instead we added interaction for the weather situation and the three weather variables temperature, wind speed and humidity.
-```{r, echo=FALSE}
-glm.binomial.hour.2 <- glm(ilogit(cnt) ~ season + mnth + hr + weekday + workingday + weathersit + temp + hum + windspeed + weathersit:temp + weathersit:windspeed + weathersit:hum, data = hour, family = "quasibinomial")
-
-summary(glm.binomial.hour.2)
-```
-It looks like the weather situation does not have a significant impact and neither does wind speed or the interaction of the weather situation and the wind speed. All the other predictors show a significance.
-So we have a another look at it without the weather situation and wind speed.
-
-```{r, echo=FALSE}
-glm.binomial.hour.3 <- glm(ilogit(cnt) ~ season + mnth + hr + weekday + workingday + temp + hum + weathersit:temp + weathersit:hum, data = hour, family = "quasibinomial")
-
-summary(glm.binomial.hour.3)
-```
-
-
-### Fitting the binomial model with "train" data 
-
-For the binomial model we use the quasibinomial family, as the data is overdispersed and we do not use a binary, but a binomial response variable.
-```{r, echo=TRUE}
-glm.binomial.1 <- glm(ilogit(cnt) ~ season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family="quasibinomial")
-
-glm.binomial.train.1 <- glm(formula = formula(glm.binomial.1), data = hour.train)
-```
-
-Making a prediction based on the test data: 
-```{r, echo=TRUE}
-predicted.binomial.test.1 <- predict(glm.binomial.train.1, newdata = hour.test_in)
-```
-And have a look at the quantiles:
-```{r, echo=FALSE}
-summary(predicted.binomial.test.1)
-```
-
-
-Checking root mean square error (RMSE)
-```{r, echo=TRUE}
-# As we used ilogit() for the count data of the model, we need to apply it to the control data as well
-rmse(ilogit(hour.test_truth), predicted.binomial.test.1)
-```
-It looks like there are missing values (probably through applying the ilogit() function) and therefore the RMSE could not be calculated. Furthermore the ilogit() function will lead to a different result with different values and therefore cannot produce a useful result here.
-
-So let us just have look at a visualisation of our predicted values.
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(hour.test_in$dteday),predicted.binomial.test.1, type="l",col="firebrick3",  xlab = " ", ylab ="ilogit of Number of Bikes used")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction"),col=c("firebrick3"), pch=c(1, 2), lty=c(1,2))
-```
-
-The plot of the model prediction looks like it could work, but checking it with the true data is proving difficult.
-So we try a new approach.
-
-To fit a binomial model we will try to predict the proportion of registered users versus casual users.
-For this we use the percentage of registered users out of the total number of users as the response variable.
-```{r, echo=FALSE}
-glm.binomial.2 <- glm((registered/cnt) ~ season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family="quasibinomial")
-
-glm.binomial.train.2 <- glm(formula = formula(glm.binomial.2), data = hour.train)
-```
-
-
-```{r, echo=FALSE}
-summary(glm.binomial.2)
-```
-The following predictors seems to show significance:
-- Season
-- Year
-- Hour
-- Weekday
-- Workingday
-- Temperature
-- Humidity
-
-We did not check for interactions as we already saw that there are interactions between the weather situation and the weather variables.
-
-Making a prediction based on the test data and looking at the quantiles.
-```{r, echo=FALSE}
-predicted.binomial.test.2 <- predict(glm.binomial.train.2, newdata = hour.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.binomial.test.2)
-```
-
-Visualisation of the second binomial model:
-```{r, echo=TRUE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(hour.test_in$dteday),predicted.binomial.test.2,type="l",col="firebrick3",  xlab = " ", ylab ="Share of Registered Users")
-lines(as.Date(hour.test_in$dteday),(hour.test_in$registered/hour.test_truth),type="p",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-As the hourly data varies a lot, it is difficult to see if the model matches or not.
-
-Checking root mean square error (RMSE)
-```{r, echo=FALSE}
-# It is important to calculate the percentage for the true numbers as well
-rmse((hour.test_in$registered/hour.test_truth), predicted.binomial.test.2)
-```
-With a FMSE of about 11 percentage points, the model does not look too bad.
-
-But let's try to fit the model with daily data to bring down the variance.
-```{r, echo=FALSE}
-glm.binomial.3 <- glm((registered/cnt) ~ season + yr + mnth + holiday + weekday + workingday +  weathersit+ temp + hum + windspeed, data=day, family="quasibinomial")
-
-glm.binomial.train.3 <- glm(formula = formula(glm.binomial.3), data = day.train)
-```
-
-```{r, echo=FALSE}
-summary(glm.binomial.3)
-```
-
-Making a prediction based on the test data:
-```{r, echo=FALSE}
-predicted.binomial.test.3 <- predict(glm.binomial.train.3, newdata = day.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.binomial.test.3)
-```
-
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(day.test_in$dteday),predicted.binomial.test.3,type="l",col="firebrick3",  xlab = " ", ylab ="Share of Registered Users")
-lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-Here we see our prediction in red and the true values in blue.
-
-Checking root mean square error (RMSE)
-```{r, echo=FALSE}
-rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.3)
-```
-We see that our model fitted on daily data became more accurate. With a RMSE of roughly 6 percentage points this seems like a pretty good fit, regarding the ratio depends on human decision (being registered or casual and using a bike or not).
-
-
-Now we try the model with only the significant predictors from above (summary(glm.binomial.3)). Additionally we drop the wind speed, as this is usually less available data than temperature.
-```{r, echo=FALSE}
-glm.binomial.4 <- glm((registered/cnt) ~ season + workingday + weathersit + temp, data=day, family="quasibinomial")
-
-glm.binomial.train.4 <- glm(formula = formula(glm.binomial.4), data = day.train)
-```
-
-```{r, echo=FALSE}
-summary(glm.binomial.4)
-```
-
-Making a prediction based on the test data:
-```{r, echo=FALSE}
-predicted.binomial.test.4 <- predict(glm.binomial.train.4, newdata = day.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.binomial.test.4)
-```
-
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(day.test_in$dteday),predicted.binomial.test.4,type="l",col="firebrick3",  xlab = " ", ylab ="Ratio of Registered/Total Users")
-lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-Here we see our predictions in red and the true data in blue.
-
-Checking root mean square error (RMSE)
-```{r, echo=FALSE}
-rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.4)
-```
-This seems to have made the model slightly less accurate (RMSE of 0.06183254 compared to 0.0612635 from before). But the difference seems to be minimal and relies on data which is broader available. Together with the result from the summary above (summary(glm.binomial.4)) the hypothesis could be made, that registered users make up a bigger part of the total count of users, when the temperature is colder and on working days compared to warmer temperatures and non-working days. Or that casual users, in comparison to registered users, predominantly use the bike service on warmer days and during their spare time.
-
-Let's have a look at the temperature and working day variable, which we assume has shown the greatest significance (see summary(glm.binomial.4))
-```{r, echo=TRUE}
-exp(coef(glm.binomial.4)["temp"])
-```
-A change in one temperature unit (as it is normalised in this data frame) leads to a change of roughly the factor of 0.165.
-
-```{r, echo=TRUE}
-exp(coef(glm.binomial.4)["workingday"])
-```
-
-On working days we see the percentage of users being registered 3.08 times higher then on non-working days.
-
-
-To make sure we are not missing anything, we will also fit a model to the date variables to compare. We still will keep in the working day variable, as this is not a weather variable but still was included in the former model.
-
-```{r, echo=FALSE}
-glm.binomial.5 <- glm((registered/cnt) ~ yr + mnth + holiday + weekday + workingday, data=day, family="quasibinomial")
-
-glm.binomial.train.5 <- glm(formula = formula(glm.binomial.5), data = day.train)
-```
-
-```{r, echo=FALSE}
-summary(glm.binomial.5)
-```
-Here we already see, that the working day is assumed as the only highly significant predictor in this model with year and month only showing some significance.
-
-Making a prediction based on the test data and looking at the quantiles:
-```{r, echo=FALSE}
-predicted.binomial.test.5 <- predict(glm.binomial.train.5, newdata = day.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.binomial.test.5)
-```
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(day.test_in$dteday),(predicted.binomial.test.5),type="l",col="firebrick3",  xlab = " ", ylab ="Ratio of Registered/Total Users")
-lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-In this visualisation we can already see that the the model has a worse fit.
-
-
-Checking root mean square error (RMSE)
-```{r, echo=FALSE}
-rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.5)
-```
-Surprisingly, the RMSE is not that much higher than from our predicted.binomial.test.4.
-
-### Conclusion: GLM Binomial
-
-We would clearly prefer the third or fourth model here. With the fourth model being a little less accurate, but also needing less predictors, which might make the handling easier.
-
-
-## Creating a Poisson Model
-
-We are using the family quasipoisson because of the overdispersion.
-
-```{r, echo=FALSE}
-glm.pois.hour <- glm(cnt ~ season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed, data = hour,
-family = "quasipoisson")
-
-summary(glm.pois.hour)
-```
-
-Here it looks like quite some factors seem to be significant for the number of bikes used.
-With the temperature and the assumed temperature being very similar, we drop the assumed temperature from the model, with the measured temperature being more tangible. we also drop the weather situation as we still keep all the other weather variables. Furthermore, we drop the dates.
-
-
-```{r, echo=FALSE}
-glm.pois2.hour <- glm(cnt ~ season + yr + mnth + hr+ holiday + weekday + workingday + temp + hum + windspeed, data = hour, family = "quasipoisson")
-
-summary(glm.pois2.hour)
-
-```
-Now let's look at it one more time, without the season (to concentrate on the months) and without the working day variable.
-
-```{r, echo=FALSE}
-glm.pois3.hour <- glm(cnt ~ yr+ mnth + hr + holiday + weekday +  temp + hum + windspeed, data = hour.train, family = "quasipoisson")
-
-summary(glm.pois3.hour)
-
-```
-
-### Fitting the poisson model with "train" data 
-
-We start with using all the variables except for the dates.
-```{r, echo=FALSE}
-glm.poisson.1 <- glm(cnt ~ season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family=quasipoisson)
-
-glm.poisson.train.1 <- glm(formula = formula(glm.poisson.1), data = hour.train)
-```
-
-Making a prediction based on the test data:
-```{r, echo=FALSE}
-predicted.poisson.test.1 <- predict(glm.poisson.train.1, newdata = hour.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.poisson.test.1)
-```
-Note: Although we see a minimum of -132.7 here, in reality the number cannot go beneath 0.
-
-Checking the root mean square error
-```{r, echo=FALSE}
-rmse(hour.test_truth, predicted.poisson.test.1)
-```
-Having a root mean square error (RMSE) of 139 when we have a median of 185.5 does definitely not sound very good. But we have to keep in mind, that it is based on hourly data. Let's have a look at a visualization of our prediction and the true data.
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(hour.test_in$dteday),predicted.poisson.test.1,type="l",col="firebrick3",  xlab = "  ", ylab ="Number of Bikes used")
-lines(as.Date(hour.test_in$dteday),hour.test_truth,type="p",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-Here we see our predictions as a red line and the actual numbers in blue dots. 
-As hourly numbers vary strongly, we get quite some variance. 
-Now we want to see if this model would fit better on a daily basis.
-
-```{r, echo=FALSE}
-glm.poisson.2 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=day, family=quasipoisson)
-
-glm.poisson.train.2 <- glm(formula = formula(glm.poisson.2), data = day.train)
-```
-
-Making prediction on the test data 
-```{r, echo=FALSE}
-predicted.poisson.test.2 <- predict(glm.poisson.train.2, newdata = day.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.poisson.test.2)
-```
-
-Checking RMSE
-```{r, echo=FALSE}
-rmse(day.test_truth, predicted.poisson.test.2)
-```
-Here we have a RMSE of 809, which is higher than above in total. But as we are looking at daily data here, with a median of 4655.9 and numbers up to above 8000, this seems to be a better fit.
-
-
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(day.test_in$dteday),predicted.poisson.test.2,type="l",col="firebrick3", xlab = "  ", ylab ="Number of Bikes used") 
-lines(as.Date(day.test_in$dteday),day.test_truth,type="l",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-When looking at the predictions (red) in comparison to the true data (blue), this model does look usable if one wants to plan when to take bikes out of circulation for maintenance or repairs.
-
-To see, if a variable is not needed, the model was tested by dropping only one of the predictors for each run through (with daily and hourly data). But the best result was achieved by using all the predictors (except for the type of users, for the reasons mentioned at the beginning of this chapter as well as the specific dates).
-
-For practical purposes we have a look at a model with less weather data:
-```{r, echo=FALSE}
-glm.poisson.3 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp, data=day, family=quasipoisson)
-glm.poisson.train.3 <- glm(formula = formula(glm.poisson.3), data = day.train)
-summary(glm.poisson.3)
-```
-
-Making prediction on the test data 
-```{r, echo=TRUE}
-predicted.poisson.test.3 <- predict(glm.poisson.train.3, newdata = day.test_in)
-```
-
-```{r, echo=FALSE}
-summary(predicted.poisson.test.3)
-```
-
-Checking RMSE
-```{r, echo=FALSE}
-rmse(day.test_truth, predicted.poisson.test.3)
-```
-Here we have a RMSE of 826, which is higher than it was for the second model. But as we need less variables and the weather situation and temperature seem to be the overall most important weather variables here, while being the most readily available ones, this model might be more practical.
-
-
-```{r, echo=FALSE}
-par(oma=c(0, 0, 0, 5))
-plot(as.Date(day.test_in$dteday),predicted.poisson.test.3,type="l",col="firebrick3", xlab = "  ", ylab ="Number of Bikes used") 
-lines(as.Date(day.test_in$dteday),day.test_truth,type="l",col="deepskyblue2")
-legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
-       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
-```
-
-### Conclusion: GLM Poisson 
-While the second poisson model is more accurate, for practical reasons the third one might be more useful in this case, as it is still accurate enough so it would help with bike maintenance planning.
-
-
-
-# Support Vector Machine
-## Load the data
-```{r}
-dt <- fread("../Data/hour.csv")
-```
-
-## Prepare the data
-
-The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position. 
-As already mentioned in section before, the data at the 27 and 28 August is not complete and wrong. Therefore, we will drop it for the SVM as well.
-```{r}
 #drop the data for the 27 and 28 August 2011
 
 dt <- subset(dt, dt$dteday != '2011-08-27')
@@ -1041,8 +145,7 @@ dt <- dt %>% select(cnt, everything())
 
 ```
 
-## Factor ordinal variables 
-```{r}
+```{r, echo=FALSE}
 # Season
 dt$season <- factor(
   dt$season, levels = c(1,2,3,4),
@@ -1093,20 +196,103 @@ dt$weathersit <- factor(
 #dt %>% glimpse()
 ```
 
-## Plot data
-### Rentals by Season and Temperature
-```{r}
-colr = c("olivedrab3", 'yellow', 'orange', 'grey50')
-# Rentals by Season & Temperature
-options(repr.plot.width=12, repr.plot.height=8)
-ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
-  theme_bw(base_size = 20) + scale_color_manual(values = colr) +
-  labs(title = "Rentals by Season & Temperature", x = "Temperature Celsius", y = "Total Rentals") +
-  scale_y_continuous(labels = scales::label_comma())
+We consider the response variables as an amount altough we are a bit unsure here. However the results in the next chapter shows that using the log function improves the linear regression model quite a bit.
+
+In all 4 scatter plots above the linear model lines (green) as well as the gam model lines (red) are plotted. For both temperature variables the rentals seems to increase until the temperature reaches a certain value.At the beginning of the observations (low temp.) ans well as the end (high temp.) the linear model seems to overestimate the number of rentals.
+For the normalized humidity there is a decrease in rentals with increasing humidity. The is not the case between 0 and 25 % humidity where the linear model overestimates the number of rentals. We assume that in very cold and very hot weather the humidity is rather low and so the number of bike rentals because of the influence of temperature.
+In conclusion of the above exploration, it can be stated that the behavior cannot be completely represented with a linear model. There are nonlinear aspects which should be considered in the prediction models.
+In the next chapter we would like to examine the categorical variables which are available in the dataset.
+
+### Exploration of Categorical Variables
+
+The data set contains 4 different weather categories which are described as follows:
+
+- Category 1:         Clear, Few clouds, Partly cloudy, Partly cloudy
+- Category 2:         Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist
+- Category 3:         Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds 
+- Category 4:         Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog 
+
+Since we are considering the response variables count data we log transform the variable with the natural logarithm in all of the following plots.
+
+```{r,echo=FALSE}
+
+ggplot(data = df, mapping = aes(y = log(cnt),
+                     x = factor(weathersit),fill= weathersit)) + ylab("Num. of Bike Rentals") + xlab("Weather Conditions") +  labs(fill="Weather\nConditions") +
+geom_boxplot() 
 
 
 ```
-Interestingly, in this plot, the number of total rentals for spring is lower then for winter. But also the temperature when the rentals happen has more variablity than during the spring. The Temperature Celsius is normalized, therefore it ranges between 0 and 1.
+
+The boxplot above indicates, that in situation 1 and 2 the most bikes are rented whereas there is seems to be a drop visible  for condition 3 and the drop is even more significant for situation 4 where severe weather conditions are present.This rental behavior is as we have expected since few people ride bicycles in bad weather situations.
+In the next chapter we are inspecting the seasonal and timely influence upon the rental situation.
+
+## Influnece of Timely and Seasonal aspects upon Bike Rentals
+
+### Exploration of Categorical Variables
+
+#### Seasonal Influence 
+In order to investigate the seasonal influences, the monthly (1 to 12) and seasonal data are included in the dataset as shown below::
+
+- Category 1:      Spring
+- Category 2:      Summer
+- Category 3:      Fall
+- Category 4:      Winter
+
+```{r,echo=FALSE}
+
+p1 <- ggplot(data = df,  mapping = aes(y = log(cnt),
+                     x = factor(season),fill= season)) + ylab("Num. of Bike Rentals") + xlab("Season") +  labs(fill="Season") +
+geom_boxplot() 
+
+
+p2 <- ggplot(data = df,
+       mapping = aes(y = log(cnt),
+                     x = factor(mnth),fill= mnth)) + ylab("Num. of Bike Rentals") + xlab("Month") +  labs(fill="Monthn") +
+geom_boxplot()
+grid.arrange(p1,p2, nrow=2,top = "Seasonal Aspects vs. Number of Bike Rentals")
+
+fig.align = 'center'
+```
+
+The two boxplot above indicate, that the mos bike rentals take place in summer and fall which we have expected.
+
+#### Timely Influence 
+
+In order to examine the temporal influences we have the time specification in hours (1 to 24), the weekdays (0 = Monday to 6 = Sunday), working day (1 = yes, 0 = no) as well as vacation day (1 = yes , 0 = no).
+
+
+```{r,echo=FALSE}
+
+p1 <- ggplot(data = df,
+       mapping = aes(y = log(cnt),
+                     x = factor(hr),fill= hr)) + ylab("Num. of Bike Rentals [log]") + xlab("Hour") +  labs(fill="Hour") +
+geom_boxplot() 
+
+p2 <- ggplot(data = df,
+       mapping = aes(y = log(cnt),
+                     x = factor(weekday),fill= weekday)) + ylab("Num. of Bike Rentals [log]") + xlab("Weekday") +  labs(fill="Day") +
+geom_boxplot()
+
+p3 <- ggplot(data = df,
+       mapping = aes(y = log(cnt),
+                     x = factor(workingday),fill= workingday)) + ylab("Num. of Bike Rentals [log]") + xlab("Workingday") +  labs(fill="Day") +
+geom_boxplot() 
+
+p4 <- ggplot(data = df,
+       mapping = aes(y = log(cnt),
+                     x = factor(holiday),fill= holiday)) + ylab("Num. of Bike Rentals [log]") + xlab("Holidays") +  labs(fill="Day") +
+geom_boxplot() 
+
+grid.arrange(p1,p2,p3,p4, nrow=2,top = "Timely Aspects vs. Number of Bike Rentals")
+
+```
+
+The above plots indicate, that the hour in which the bike is rented has the most influence of total rentals which seems obvious. On the other hand, whether there is a working day or not, seems not to have a significant influence.
+
+## Prepare the data
+
+The columns detday and instant are of no use. detday is represented in the variables yr, mnth, hr. Instant is only the record index. Therefore they are removed. the target variable "cnt" is moved to the first position. 
+As already mentioned in section before, the data at the 27 and 28 August is not complete and wrong. Therefore, we will drop it for the SVM as well.
 
 ### Rentals by Season, Temperature and Year
 ```{r}
@@ -1119,17 +305,6 @@ ggplot(dt, aes(temp, cnt, color = season)) + geom_point() +
 ```
 It looks like there is an increasing trend between the total rentals from 2011 to 2012. We do not know if this trend continues.
 
-
-### Rental and Temperature by Seasion
-```{r}
-
-ggplot(dt, aes(temp, cnt, color = season)) +
-  geom_jitter(width = 0.25) + scale_color_manual(values = colr) +
-  labs(y="Count of Rentals", title = "Rentals & Temperature by Season") +
-  facet_grid(~season) + theme_bw(base_size = 18)
-```
-Spring has clearly the lowest number of total rentals.
-
 ### Rentals and Temperature by Weather
 ```{r}
 w = c('skyblue1','skyblue2','skyblue3','skyblue4','grey40')
@@ -1140,8 +315,834 @@ ggplot(dt, aes(temp, cnt, color = weathersit)) +
   facet_grid(~weathersit) + theme_bw(base_size = 18)
 ```
 When looking at different weather condition, from the best weather on the left to the worst weather on the right. The most rentals clearly happen when the weather is good. During the worst weather, almost no rentals happen. The weather seems to play a bigger role then the temperature.
+In the next chapter we try to find a linear model which suits best the dateset.
+
+# Linear Regression Model
+
+## Data Preperation for the Linear Model
+
+### Set Categorical Variables as Factors
+
+```{r}
+df$season <- factor(df$season, levels = c("1", "2", "3", "4"), ordered = FALSE)
+df$yr <- as.factor(df$yr)
+df$mnth <- as.factor(df$mnth)
+df$hr <- as.factor(df$hr)
+df$holiday <- as.factor(df$holiday)
+df$weekday <- as.factor(df$weekday)
+df$workingday <- as.factor(df$workingday)
+df$weathersit <- as.factor(df$weathersit)
+```
+
+### Re-Transform the Continious Weather Variables
+
+As described in the data exploration chapter, the continuous weather variables have been normalized in the existing dataset. In order to make interpretation of the coefficients more straight forward in the linear model the variables will be re-transformed to the actual values as follows. For more advanced models the normalized variables may be the better choice to fit a model.
+```{r}
+df$temperature <- (df$temp * (39 + 8)) - 8
+df$atemperature <- (df$atemp * (39 + 8)) - 8
+df$humidity <- (df$hum * 100)
+df$wind <- (df$windspeed * 67)
+```
+
+### Split data into train and test dataset
+
+In the following the dataset will be split into a train and a test dataset. The partition will be used to evaluate the accuracy of the model when used on the test data.
+```{r}
+set.seed(123)
+indices <- createDataPartition(df$cnt, p=.8, list = F)
+train <- df %>% slice(indices)
+test <- df %>% slice(-indices)
+```
+
+## Multiple Linear Regression Model with Continious Weather Predictors
+First of all we want to include only the continuous variables in the model. As stated in the previous chapter we consider the response variable as amount data and therefore take the log of it to build the model. Indeed, if we take the log we get much better for all basic linear regression fits.
+```{r}
+lm.fit.0.train <- lm(log(cnt) ~ temperature + atemperature + humidity + wind,data=train)
+summary(lm.fit.0.train)
+```
+
+### Simplification of Model lm.fit.0.train
+
+There is evidence that the predictor temperature has no significant influence since the p-value is large with 0.7. However the feels like temperature (atemperature) is a result of the combination of the temperature, the humidity and the wind at a given time. Moreover, the prediction of future bike rental will depend from the weather forecast. In the forecast the feels like temperature is not always available. Therefore we try to fit the model without atemperature to simplify it and make it more practical for future usage.
+
+```{r}
+lm.fit.1.train <- lm(log(cnt) ~ temperature + humidity + wind,data=train)
+summary(lm.fit.1.train)
+```
+
+Interpretation of Regression Coefficients:
+- As we can see from the output above the predictor temperature and wind have both a positive influence upon the number of bike rentals. A increase of one unit (temperature) leads to a increase of 5.9 % rentals and 0.6 % when the wind is increased by one unit. The humidity on the other hand has a negative influence. If the humidity is increased by one unit the number of rentals decreases by 2.3 %.
+
+
+### Accessing the model accuracy
+We evaluate the accuracy of both models by testing them with the test data partition. The R-squared will serve as an indication of the accuracy as well as the RSME values.
+
+#### Compare R-squared Values
+```{r, echo=FALSE}
+# Fit a linear model without the predictor atempereature and accessing both
+# prediction performances with the test data and comparison of the
+# R-squared value.
+
+lm.fit.0.test = lm(formula(lm.fit.0.train),data=test)
+lm.fit.1.test = lm(formula(lm.fit.1.train),data=test)
+
+R2_0 <- summary(lm.fit.0.test)$r.squared
+R2_1 <- summary(lm.fit.1.test)$r.squared
+
+print(paste("R-squared of lm.fit.0:",round(R2_0,3)))
+print(paste("R-squared of lm.fit.1:",round(R2_1,3)))
+```
+- Both R-squared values are almost identical when applying the model on the test data. Therefore, the predictor atemperature shall be neglected for the linear model in the further model building.
+
+#### Compare RMSE Values
+```{r, echo=FALSE}
+control <- test$cnt
+control_log <- log(control)
+predict_0 <- predict(lm.fit.0.test)
+predict_1 <- predict(lm.fit.1.test)
+
+# take inverse of natural log to obtain RMSE with actual unit
+# (number of bike rentals)
+RMSE_0 <- sqrt(mean((exp(control_log) - exp(predict_0))^2))
+RMSE_1 <- sqrt(mean((exp(control_log) - exp(predict_1))^2))
+
+# calculate percentage error
+percent_error_0 <- (RMSE_0/mean(control))*100
+percent_error_1 <- (RMSE_1/mean(control))*100
+
+print(paste("RMSE of lm.fit.0:",round(RMSE_0,1)))
+print(paste("Percentage error of lm.fit.1:",round(percent_error_0,1),"%"))
+print(paste("RMSE of lm.fit.0:",round(RMSE_1,1)))
+print(paste("Percentage error of lm.fit.1:",round(percent_error_1,1),"%"))
+```
+- The RMSE values for both models are roughly 170 units as we can see from the output above. This corresponds to a percentage error of around 90 % of the predicted values if it is compared with the mean of all bike rentals.
+
+## Multiple Linear Regression Model with Continious and Categorical Variables
+
+```{r}
+# Update the previous model lm.fit.1.train, including all the categorical variables.
+lm.fit.2.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + workingday + weekday + holiday + yr ,data=train)
+# formula(lm.fit.2.train)
+```
+
+### Simplification of Model lm.fit.2.train
+
+In the next step we try fo find again a more simple and more practical model without reducing the predicting accuracy of the model significantly. With the drop1 function we test influence of the categorical variables with a F test as follows.
+
+```{r}
+drop1(lm.fit.2.train, test = "F")
+```
+There is evidence that the variables workingday an holiday have no significant influence according the results of the F-test. We therefore neglect this variables in the model lm.fit.3.train. The graphical analysis in the last chapter supports this step, showing that there is no influence of these variables. We exclude these variables for the final model.
+```{r}
+lm.fit.3.train <- update(lm.fit.1.train,. ~ . + weathersit + hr + season + mnth + weekday + yr ,data=train)
+# formula(lm.fit.3.train)
+```
+### Accessing the model accuracy
+
+#### Compare R-Squared Values
+
+Again we compare the R-squared values of the 3 models.
+```{r, echo=FALSE}
+lm.fit.2.test = lm(formula(lm.fit.2.train),data=test)
+lm.fit.3.test = lm(formula(lm.fit.3.train),data=test)
+
+
+R2_2 <- summary(lm.fit.2.test)$r.squared
+R2_3 <- summary(lm.fit.3.test)$r.squared
+
+
+print(paste("R-squared of lm.fit.2:",round(R2_2,3)))
+print(paste("R-squared of lm.fit.3:",round(R2_3,3)))
+
+```
+- Form the previous model the the most simplified we can see only a marginal drop of the R-squared values. Therefore, it can be stated that the simplified model can be used without losing considerable information. 
+
+#### Compare RMSE Values
+```{r, echo=FALSE}
+predict_2 <- predict(lm.fit.2.test)
+predict_3 <- predict(lm.fit.3.test)
+
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_2 <- sqrt(mean((exp(control_log) - exp(predict_2))^2))
+RMSE_3 <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
+
+
+# Calculate percentage error (deviation to the mean of number of bike rentals)
+percent_error_2 <- (RMSE_2/mean(control))*100
+percent_error_3 <-(RMSE_3/mean(control))*100
+
+
+print(paste("RMSE of lm.fit.2:",round(RMSE_2,1)))
+print(paste("Percentage error of lm.fit.2:",round(percent_error_2,1),"%"))
+print(paste("RMSE of lm.fit.3:",round(RMSE_3,1)))
+print(paste("Percentage error of lm.fit.3:",round(percent_error_3,1),"%"))
+
+```
+- The RMSE values for both 3 models are between 97 t0 110 units as we can see from the output above. This corresponds to a percentage error of around 51 to 59 % of the predicted values if it is compared with the mean of all bike rentals.
+
+```{r, echo=FALSE}
+summary(lm.fit.3.test)
+```
+- Note from the output above, that the p-values for some month are not significant. More on that on in the next chapter.
+
+## Summary
+As summary we want to answer following 4 questions regarding the linear regression model and its interpretation.
+
+### Is there a relationship betweeen the independent variables and the response variable?
+
+As stated above there is evidence, that the weather as well as the timely and seasonal variables has influence of the number of bike rentals according to the P-values for the continuous variables as well as the outcome of the F-test for the categorical variables.
+
+### How strong is the relationship and how accurate is the model?
+
+The predictors used in the model lm.fit.4 explain about 80 % of the variance in cnt (number of bike rentals) according to the R-squared values. If we look at the RMSE value of the lm.fit.3 we achieve a value of 97.4 which corresponds to a percentage error of around 51.7 %.
+
+### How large is the effect of each predctor on cnt?
+
+To answer this question we will plot the confidence interval of all the predictors.
+
+```{r}
+ggcoef(lm.fit.3.train,vline_color = "red", vline_linetype =  "solid", errorbar_color = "blue", errorbar_height = .25)
+```
+We can see that for the predictor month all dummy variables are crossing the zero line, indicating that this variable is not statistically significant. Therefore we could have dropped this predictor as well even though the p-values where low in the model examination. The evaluate this assumption we update the model and compare the two R-squared values.
+
+```{r, echo=FALSE}
+lm.fit.4.train <- update(lm.fit.1.train,. ~ . + weathersit + hr+ season + weekday ,data=df)
+lm.fit.4.test = lm(formula(lm.fit.4.train),data=test)
+
+print(summary(lm.fit.3.test)$r.squared)
+print(summary(lm.fit.4.test)$r.squared)
+```
+In fact, the R-squared value decreases only marginally when the predictor month is not taken into account, even though the F-statistic has classified the predictor as significant.
+Finally, it can be concluded that the temperature as well as the current time have the greatest effect upon the number of bike rentals, since the confidence intervals are the furthest away from zero.
+
+### Are there Potential Problems of Fitting this data with a Linear Regression Model 
+
+With the plot function, we try to examine our model in more detail by means of residual analysis.To to that we build a model with the entire dataset.
+```{r}
+lm.fit.0.full = lm(formula(lm.fit.3.train),data=df)
+par(mfrow=c(2,2))
+plot(lm.fit.0.full)
+```
+
+- The residual vs fitted plot shows no clear pattern indicating that that relationship is linear. Also the smoother stays more or less on zero. In a clear non-linear situation this would have been the case.
+
+- The QQ-plot shows that the residuals seem not to follow a normal distribution. This circumstance could be a sign that the linear model is not quite suitable to form a predictive model. We assume that this is due to the distribution of bike rentals. These are not normally distributed and could be considered as amount data.
+
+- Checking the scale-location plot, it seems that the residuals are spread fairly randomly along the horizontal line. Although the variance seems to decrease on the right hand side of the plot we consider this as "normal".
+
+- In the residual vs leverage, one observation seems to lie outside of the cooks distance. It is the observation 5637 in the dataset. A closer look reveals an error in the dataset. On 27.08.2011 and 28.08.2011 the time seems to be incorrect and therefore the observation 5637 can be considered as an outlier. It would probably make sense to delete these two days from the dataset. We do this in the following step and form a new model.
+
+```{r}
+df2 <- df[!(df$dteday=="2011-08-27" | df$dteday=="2011-08-28"),]
+lm.fit.1.full = lm(formula(lm.fit.3.train),data=df2)
+plot(lm.fit.1.full, which = 5)
+summary(lm.fit.0.full)$r.squared
+summary(lm.fit.1.full)$r.squared
+```
+- As we can see, all observations are lying now within the cook distance and the R-value also increases marginally when taking out the faulty date entries in a updated dataset.
+
+In the next chapter we will use more advanced linear models to find a better fit for the data.
+
+# General Additive Model (GAM)
+
+In this chapter we would like to use the GAM model to address for possible non-linear relationships and improve the basic linear mode lm.fit.3.
+
+## Check if model with non-linear function ist better
+
+```{r}
+gam_0_train <- gam(log(cnt) ~ temperature + humidity + wind,data=train)
+gam_1_train <- gam(log(cnt) ~ s(temperature) + humidity + wind,data=train)
+gam_2_train <- gam(log(cnt) ~ temperature + s(humidity) + wind,data=train)
+gam_3_train <- gam(log(cnt) ~ temperature + humidity + s(wind),data=train)
+
+anova(gam_0_train,gam_1_train,gam_2_train,gam_3_train,test="F")
+```
+- There is strong evidence that for all models applying the smoothing splines for the 3 continuous weather predictors is needed to improve the model. Consequently we will use the model applying the smoothing splines on all 3 weather predictor.
+
+### Compare RMSE Values
+```{r, echo=FALSE}
+gam_4_train <- gam(log(cnt) ~ s(temperature) + s(humidity) + s(wind),data=train)
+
+gam_0_test <- gam(formula(gam_0_train),data=test)
+gam_1_test <- gam(formula(gam_1_train),data=test)
+gam_2_test <- gam(formula(gam_2_train),data=test)
+gam_3_test <- gam(formula(gam_3_train),data=test)
+gam_4_test <- gam(formula(gam_4_train),data=test)
+
+predict_gam_0 <- predict(gam_0_test)
+predict_gam_1 <- predict(gam_1_test)
+predict_gam_2 <- predict(gam_2_test)
+predict_gam_3 <- predict(gam_3_test)
+predict_gam_4 <- predict(gam_4_test)
+
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_gam_0 <- sqrt(mean((exp(control_log) - exp(predict_gam_0))^2))
+RMSE_gam_1 <- sqrt(mean((exp(control_log) - exp(predict_gam_1))^2))
+RMSE_gam_2 <- sqrt(mean((exp(control_log) - exp(predict_gam_2))^2))
+RMSE_gam_3 <- sqrt(mean((exp(control_log) - exp(predict_gam_3))^2))
+RMSE_gam_4 <- sqrt(mean((exp(control_log) - exp(predict_gam_4))^2))
+
+print(paste("RMSE of gam_01(simple linear model):",round(RMSE_gam_0,1)))
+print(paste("RMSE of gam_02(s(temperature)):",round(RMSE_gam_1,1)))
+print(paste("RMSE of gam_02(s(humidity)):",round(RMSE_gam_2,1)))
+print(paste("RMSE of gam_02(s(wind)):",round(RMSE_gam_3,1)))
+print(paste("RMSE of gam_02(s(on all variables)):",round(RMSE_gam_4,1)))
+```
+- from the output above we can conclude that for all variables we get an improvement of the RMSE value when applying smoothing splines on it. Therefore we conclude that the relationship between predictors and response variable is not linear.
+
+- for the gam_01 model we get the same result as for the lm.fit.1 model since it is nothing else than a simple linear model without any non linear functions in the gam() function.
+
+## Add categorical variables to GAM Model gam_04
+```{r, echo=FALSE}
+gam_5_train <- update(gam_4_train,. ~ . + weathersit + hr + season + mnth + weekday + yr  ,data=train)
+# summary(gam_5_train)
+```
+
+```{r, echo=FALSE}
+gam_5_test <- gam(formula(gam_5_train),data=test)
+predict_gam_5 <- predict(gam_5_test)
+# take inverse of natural log to calculate RMSE with actual unit (number of bike rentals)
+RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+print(paste("RMSE of gam_5:",round(RMSE_gam_5,1)))
+```
+- We get a RSME of 90.4. Comparing to the lm.fit.3 with a RSME 97.4 we have an improvement of roughly 7.5 %.
+
+- Below for the plots with the smoothing splines for each variable with and without the residuals.
+
+## Summary
+
+- It can be stated that using a GAA model with smoothing splines improves the model compared to a basic linear model. We have tried to add smoothing splines to the categorical variables but somehow we were not able to run this function. This could have improved the model even more.
+```{r, echo=FALSE}
+par(mfrow=c(1,3))
+plot(gam_5_test,se=TRUE,col="blue")
+```
+
+```{r, echo=FALSE, eval=FALSE}
+par(mfrow=c(1,3))
+plot(gam_5_test,residuals =TRUE,cex=2,col="blue")
+```
+
+
+
+
+
+
+# GLM Binomial and Poisson 
+
+Reading in the daily data as "day" and the hourly data as "hour" 
+
+```{r, echo=FALSE}
+day_0 <- read.csv("../Data/day.csv")
+# head(day_0)
+```
+
+```{r, echo=FALSE}
+hour_0 <- read.csv("../Data/hour.csv")
+# head(hour_0)
+```
+
+For this model we are also going to drop the data from the 27th and 28th of August 2011, for the reasons shown in the last chapter.
+
+```{r, echo=FALSE}
+day <- day_0[!(day_0$dteday=="2011-08-27" | day_0$dteday=="2011-08-28"),]
+hour <- hour_0[!(hour_0$dteday=="2011-08-27" | hour_0$dteday=="2011-08-28"),]
+```
+
+## Plotting and inspecting the data
+
+```{r, echo=FALSE, eval=FALSE}
+# First we have a look at how the different variables are corresponding with
+# number of bicycles, that are being used daily: 
+pairs.daily <- pairs(cnt ~ season + yr + mnth + holiday + weekday + workingday +
+                       weathersit + temp + atemp + hum + windspeed + casual + 
+                       registered, data = day, upper.panel = panel.smooth)
+```
+
+
+
+```{r, echo=FALSE, eval=FALSE}
+
+# Let's have a look at the number of bicycles, that are being used hourly:
+pairs.hour <- pairs(cnt ~ season + yr + mnth + hr+ holiday + weekday +
+                      workingday + weathersit + temp + atemp + hum + windspeed +
+                      casual + registered, data = hour,
+                    upper.panel = panel.smooth)
+```
+
+The variable for casual or registered users is less of importance here, as it does not necessarily help with the prediction of the bike demand. Especially as we don't see drastically different behaviour regarding usage. Just from the graph above one could assume, that it is slightly more likely that registered users use the bikes also in more extreme weather situations (hot, cold, windy, etc.). Furthermore, we will not use the type of users (registered or casual) as predictors, as they make up our main response variable (count) and therefore would lead to highly fitting models but with no value for prediction.
+
+So let's have another look at the following variables:
+- season
+- mnth
+- hour
+- weathersit
+- temp
+- atemp
+- hum
+- windspeed
+
+```{r, echo=FALSE}
+pairs.hour.new <- pairs(cnt ~ season + mnth + hr+ weathersit + temp + atemp +
+                          hum + windspeed, data = hour,
+                        upper.panel = panel.smooth)
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+
+# Here we can see that spring (season 1) is the least popular season for bike
+# usage. This seems a little contraintuitiv as one would assume it would be
+# winter. So we have a closer look at the usage per month.
+
+ggplot(day,aes(x=(season= as.character(season)), y=cnt, fill=season)) + 
+  geom_boxplot()+labs(x="Seasons", y="Number of Bikes Used per Day")
+
+```
+
+```{r, echo=FALSE, eval=FALSE}
+
+# It looks like late winter/early spring is the least popular time for bike
+# rentals. Let's check, if it might have something to do with the weather.
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=cnt)) + 
+  geom_boxplot()+labs(x="Months", y="Number of Bikes Used per Day") +
+  scale_x_discrete(limits = month.abb)
+
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+# First we are having a look at the temperature per month to get a better picture of the situation
+#The temperature shows a similar, although not identical, pattern as the bike usage, with the lowest temperatures being in late winter/early spring.
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=temp) + 
+  geom_boxplot()+labs(x="Months", y="Temperature") + scale_x_discrete(limits = month.abb)
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+# Having a look at the wind speed per month
+# For the wind speed we cannot say the same. 
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=windspeed, fill=season)) + 
+  geom_boxplot()+labs(x="Months", y="Wind Speed") + scale_x_discrete(limits = month.abb)
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+# Having a look at the temperature per month
+# Neither for the humidity. The pattern looks completely different.
+# According to those visualizations one would assume, that the temperature is the main predicting factor of those three.
+
+ggplot(day,aes(x=(mnth= month.abb[mnth]), y=hum, fill=season)) + 
+  geom_boxplot()+labs(x="Months", y="Humidity") + scale_x_discrete(limits = month.abb)
+```
+
+## Creating training and testing sets
+
+First we divide the data into a training and a testing set. We use 80% of the data to train the model and 20% to test it. Furthermore we divide the testing set into one we use for the prediction and one to check those predictions.
+
+```{r, echo=TRUE}
+set.seed(123)
+indices.day <- createDataPartition(day$cnt, p = .8, list = F) 
+day.train <- day %>% slice(indices.day) 
+day.test_in <- day %>% slice(-indices.day) %>% select(-cnt)
+# contains everything except the count values
+day.test_truth <- day %>% slice(-indices.day) %>% pull(cnt) 
+# contains the TRUE count values of the testing set
+
+
+set.seed(123)
+indices.hour <- createDataPartition(hour$cnt, p = .8, list = F) 
+hour.train <- hour %>% slice(indices.hour) 
+hour.test_in <- hour %>% slice(-indices.hour) %>% select(-cnt) 
+hour.test_truth <- hour %>% slice(-indices.hour) %>% pull(cnt)
+
+```
+
+## Creating a binomial model
+
+First we have a look at a simple quasibinomial model, with the assumption that there are no interactions and all effects are linear. As we only have two binary variables, we are only going to check those two here. We use ilogit() as we need the count numbers as a value between 0 and 1.
+
+
+```{r, echo=FALSE}
+glm.binomial.hour.1 <- glm(ilogit(cnt) ~ season + yr + mnth + hr+ holiday +
+                             weekday + workingday + weathersit + temp + atemp +
+                             hum + windspeed, data = hour,
+                           family = "quasibinomial")
+print(summary(glm.binomial.hour.1))
+```
+
+
+We decided to take out the holidays, as there are only very few anyways, the assumed temperature (atemp) as it is very close to the temperature (temp) and also dependent on the temperature, humidity and wind speed. We also took out the year. Instead we added interaction for the weather situation and the three weather variables temperature, wind speed and humidity.
+```{r, echo=FALSE, eval=FALSE}
+glm.binomial.hour.2 <- glm(ilogit(cnt) ~ season + mnth + hr + weekday + workingday + weathersit + temp + hum + windspeed + weathersit:temp + weathersit:windspeed + weathersit:hum, data = hour, family = "quasibinomial")
+
+summary(glm.binomial.hour.2)
+```
+It looks like the weather situation does not have a significant impact and neither does wind speed or the interaction of the weather situation and the wind speed. All the other predictors show a significance.
+So we have a another look at it without the weather situation and wind speed.
+
+```{r, echo=FALSE, eval=FALSE}
+glm.binomial.hour.3 <- glm(ilogit(cnt) ~ season + mnth + hr + weekday + workingday + temp + hum + weathersit:temp + weathersit:hum, data = hour, family = "quasibinomial")
+
+summary(glm.binomial.hour.3)
+```
+
+
+### Fitting the binomial model with "train" data 
+
+For the binomial model we use the quasibinomial family, as the data is overdispersed and we do not use a binary, but a binomial response variable.
+```{r, echo=FALSE}
+glm.binomial.1 <- glm(ilogit(cnt) ~ season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family="quasibinomial")
+
+glm.binomial.train.1 <- glm(formula = formula(glm.binomial.1), data = hour.train)
+```
+
+
+```{r, echo=FALSE}
+# Making a prediction based on the test data: 
+predicted.binomial.test.1 <- predict(glm.binomial.train.1, newdata = hour.test_in)
+```
+And have a look at the quantiles:
+```{r, echo=FALSE}
+summary(predicted.binomial.test.1)
+```
+
+
+Checking root mean square error (RMSE)
+```{r, echo=FALSE}
+# As we used ilogit() for the count data of the model, we need to apply it to the control data as well
+rmse(ilogit(hour.test_truth), predicted.binomial.test.1)
+```
+It looks like there are missing values (probably through applying the ilogit() function) and therefore the RMSE could not be calculated. Furthermore the ilogit() function will lead to a different result with different values and therefore cannot produce a useful result here.
+
+So let us just have look at a visualisation of our predicted values.
+
+```{r, echo=FALSE, results='hide'}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(hour.test_in$dteday),predicted.binomial.test.1, type="l",col="firebrick3",  xlab = " ", ylab ="ilogit of Number of Bikes used")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction"),col=c("firebrick3"), pch=c(1, 2), lty=c(1,2))
+```
+
+The plot of the model prediction looks like it could work, but checking it with the true data is proving difficult.
+So we try a new approach.
+
+To fit a binomial model we will try to predict the proportion of registered users versus casual users.
+For this we use the percentage of registered users out of the total number of users as the response variable.
+```{r, echo=TRUE, results='hide'}
+glm.binomial.2 <- glm((registered/cnt) ~ season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family="quasibinomial")
+
+glm.binomial.train.2 <- glm(formula = formula(glm.binomial.2), data = hour.train)
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+summary(glm.binomial.2)
+```
+The following predictors seems to show significance:
+- Season
+- Year
+- Hour
+- Weekday
+- Workingday
+- Temperature
+- Humidity
+
+We did not check for interactions as we already saw that there are interactions between the weather situation and the weather variables.
+
+Making a prediction based on the test data and looking at the quantiles.
+```{r, echo=FALSE}
+predicted.binomial.test.2 <- predict(glm.binomial.train.2, newdata = hour.test_in)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+summary(predicted.binomial.test.2)
+```
+
+Visualisation of the second binomial model:
+```{r, echo=FALSE, out.width = "60%"}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(hour.test_in$dteday),predicted.binomial.test.2,type="l",
+     col="firebrick3",  xlab = " ", ylab ="Share of Registered Users")
+lines(as.Date(hour.test_in$dteday),(hour.test_in$registered/hour.test_truth),
+      pch=20,col="deepskyblue2", type="p", cex = .3)
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"),
+       pch=c(1, 2), lty=c(1,2))
+```
+As the hourly data varies a lot, it is difficult to see if the model matches or not.
+
+Checking root mean square error (RMSE)
+```{r, echo=FALSE}
+# It is important to calculate the percentage for the true numbers as well
+rmse((hour.test_in$registered/hour.test_truth), predicted.binomial.test.2)
+```
+With a RMSE of about 11 percentage points, the model does not look too bad.
+
+But let's try to fit the model with daily data to bring down the variance.
+```{r, echo=FALSE, results='hide'}
+glm.binomial.3 <- glm((registered/cnt) ~ season + yr + mnth + holiday + weekday + workingday +  weathersit+ temp + hum + windspeed, data=day, family="quasibinomial")
+
+glm.binomial.train.3 <- glm(formula = formula(glm.binomial.3), data = day.train)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+summary(glm.binomial.3)
+```
+
+Making a prediction based on the test data:
+```{r, echo=FALSE}
+predicted.binomial.test.3 <- predict(glm.binomial.train.3, newdata = day.test_in)
+```
+
+```{r, echo=FALSE}
+summary(predicted.binomial.test.3)
+```
+
+
+```{r, echo=FALSE, out.width = "60%"}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(day.test_in$dteday),predicted.binomial.test.3,type="l",col="firebrick3",  xlab = " ", ylab ="Share of Registered Users")
+lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+Here we see our prediction in red and the true values in blue.
+
+Checking root mean square error (RMSE)
+```{r, echo=FALSE}
+rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.3)
+```
+We see that our model fitted on daily data became more accurate. With a RMSE of roughly 6 percentage points this seems like a pretty good fit, regarding the ratio depends on human decision (being registered or casual and using a bike or not).
+
+
+Now we try the model with only the significant predictors from above (summary(glm.binomial.3)). Additionally we drop the wind speed, as this is usually less available data than temperature.
+```{r, echo=TRUE, results='hide'}
+glm.binomial.4 <- glm((registered/cnt) ~ season + workingday + weathersit + temp, data=day, family="quasibinomial")
+
+glm.binomial.train.4 <- glm(formula = formula(glm.binomial.4), data = day.train)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+summary(glm.binomial.4)
+```
+
+Making a prediction based on the test data:
+```{r, echo=FALSE}
+predicted.binomial.test.4 <- predict(glm.binomial.train.4, newdata = day.test_in)
+```
+
+```{r, echo=FALSE}
+summary(predicted.binomial.test.4)
+```
+
+
+```{r, echo=FALSE, eval=FALSE}
+
+# Here we see our predictions in red and the true data in blue.
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(day.test_in$dteday),predicted.binomial.test.4,type="l",col="firebrick3",  xlab = " ", ylab ="Ratio of Registered/Total Users")
+lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+
+
+Checking root mean square error (RMSE)
+```{r, echo=FALSE}
+rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.4)
+```
+This seems to have made the model slightly less accurate (RMSE of 0.06183254 compared to 0.0612635 from before). But the difference seems to be minimal and relies on data which is broader available. Together with the result from the summary above (summary(glm.binomial.4)) the hypothesis could be made, that registered users make up a bigger part of the total count of users, when the temperature is colder and on working days compared to warmer temperatures and non-working days. Or that casual users, in comparison to registered users, predominantly use the bike service on warmer days and during their spare time.
+
+Let's have a look at the temperature and working day variable, which we assume has shown the greatest significance (see summary(glm.binomial.4))
+```{r, echo=TRUE}
+exp(coef(glm.binomial.4)["temp"])
+```
+A change in one temperature unit (as it is normalised in this data frame) leads to a change of roughly the factor of 0.165.
+
+```{r, echo=TRUE}
+exp(coef(glm.binomial.4)["workingday"])
+```
+
+On working days we see the percentage of users being registered 3.08 times higher then on non-working days.
+
+To make sure we are not missing anything, we will also fit a model to the date variables to compare. We still will keep in the working day variable, as this is not a weather variable but still was included in the former model.
+
+```{r, echo=TRUE, results='hide'}
+glm.binomial.5 <- glm((registered/cnt) ~ yr + mnth + holiday + weekday + workingday, data=day, family="quasibinomial")
+
+glm.binomial.train.5 <- glm(formula = formula(glm.binomial.5), data = day.train)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+summary(glm.binomial.5)
+```
+Here we already see, that the working day is assumed as the only highly significant predictor in this model with year and month only showing some significance.
+
+Making a prediction based on the test data and looking at the quantiles:
+```{r, echo=FALSE}
+predicted.binomial.test.5 <- predict(glm.binomial.train.5, newdata = day.test_in)
+```
+
+```{r, echo=FALSE}
+summary(predicted.binomial.test.5)
+```
+
+```{r, echo=FALSE}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(day.test_in$dteday),(predicted.binomial.test.5),type="l",col="firebrick3",  xlab = " ", ylab ="Ratio of Registered/Total Users")
+lines(as.Date(day.test_in$dteday),(day.test_in$registered/day.test_truth),type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+In this visualisation we can already see that the the model has a worse fit.
+
+
+Checking root mean square error (RMSE)
+```{r, echo=FALSE}
+rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.5)
+```
+Surprisingly, the RMSE is not that much higher than from our predicted.binomial.test.4.
+
+### Conclusion: GLM Binomial
+
+We would clearly prefer the third or fourth model here. With the fourth model being a little less accurate, but also needing less predictors, which might make the handling easier.
+
+
+## Creating a Poisson Model
+
+We are using the family quasipoisson because of the overdispersion.
+
+```{r, echo=FALSE}
+glm.pois.hour <- glm(cnt ~ season + yr + mnth + hr+ holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed, data = hour,
+family = "quasipoisson")
+
+summary(glm.pois.hour)
+```
+
+Here it looks like quite some factors seem to be significant for the number of bikes used.
+With the temperature and the assumed temperature being very similar, we drop the assumed temperature from the model, with the measured temperature being more tangible. we also drop the weather situation as we still keep all the other weather variables. Furthermore, we drop the dates.
+
+
+```{r, echo=TRUE, results='hide'}
+glm.pois2.hour <- glm(cnt ~ season + yr + mnth + hr+ holiday + weekday + workingday + temp + hum + windspeed, data = hour, family = "quasipoisson")
+
+summary(glm.pois2.hour)
+
+```
+
+### Fitting the poisson model with "train" data 
+
+We start with using all the variables except for the dates.
+```{r, echo=FALSE}
+glm.poisson.1 <- glm(cnt ~ season + yr + mnth + hr + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=hour, family=quasipoisson)
+
+glm.poisson.train.1 <- glm(formula = formula(glm.poisson.1), data = hour.train)
+```
+
+Making a prediction based on the test data:
+```{r, echo=FALSE}
+predicted.poisson.test.1 <- predict(glm.poisson.train.1, newdata = hour.test_in)
+```
+
+```{r, echo=FALSE}
+summary(predicted.poisson.test.1)
+```
+Note: Although we see a minimum of -132.7 here, in reality the number cannot go beneath 0.
+
+Checking the root mean square error
+```{r, echo=FALSE}
+rmse(hour.test_truth, predicted.poisson.test.1)
+```
+Having a root mean square error (RMSE) of 139 when we have a median of 185.5 does definitely not sound very good. But we have to keep in mind, that it is based on hourly data. Let's have a look at a visualization of our prediction and the true data.
+
+```{r, echo=FALSE , out.width= "60%"}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(hour.test_in$dteday),predicted.poisson.test.1,type="l",
+     col="firebrick3",  xlab = "  ", ylab ="Number of Bikes used")
+lines(as.Date(hour.test_in$dteday),hour.test_truth,type="p",col="deepskyblue2", 
+      cex = .3, pch=20)
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"),
+       pch=c(1, 2), lty=c(1,2))
+```
+Here we see our predictions as a red line and the actual numbers in blue dots. 
+As hourly numbers vary strongly, we get quite some variance. 
+Now we want to see if this model would fit better on a daily basis.
+
+```{r, echo=FALSE}
+glm.poisson.2 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + hum + windspeed, data=day, family=quasipoisson)
+
+glm.poisson.train.2 <- glm(formula = formula(glm.poisson.2), data = day.train)
+```
+
+Making prediction on the test data 
+```{r, echo=FALSE}
+predicted.poisson.test.2 <- predict(glm.poisson.train.2, newdata = day.test_in)
+```
+
+```{r, echo=FALSE}
+summary(predicted.poisson.test.2)
+```
+
+Checking RMSE
+```{r, echo=FALSE}
+rmse(day.test_truth, predicted.poisson.test.2)
+```
+Here we have a RMSE of 809, which is higher than above in total. But as we are looking at daily data here, with a median of 4655.9 and numbers up to above 8000, this seems to be a better fit.
+
+
+
+```{r, echo=FALSE}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(day.test_in$dteday),predicted.poisson.test.2,type="l",col="firebrick3", xlab = "  ", ylab ="Number of Bikes used") 
+lines(as.Date(day.test_in$dteday),day.test_truth,type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+When looking at the predictions (red) in comparison to the true data (blue), this model does look usable if one wants to plan when to take bikes out of circulation for maintenance or repairs.
+
+To see, if a variable is not needed, the model was tested by dropping only one of the predictors for each run through (with daily and hourly data). But the best result was achieved by using all the predictors (except for the type of users, for the reasons mentioned at the beginning of this chapter as well as the specific dates).
+
+For practical purposes we have a look at a model with less weather data:
+```{r, echo=TRUE, results='hide'}
+glm.poisson.3 <- glm(cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp, data=day, family=quasipoisson)
+glm.poisson.train.3 <- glm(formula = formula(glm.poisson.3), data = day.train)
+summary(glm.poisson.3)
+```
+
+Making prediction on the test data 
+```{r, echo=TRUE}
+predicted.poisson.test.3 <- predict(glm.poisson.train.3, newdata = day.test_in)
+```
+
+```{r, echo=FALSE}
+summary(predicted.poisson.test.3)
+```
+
+Checking RMSE
+```{r, echo=FALSE}
+rmse(day.test_truth, predicted.poisson.test.3)
+```
+Here we have a RMSE of 826, which is higher than it was for the second model. But as we need less variables and the weather situation and temperature seem to be the overall most important weather variables here, while being the most readily available ones, this model might be more practical.
+
+
+```{r, echo=FALSE, eval=FALSE}
+par(oma=c(0, 0, 0, 5))
+plot(as.Date(day.test_in$dteday),predicted.poisson.test.3,type="l",col="firebrick3", xlab = "  ", ylab ="Number of Bikes used") 
+lines(as.Date(day.test_in$dteday),day.test_truth,type="l",col="deepskyblue2")
+legend(par('usr')[2], par('usr')[4], bty='n', xpd=NA,
+       c("Prediction", "True Values"),col=c("firebrick3", "deepskyblue2"), pch=c(1, 2), lty=c(1,2))
+```
+
+### Conclusion: GLM Poisson 
+While the second poisson model is more accurate, for practical reasons the third one might be more useful in this case, as it is still accurate enough so it would help with bike maintenance planning.
+
+
+
+# Support Vector Machine
 
 ##Multicollinearity
+
 Check for multicollinearity between the different response variables
 ```{r}
 m <- dt
@@ -1162,13 +1163,14 @@ VIF = \frac{1}{(1-R^2)}
 $$
 According to Zuur et al. 2010, a VIF > 10 shows multicollinearity. But also more restrictive values such as 3 or even 1 can be chosen. We start with 10. temp and atemp show a high multicolinearity. Therefore, the atemp, which represents the feeling temperature, will be removed from the original dataset and temp will be kept.
 
-```{r}
+```{r, echo=FALSE}
 dt <- dt %>% select(everything(), -atemp)
 ```
 
 ## Train - test split
 Split the data in a trainset with 75% of the data and a testset with 25% of the data
-```{r}
+```{r, echo=FALSE}
+set.seed(9876)
 index <- createDataPartition(dt$cnt, p = 0.75, list=F)
 dt.train <- dt[index, ]
 dt.test <- dt[-index, ]
@@ -1191,11 +1193,10 @@ svm.lin.1 <- train(cnt ~ ., data = dt.train,
                    trControl = kfold, method='svmLinear2',
                    tuneGrid = data.frame(cost = c(1))
                    )
-print(svm.lin.1)
-
 ```
 #### Save resp. Load Model
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
 saveRDS(svm.lin.1, "svm.lin.1.rds")
 ```
 
@@ -1214,12 +1215,13 @@ svm.lin.2 <- svm(cnt~., data = dt.train, kernel = 'linear',
                  cross = 5)
 
 
-rmse(dt.train$cnt, svm.lin.2$fitted)
-summary(svm.lin.2)
+#rmse(dt.train$cnt, svm.lin.2$fitted)
+#summary(svm.lin.2)
 ```
 
 #### Save resp. Load Model
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
 saveRDS(svm.lin.2, "svm.lin.2.rds")
 ```
 
@@ -1230,7 +1232,7 @@ The svm.lin.1 perform better and has a lower cost parameter. svm.lin.1 RMSE: 104
 The smaller the cost parameter, the more general the data is explained. If the cost parameter is chosen higher, the more specific it explains this data set. Therefore it is best to chose it as low as possible, with the best RSME value.If the cost value is higher, the model tend to overfit. The svm.lin.2 model has a slightely better RMSE and is much faster than the svm.lin.1. Therefore the svm.lin.2 is used for the prediction.
 
 ### Prediction with linear kernel
-```{r}
+```{r, echo=FALSE}
 set.seed(9876)
 pred.linear <- predict(svm.lin.2, newdata=dt.test)
 rmse(dt.test$cnt, pred.linear)
@@ -1253,12 +1255,10 @@ svm.poly.2$coef0
 svm.poly.2
 rmse(dt.train$cnt, svm.poly.2$fitted)
 svm.poly.2$degree
-
-
-
 ```
 #### Save resp. Load Model
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
 saveRDS(svm.poly.2, "svm.poly.2.rds")
 ```
 
@@ -1268,13 +1268,13 @@ svm.poly.2 <-readRDS("svm.poly.2.rds")
 The svm.poly.2 achieved a RMSE of 105.9098 with cost 1, degree 1 and coef 1. For the model testing, the svm.poly.2 will be used. Let's see how well the model works with the test data.
 
 ### Prediction with polynomaial kernel
-```{r}
+```{r, echo=FALSE}
 set.seed(9876)
 pred.poly <- predict(svm.poly.2, newdata = dt.test)
 rmse(dt.test$cnt, pred.poly)
 
 ```
-The RMSE for the predictions on the testdata for the svm with a polynomial kernel is 108.1839. Let's have a look how a svm with a radial kernel performec.
+The RMSE for the predictions on the testdata for the SVM with a polynomial kernel is 108.1839. Let's have a look how a svm with a radial kernel performed.
 
 ### Radial kernel
 ```{r, eval=FALSE}
@@ -1288,7 +1288,8 @@ print(svm.rad.1)
 
 ```
 #### Save resp. Load Model
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
 saveRDS(svm.rad.1, "svm.rad.1.rds")
 ```
 
@@ -1298,29 +1299,29 @@ svm.rad.1 <-readRDS("svm.rad.1.rds")
 The svmRadial kernel uses the kernlab package. The radial kernel performed so far best, with a RSME of  51.06311. The final values used for the model were sigma = 0.0107185 and C = 1.
 
 ### Prediction with radial kernel
-```{r}
+
+```{r, eval=FALSE}
 set.seed(9876)
 pred.radial <- predict(svm.rad.1, newdata = dt.test)
 rmse(dt.test$cnt, pred.radial)
-
 ```
-The RMSE for the predicted values with the SVM with a radial kernel is 49.56235.
+The RMSE for the predicted values with the SVM with a radial kernel is 45.76.
 
 ### Model comparision
 Comparing the predictions based on their RMSE
 
-```{r}
+```{r, echo=FALSE}
 set.seed(9876)
 #linear model
-rmse(dt.test$cnt, pred.linear)
+print(paste("SVM linear kernel", rmse(dt.test$cnt, pred.linear)))
 
 #polynomial model
-rmse(dt.test$cnt, pred.poly)
+print(paste("SVM polynomial kernel", rmse(dt.test$cnt, pred.poly)))
 
 #radial model
-rmse(dt.test$cnt, pred.radial)
+print(paste("SVM radial kernel", rmse(dt.test$cnt, pred.radial)))
 ```
-The radial kernel clearly outperformed the other two. the radial kernel has a RSME of 49.55235, the polynomial an RSME of 108.1839 and the linear kernel a RSME of 106.9027.
+The radial kernel clearly outperformed the other two. the radial kernel has a RSME of 45.8, the polynomial an RSME of 107.2 and the linear kernel a RSME of 106.2.
 Therefor the winner of the support vector machine models is the one with the radial kernel. It also takes the most time to run. The linear model is much faster but has a higher RMSE value.
 
 
@@ -1337,10 +1338,10 @@ Also, the dependent variable is normalized.
 
 ### Break multi factor variables down into single factor variables
 
-df$season_1 <- ifelse(df$season == "1", 1, 0)
-df$season_2 <- ifelse(df$season == "2", 1, 0)
-df$season_3 <- ifelse(df$season == "3", 1, 0)
-...
+Here we show an example of how this is done. The list is not conclusive.
+- df$season_1 <- ifelse(df$season == "1", 1, 0) 
+- df$season_2 <- ifelse(df$season == "2", 1, 0) 
+- df$season_3 <- ifelse(df$season == "3", 1, 0) 
 
 ```{r, echo=FALSE}
 df$season_1 <- ifelse(df$season == "1", 1, 0)
@@ -1402,15 +1403,13 @@ data <- df
 data$cnt <- (df$cnt - min(df$cnt)) / (max(df$cnt) - min(df$cnt))
 ```
 
-## ANN Model 1:  Computing a RAnge of Model
-s a first approach to the data set, a few models are computed at once with a preset range of layer. A slightly reduced training data volume is taken (65%). Each model is five-times cross validated. Also, the threshold is set to 0.1, which is high error tolerance value. Those first parameter settings are chosen in order to compute quantity rather than quality.
+## ANN Model 1:  Computing a Range of Model
+As first approach to the data set, a few models are computed at once with a preset range of layer. A slightly reduced training data volume is taken (65%). Each model is five-times cross validated. Also, the threshold is set to 0.1, which is high error tolerance value. Those first parameter settings are chosen in order to compute quantity rather than quality.
 The result shown below suggests that there is no need of a third nor a second layer, and that the first layer doesn’t improve with more than four neurons in the first layer. The Root Mean Square Error is about 183. A prediction-vs-real data plot provides a visualization of the model performance. This plot suggests that there might be potential for improvement. 
 
 The output neuron is set with "linear.output = TRUE", which means that the output is a continuous number and not a factor.
 
-
-### Split Data into Train and Test Partition
-```{r}
+```{r, echo=FALSE}
 set.seed(123)
 indices_1 <- createDataPartition(data$cnt, p=.65, list = F)
 train_1 <- data %>% slice(indices_1)
@@ -1431,7 +1430,11 @@ trCtrl_1 <- trainControl(
 
 ### Train Models
 ```{r, eval=FALSE}
-models_1 <- train(cnt ~ hum + temp + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23, data = train,
+models_1 <- train(cnt ~ hum + temp + weathersit_1 + weathersit_2 +
+                    weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 +
+                    hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 +
+                    hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 +
+                    hr_22 + hr_23, data = train,
                   method = 'neuralnet',
                   metric = 'RMSE',
                   linear.output = TRUE,
@@ -1453,7 +1456,7 @@ models_1 <-readRDS("neural_nets_models_1.rds")
 ```
 
 ### Plot Models
-```{r}
+```{r, echo=FALSE, out.width="60%"}
 plot(models_1)
 ```
 
@@ -1470,16 +1473,17 @@ sqrt(mean((control_1 - pred_1)^2))
 ```
 
 ### Plot Prediction against Real Data
-```{r}
-plot(control_1, pred_1, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+```{r, echo=FALSE, out.width="60%"}
+plot(control_1, pred_1, col='orange', cex = .3, pch=20,
+     ylab = "predicted count NN", xlab = "real count")
 abline(0,1)
 ```
 
 ## ANN Model 2: Layer 4/0/0, Threshold 0.01
 After the first investigation in the NN layer's behavior, the four-neurons model layout is taken to be computed again. This time, a higher data amount (80%) and an error threshold of 0.01 is set. The result of this more meticulous model shows already great improvement in RSME and the plot is also more satisfying. It is unclear if a model with higher complexity would have performed even better with a 0.01 threshold, but this is the trade-off for a much faster computing time.
 
-### Split Data into Train and Test Partition
-```{r}
+```{r, echo=FALSE}
+# Split Data into Train and Test Partition
 set.seed(42)
 indices_2 <- createDataPartition(data$cnt, p=.8, list = F)
 
@@ -1490,11 +1494,17 @@ test_2 <- data %>% slice(-indices_2)
 ### Train Model
 ```{r, eval=FALSE}
 set.seed(42)
-model_2 = neuralnet(cnt ~ hum + temp + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23, data = train_2, hidden = 4,linear.output = TRUE, threshold = 0.01, stepmax = 500000, lifesign.step = 1000, lifesign = "full")
+model_2 = neuralnet(cnt ~ hum + temp + weathersit_1 + weathersit_2 +
+                      weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 +
+                      hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 +
+                      hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 +
+                      hr_21 + hr_22 + hr_23, data = train_2,
+                    hidden = 4,linear.output = TRUE, threshold = 0.01,
+                    stepmax = 500000, lifesign.step = 1000, lifesign = "full")
 ```
 
 ### Save resp. Load Model
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo=FALSE}
 saveRDS(model_2, "neural_nets_model_2.rds")
 ```
 
@@ -1502,21 +1512,22 @@ saveRDS(model_2, "neural_nets_model_2.rds")
 model_2 <-readRDS("neural_nets_model_2.rds")
 ```
 
-### Compute Prediction
-```{r}
+```{r, echo=FALSE}
+# Compute Prediction
 pred_2 <- compute(model_2, test_2 %>% select(-cnt))
 pred_2 <- pred_2$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_2 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
 ### Root Mean Square
-```{r}
+```{r, echo=FALSE}
 sqrt(mean((control_2 - pred_2)^2))
 ```
 
 ### Plot Prediction against Real Data
-```{r}
-plot(control_2, pred_2, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+```{r, echo=FALSE, out.width="60%"}
+plot(control_2, pred_2, col='orange', cex = .3, pch=20,
+     ylab = "predicted count NN", xlab = "real count")
 abline(0,1)
 ```
 
@@ -1524,19 +1535,32 @@ abline(0,1)
 Now more predictors are added to the model; the weekdays, the months and the wind speed. Again with a four-neuron model, the model is computed with a threshold of 0.05.
 The results shows improvement in RSME (77) and thus suggest that there is valuable information in the added predictors. Again, the plot appear to be better.
 
-### Train Model
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
+# Train Model
 set.seed(41)
-model_4 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(4),linear.output = TRUE, threshold = 0.05, stepmax = 600000, lifesign.step = 1000, lifesign = "full")
+model_4 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 +
+                      weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 +
+                      hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 +
+                      hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 +
+                      hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 +
+                      weekday_3 + weekday_4 + weekday_5 + weekday_6 +
+                      weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 +
+                      mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 +
+                      mnth_12, data = train_2,
+                    hidden = c(4),linear.output = TRUE, threshold = 0.05,
+                    stepmax = 600000, lifesign.step = 1000, lifesign = "full")
 ```
 
-### Load model (computed in advance)
-```{r}
+
+```{r, echo=FALSE}
+# Load model (computed in advance)
 model_4 <-readRDS("neural_nets_model_4.rds")
 ```
 
-### Compute Prediction
+
 ```{r, echo=FALSE}
+# Compute Prediction
 pred_4 <- compute(model_4, test_2 %>% select(-cnt))
 pred_4 <- pred_4$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_4 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
@@ -1548,16 +1572,17 @@ sqrt(mean((control_4 - pred_4)^2))
 ```
 
 ### Plot Model Performance
-```{r, echo=FALSE}
-plot(control_4, pred_4, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+```{r, echo=FALSE, out.width="60%"}
+plot(control_4, pred_4, col='orange', cex = .3, pch=20, ylab = "predicted count NN", xlab = "real count")
 abline(0,1)
 ```
 
 ## ANN Models 5: Computing a Range of Model
 With the new predictors added, the model might benefit from a new layer architecture. Again, a range of model is computed. But this time, more data (80%) and new predictors are added. The result suggest a model architecture of 7,3,0 neurons.
 
-### Set up Parameter Range
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
+# Set up Parameter Range
 set.seed(44)
 tuGrid_2 <- expand.grid(.layer1=c(4:8), .layer2=c(0,2,3,4), .layer3=c(0,2))
 
@@ -1569,8 +1594,9 @@ trCtrl_2 <- trainControl(
 )
 ```
 
-### Train Models
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
+# Train Models
 models_5 <- train(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
   method = 'neuralnet',
   metric = 'RMSE',
@@ -1589,27 +1615,18 @@ models_5 <-readRDS("neural_nets_models_5.rds")
 ```
 
 ### Plot Models
-```{r}
+```{r, echo=FALSE, out.width="60%"}
 plot(models_5)
 ```
 
-### Compute Prediction
-```{r}
+
+```{r, echo=FALSE}
+# Compute Prediction
 pred_5 <- compute(models_5$finalModel, test_2 %>% select(-cnt))
 pred_5 <- pred_5$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_5 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
-### Root Mean Square
-```{r}
-sqrt(mean((control_5 - pred_5)^2))
-```
-
-### Plot Prediction against Real Data
-```{r}
-plot(control_5, pred_5, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
-abline(0,1)
-```
 ## ANN Model 6: Layer 7/3/0, Threshold 0.01
 The 7,3,0 model is computed again but with higher “resolution”. The RSME drops down to 70.
 
@@ -1622,25 +1639,24 @@ model_6 = neuralnet(cnt ~ hum + temp + windspeed + weathersit_1 + weathersit_2 +
 model_6 <-readRDS("neural_nets_model_6.rds")
 ```
 
-### Compute Prediction
-```{r}
+
+```{r, echo=FALSE}
+# Compute Prediction
 pred_6 <- compute(model_6, test_2 %>% select(-cnt))
 pred_6 <- pred_6$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_6 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
 ### Root Mean Square
-```{r}
+```{r, echo=FALSE}
 sqrt(mean((control_6 - pred_6)^2))
 ```
 
 ### Plot Prediction against Real Data
-```{r}
-plot(control_6, pred_6, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+```{r, echo=FALSE, out.width="60%"}
+plot(control_6, pred_6, col='orange', cex = .3, pch=20, ylab = "predicted counts NN", xlab = "real counts")
 abline(0,1)
 ```
-
-
 
 ## ANN Model 9: New Pred.: Year, Layer 7/3/0, Threshold 0.01
 After some reflections about the data, one potential mistake stood out. Initially, the variable “year” was left out, since the data set covers only two years. But, as there is an increasing trend in the bike rental over the two years, there might be information in this predictor. 
@@ -1651,12 +1667,12 @@ set.seed(41)
 model_9 = neuralnet(cnt ~ yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2, hidden = c(7,3),linear.output = TRUE, threshold = 0.01, stepmax = 750000, lifesign.step = 500, lifesign = "full")
 ```
 
-```{r}
+```{r, echo=FALSE}
 model_9 <-readRDS("neural_nets_model_9.rds")
 ```
 
-### Compute Prediction
 ```{r, echo=FALSE}
+# Compute Predictions
 pred_9 <- compute(model_9, test_2 %>% select(-cnt))
 pred_9 <- pred_9$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_9 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
@@ -1668,15 +1684,16 @@ sqrt(mean((control_9 - pred_9)^2))
 ```
 
 ### Plot Prediction against Real Data
-```{r}
-plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
+```{r, echo=FALSE, out.width="60%"}
+plot(control_9, pred_9, col='orange', cex = .3, pch=20, ylab = "predicted counts NN", xlab = "real counts")
 abline(0,1)
 ```
 
-## ANN Models 10: Computing a RAnge of Model
+## ANN Models 10: Computing a Range of Model
 
-### Set up Parameter Range
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
+# Set up Parameter Range
 set.seed(41)
 tuGrid_3 <- expand.grid(.layer1=c(6, 8, 10, 12, 14), .layer2=c(6, 8, 10), .layer3=c(2, 3, 4))
 
@@ -1688,8 +1705,9 @@ trCtrl_3 <- trainControl(
 )
 ```
 
-### Train Models
-```{r, eval=FALSE}
+
+```{r, eval=FALSE, echo=FALSE}
+# Train Models
 models_10c <- train(cnt ~ workingday + holiday + yr + hum + temp + windspeed + weathersit_1 + weathersit_2 + weathersit_3 + hr_1 + hr_2 + hr_3 + hr_4 + hr_5 + hr_6 + hr_7 + hr_8 + hr_9 + hr_10 + hr_11 + hr_12 + hr_13 + hr_14 + hr_15 + hr_16 + hr_17 + hr_18 + hr_19 + hr_20 + hr_21 + hr_22 + hr_23 + weekday_1 + weekday_2 + weekday_3 + weekday_4 + weekday_5 + weekday_6 + weekday_7 + mnth_1 + mnth_2 + mnth_3 + mnth_4 + mnth_5 + mnth_6 + mnth_7 + mnth_8 + mnth_9 + mnth_10 + mnth_11 + mnth_12, data = train_2,
   method = 'neuralnet',
   metric = 'RMSE',
@@ -1708,7 +1726,7 @@ models_10c <- train(cnt ~ workingday + holiday + yr + hum + temp + windspeed + w
 models_10 <-readRDS("neural_nets_models_10.rds")
 ```
 
-```{r}
+```{r, echo=FALSE, out.width="60%"}
 plot(models_10)
 ```
 
@@ -1720,20 +1738,21 @@ This two predictors slightly improved the model to an RSME of 46.
 model_11 <-readRDS("neural_nets_model_11.rds")
 ```
 
-### Compute Prediction
+
 ```{r, echo=FALSE}
+# Compute Prediction
 pred_11 <- compute(model_11, test_2 %>% select(-cnt))
 pred_11 <- pred_11$net.result * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 control_11 <- test_2$cnt * (max(df$cnt) - min(df$cnt)) + min(df$cnt)
 ```
 
 ### Root Mean Square
-```{r}
+```{r, echo=FALSE}
 sqrt(mean((control_11 - pred_11)^2))
 ```
 
 ### Plot Prediction against Real Data
-```{r}
+```{r, echo=FALSE, out.width="60%"}
 plot(control_11, pred_11, col='orange', cex = .3, pch=20, ylab = "predicted rating NN", xlab = "real rating")
 abline(0,1)
 ```
@@ -1791,33 +1810,35 @@ $$
 This equation resolved to x will give es the maximum amount of bikes we should buy, if we want the investment to be paid off in two years.
 
 
-#Conclusion
+# Conclusion
+
 ## The best Models based on the RMSE values
-```{r}
+
+```{r, echo=FALSE}
 #RMSE Linear Model RMSE of 97.4
-RMSE_Linear_Model <- sqrt(mean((exp(control_log) - exp(predict_3))^2))
+print(paste("RMSE Linear Model: ",RMSE_Linear_Model <- sqrt(mean((exp(control_log) - exp(predict_3))^2))))
 
 #RMSE Gam Model (RMSE of 90.4)
-RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))
+print(paste("RMSE GAM Model: ",RMSE_gam_5 <- sqrt(mean((exp(control_log) - exp(predict_gam_5))^2))))
 
 #RMSE GLM 
-# Binomial
-RMSE_glm_binomial_3 <- rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.3)
-# Poisson
-RMSE_glm_poisson_2 <- rmse(day.test_truth, predicted.poisson.test.2)
+# Binomial (RMSE of 0.06111774) 
+print(paste("RMSE Binomial Model: ",RMSE_glm_binomial_3 <- rmse((day.test_in$registered/day.test_truth), predicted.binomial.test.3)))
+# Poisson (RMSE of 134 for hourly data)
+print(paste("RMSE Poisson Model: ",RMSE_glm_poisson_1 <- rmse(day.test_truth, predicted.poisson.test.1)))
 
 
-#RMSE SVM Model wit a radial kernel and an RSME of[1] 47.66508
-RMSE_svm <- rmse(dt.test$cnt, pred.radial)
-
+#RMSE SVM Model wit a radial kernel (RSME o 47.66508)
+print(paste("RMSE SVM Model", rmse(dt.test$cnt, pred.radial)))
+                                   
 #RMSE NN Model
-45
+print(paste("RMSE NN Model",45))
 ```
 
 ## Which model should the company use?
 
+The final Neural Net and Support Vector Machine Models preform almost similar. We expect that with the Neural Net Model, there would be more promising potential for improvement hidden in the layer architecture of the neural net model. This comes with the cost of higher computational power needed for the neural net model. To run the Support Vector Model with the radial kernel it took about 10 minutes. The Neural Net Model on the other hand needed roughly 2.5 hours to train.
+We got best prediction performance with the black-box models. The weightings of the predictors are more transparent to the bike rental company. Thus it depends on whether the company needs to know which dependent variables influence the number of rental the most, or not. Further, if the company wants to use the model to predict bike rentals, it must accept some inaccuracy and take this into account for scheduling staff or other factors.
+If we assume an RSME of 47 for the Support Vector Machine, this means a percentage error of about 25% based on the average of 189 bikes per hour. This error should be added to the predicted numbers.
+In the data exploration we saw that number of rentals between 2011 and 2012 grew. With the available data, we do not know if this trend continued. The company "Capital Bikeshare", was founded in 2010. With this dataset, we only looked at their first two business years. An extrapolation to further years may be imprecise.                              
 
-
-
-
-Justification, best model to find best maintenance window
